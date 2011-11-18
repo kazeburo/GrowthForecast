@@ -10,4 +10,6 @@ nytprof.out
 MANIFEST.bak
 *.sw[po]
 *~
+data/*.rrd
+data/*.db
 

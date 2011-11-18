@@ -4,7 +4,9 @@ use strict;
 use warnings;
 use utf8;
 use Kossy;
+use Time::Piece;
 use GrowthForecast::Data;
+use GrowthForecast::RRD;
 
 sub data {
     my $self = shift;
@@ -12,13 +14,11 @@ sub data {
     $self->{__data};
 }
 
-filter 'dummy' => sub {
-    my $app = shift;
-    sub {
-        my ( $self, $c )  = @_;
-        $app->($self,$c);
-    }
-};
+sub rrd {
+    my $self = shift;
+    $self->{__rrd} ||= GrowthForecast::RRD->new($self->root_dir);
+    $self->{__rrd};
+}
 
 get '/' => sub {
     my ( $self, $c )  = @_;
@@ -46,6 +46,44 @@ get '/list/:service_name/:section_name' => sub {
     );
     $c->halt(404) unless scalar @$rows;
     $c->render('list.tx',{ graphs => $rows });
+};
+
+get '/graph/:service_name/:section_name/:graph_name' => sub {
+    my ( $self, $c )  = @_;
+    my $result = $c->req->validator([
+        'span' => {
+            default => 'd',
+            rule => [
+                [['CHOICE',qw/y m w d c/],'invalid span'],
+            ],
+        },
+        'from' => {
+            default => localtime(time-86400*8)->strftime('%Y/%m/%d %T'),
+            rule => [
+                [sub{ HTTP::Date::str2time($_[1]) }, 'invalid From datetime'],
+            ],
+        },
+        'to' => {
+            default => localtime()->strftime('%Y/%m/%d %T'),
+            rule => [
+                [sub{ HTTP::Date::str2time($_[1]) }, 'invalid To datetime'],
+            ],
+        }
+    ]);
+
+    my $row = $self->data->get(
+        $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
+    );
+    $c->halt(404) unless $row;
+
+    my $img = $self->rrd->graph(
+        $result->valid('span'), $result->valid('from'),
+        $result->valid('to'),  $row
+    );
+
+    $c->res->content_type('image/png');
+    $c->res->body($img);
+    return $c->res;
 };
 
 get '/api/:service_name/:section_name/:graph_name' => sub {
