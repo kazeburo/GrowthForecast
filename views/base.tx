@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<link rel="stylesheet" href="<: $c.req.uri_for('/css/bootstrap.min.css') :>">
+<style type='text/css'>
+body {
+  background-color: #fff;
+  position: relative;
+}
+section {
+  padding-top: 60px;
+}
+section > .row {
+  margin-bottom: 10px;
+}
+.ngraph {
+    white-space:nowrap;
+    margin-bottom: 3px;
+}
+</style>
+<title>GrowthForecast</title>
+</head>
+<body>
+
+<div class="topbar">
+<div class="topbar-inner">
+<div class="container">
+<a class="brand" href="<: $c.req.uri_for('/') :>">GrowthForecast</a>
+<ul class="nav">
+<li><a href="<: $c.req.uri_for('/') :>">Home</a></li>
+<li><a href="<: $c.req.uri_for('/docs') :>">Docs</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="container">
+
+<section>
+<div class="page-header">
+: block page_header -> { }
+</div>
+
+<div class="row">
+<div class="span16">
+: block content -> { }
+</div>
+</div>
+</section>
+
+</div>
+
+</body>
+</html>
+

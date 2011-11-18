@@ -1,0 +1,87 @@
+: cascade base
+: around page_header -> {
+<h1>使い方</h1>
+: }
+
+: around content -> {
+
+<h4>グラフの登録方法</h4>
+
+<p>以下の URL を POST メソッドで叩いてください。</p>
+
+<pre>
+<: $c.req.uri_for('/') :>api/:service_name/:section_name/:graph_name/
+</pre>
+
+<p>GrowthForecast では、多数のサービスで利用可能な共通 Web Graph API を目標として作られています。 URL 中の各名前に関しては下の表を参考にしてください。</p>
+
+<table>
+<tr>
+<th>例中の名前</th>
+<th>役割</th>
+<th>具体例を , 区切りで</th>
+</tr>
+<tr>
+<td>:service_name</td>
+<td>グラフを取りたいサービスの名前</td>
+<td>hatenablog, ficia, loctouch, ninjyatoriai</td>
+</tr>
+<tr>
+<td>:section_name</td>
+<td>そのサービスの中での、グラフを取る対象が属してる機能やシステム名</td>
+<td>entry, user, spot, items</td>
+</tr>
+<tr>
+<td>:graph_name</td>
+<td>具体的に何のグラフか</td>
+<td>total_entry, kakin_user, muryo_user, syuriken_no_ureta_kazu</td>
+</tr>
+</table>
+
+<p>もし、忍者取り合いっていうサービスのアイテムの中の手裏剣が売りたい数だったら</p>
+
+<pre>
+<: $c.req.uri_for('/') :>/api/ninjyatoriai/items/syuriken_no_ureta_kazu/
+</pre>
+
+<p>に対して POST します。</p>
+
+<p>また、 POST する時には以下のパラメータをつけます。</p>
+
+<table>
+<tr>
+<th>number</th>
+<th>グラフに与える数値</th>
+<th>必須</th>
+</tr>
+<tr>
+<td>description</td>
+<td>グラフの説明を簡潔に入れます</td>
+<td>オプション</td>
+</tr>
+<tr>
+<td>mode</td>
+<td>登録済みの数値を number の値で加算する時には mode=count とします。<br />通常は number の数値で常に上書きます。</td>
+<td>オプション</td>
+</tr>
+</table>
+
+<p>LWP::UserAgent を使うと以下の用になります。</p>
+
+<pre>
+my $ua = LWP::UserAgent->new;
+$ua->post('<: $c.req.uri_for('/') :>/api/ninjyatoriai/items/syuriken_no_ureta_kazu/', {
+    number      => 10,
+    description => '説明文',
+});
+</pre>
+
+<p>curl を使うと以下の用になります。</p>
+
+<pre>
+$ curl -F number=10 -F description=説明文 <: $c.req.uri_for('/') :>/api/ninjyatoriai/items/syuriken_no_ureta_kazu/
+</pre>
+
+<p>現在のところ一種類のグラフしか描けませんが、この辺はそのうちいい感じになる予定です。</p>
+
+: }

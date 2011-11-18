@@ -1,0 +1,20 @@
+: cascade base
+: around page_header -> {
+<h1>Home</h1>
+: }
+
+: around content -> {
+: for $services ->  $service {
+<h2><: $service.name :></h2>
+<table class="zebra-striped">
+: for $service.sections -> $section {
+<tr>
+<td><a href="<: $c.req.uri_for('/list/'~$service.name~'/'~$section) :>"><: $section :></a></td>
+</tr>
+: }
+</table>
+<div id="headspacer"></div>
+: }
+
+: }
+

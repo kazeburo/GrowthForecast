@@ -1,0 +1,23 @@
+: cascade base
+: around page_header -> {
+<h1><a href="<: $c.req.uri_for('/') :>">Home</a> » <: $c.args.service_name :> » <: $c.args.section_name :></h1>
+: }
+
+: around content -> {
+: for $graphs ->  $graph {
+<h4><: $graph.graph_name :>
+<small><: $graph.description :></small></h2>
+<p>
+<span class="label notice">current</span> <: $graph.number :>
+<span class="label notice">created_at</span> <: $graph.created_at :>
+<span class="label notice">updated_at</span> <: $graph.updated_at :>
+</p>
+<div>
+: my $terms = ( $c.req.param('my') ) ? ['m','y'] : ['d','w']
+: for $terms -> $term {
+<img src="<: $c.req.uri_for('/graph/'~$graph.service_name~'/'~$graph.section_name~'/'~$graph.graph_name, [span=>$term]) :>" />
+: }
+</div>
+<div id="headspacer"></div>
+: }
+: }
