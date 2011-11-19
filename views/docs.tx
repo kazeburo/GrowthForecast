@@ -41,7 +41,7 @@
 <p>もし、忍者取り合いっていうサービスのアイテムの中の手裏剣が売りたい数だったら</p>
 
 <pre>
-<: $c.req.uri_for('/') :>/api/ninjyatoriai/items/syuriken_no_ureta_kazu/
+<: $c.req.uri_for('/') :>api/ninjyatoriai/items/syuriken_no_ureta_kazu/
 </pre>
 
 <p>に対して POST します。</p>
@@ -70,7 +70,7 @@
 
 <pre>
 my $ua = LWP::UserAgent->new;
-$ua->post('<: $c.req.uri_for('/') :>/api/ninjyatoriai/items/syuriken_no_ureta_kazu/', {
+$ua->post('<: $c.req.uri_for('/') :>api/ninjyatoriai/items/syuriken_no_ureta_kazu/', {
     number      => 10,
     description => '説明文',
 });
@@ -79,7 +79,7 @@ $ua->post('<: $c.req.uri_for('/') :>/api/ninjyatoriai/items/syuriken_no_ureta_ka
 <p>curl を使うと以下の用になります。</p>
 
 <pre>
-$ curl -F number=10 -F description=説明文 <: $c.req.uri_for('/') :>/api/ninjyatoriai/items/syuriken_no_ureta_kazu/
+$ curl -F number=10 -F description=説明文 <: $c.req.uri_for('/') :>api/ninjyatoriai/items/syuriken_no_ureta_kazu/
 </pre>
 
 <p>現在のところ一種類のグラフしか描けませんが、この辺はそのうちいい感じになる予定です。</p>
