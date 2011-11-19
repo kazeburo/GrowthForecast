@@ -41,6 +41,14 @@ get '/docs' => sub {
 
 get '/list/:service_name/:section_name' => sub {
     my ( $self, $c )  = @_;
+    my $result = $c->req->validator([
+        't' => {
+            default => 'd',
+            rule => [
+                [['CHOICE',qw/h m/],'invalid browse term'],
+            ],
+        },
+    ]);
     my $rows = $self->data->get_graphs(
         $c->args->{service_name}, $c->args->{section_name}
     );
@@ -51,10 +59,10 @@ get '/list/:service_name/:section_name' => sub {
 get '/graph/:service_name/:section_name/:graph_name' => sub {
     my ( $self, $c )  = @_;
     my $result = $c->req->validator([
-        'span' => {
+        't' => {
             default => 'd',
             rule => [
-                [['CHOICE',qw/y m w d c/],'invalid span'],
+                [['CHOICE',qw/y m w d h c/],'invalid drawing term'],
             ],
         },
         'from' => {
@@ -77,7 +85,7 @@ get '/graph/:service_name/:section_name/:graph_name' => sub {
     $c->halt(404) unless $row;
 
     my $img = $self->rrd->graph(
-        $result->valid('span'), $result->valid('from'),
+        $result->valid('t'), $result->valid('from'),
         $result->valid('to'),  $row
     );
 

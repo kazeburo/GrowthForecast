@@ -6,6 +6,7 @@ use utf8;
 use RRDs;
 use HTTP::Date;
 use File::Temp;
+use File::Zglob;
 
 sub new {
     my $class = shift;
@@ -13,10 +14,9 @@ sub new {
     bless { root_dir => $root_dir }, $class;
 }
 
-sub update {
+sub path {
     my $self = shift;
     my $data = shift;
-
     my $file = $self->{root_dir} . '/data/' . $data->{md5} . '.rrd';
     if ( ! -f $file ) {
         eval {
@@ -35,7 +35,16 @@ sub update {
             my $ERR=RRDs::error;
             die $ERR if $ERR;
         };
+        die "init failed: $@" if $@;
     }
+    $file;
+}
+
+sub update {
+    my $self = shift;
+    my $data = shift;
+
+    my $file = $self->path($data);
     eval {
         RRDs::update(
             $file,
@@ -48,6 +57,8 @@ sub update {
     die "udpate rrdfile failed: $@" if $@;
 }
 
+
+my @jp_fonts = map { -f $_ } zglob("/usr/share/fonts/**/*-gothic.ttf");
 sub graph {
     my $self = shift;
     my ($span, $from, $to, @datas) = @_;
@@ -84,6 +95,11 @@ sub graph {
             $xgrid = 'WEEK:1:MONTH:1:MONTH:1:2592000:%b';
         }
     }
+    elsif ( $span eq 'h' ) {
+        $period_title = 'Hourly';
+        $period = -1 * 60 * 60 * 2;
+        $xgrid = 'MINUTE:10:MINUTE:10:MINUTE:10:0:%M';
+    }
     elsif ( $span eq 'w' ) {
         $period_title = 'Weekly';
         $period = -1 * 60 * 60 * 24 * 8;
@@ -119,13 +135,16 @@ sub graph {
         '-e', $end,
     );
 
+    push @args, '--font', "DEFAULT:0:".$jp_fonts[0] if @jp_fonts;
+
     my $i=0;
     for my $data ( @datas ) {
-        my $type = ( $i == 0 ) ? 'AREA' : 'STACK';
-        my $file = $self->{root_dir} . '/data/' . $data->{md5} . '.rrd';
+        my $type = ( $i == 0 ) ? $data->{type} : 'STACK';
+        my $file = $self->path($data);
         push @args, 
-            sprintf('DEF:num%d=%s:num:AVERAGE', $i, $file),
-            sprintf('%s:num%d#00C000:%s ', $type, $i, $data->{graph_name}),
+            sprintf('DEF:num%dt=%s:num:AVERAGE', $i, $file),
+            sprintf('CDEF:num%d=num%dt,%s,%s,LIMIT', $i, $i, $data->{llimit}, $data->{ulimit}),
+            sprintf('%s:num%d%s:%s ', $type, $i, $data->{color}, $data->{graph_name}),
             sprintf('GPRINT:num%d:LAST:Cur\: %%4.1lf', $i),
             sprintf('GPRINT:num%d:AVERAGE:Ave\: %%4.1lf', $i),
             sprintf('GPRINT:num%d:MAX:Max\: %%4.1lf', $i),

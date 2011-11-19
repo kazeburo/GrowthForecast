@@ -4,20 +4,28 @@
 : }
 
 : around content -> {
+
+<div class="pagination" style="margin: 1px 0;">
+<ul style="float: right">
+<li class="prev <: ( $c.req.param('t') == 'h' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/list/'~$c.args.service_name~'/'~$c.args.section_name, [t=>'h']) :>">時・日</a></li>
+<li class="<: ( $c.req.param('t') != 'h' && $c.req.param('t') != 'm' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/list/'~$c.args.service_name~'/'~$c.args.section_name) :>">日・週</a></li>
+<li class="next <: ( $c.req.param('t') == 'm' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/list/'~$c.args.service_name~'/'~$c.args.section_name, [t=>'m']) :>">月・年</a></li>
+</ul>
+</div>
+
 : for $graphs ->  $graph {
-<h4><: $graph.graph_name :>
+<h2><: $graph.graph_name :>
 <small><: $graph.description :></small></h2>
 <p>
 <span class="label notice">current</span> <: $graph.number :>
 <span class="label notice">created_at</span> <: $graph.created_at :>
 <span class="label notice">updated_at</span> <: $graph.updated_at :>
 </p>
-<div>
-: my $terms = ( $c.req.param('my') ) ? ['m','y'] : ['d','w']
+<div style="margin-bottom: 13px">
+: my $terms = ( $c.req.param('t') == 'h' ) ? ['h','d'] : ( $c.req.param('t') == 'm') ? ['m','y'] : ['d','w']
 : for $terms -> $term {
-<img src="<: $c.req.uri_for('/graph/'~$graph.service_name~'/'~$graph.section_name~'/'~$graph.graph_name, [span=>$term]) :>" />
+<img src="<: $c.req.uri_for('/graph/'~$graph.service_name~'/'~$graph.section_name~'/'~$graph.graph_name, [t=>$term]) :>" />
 : }
 </div>
-<div id="headspacer"></div>
 : }
 : }

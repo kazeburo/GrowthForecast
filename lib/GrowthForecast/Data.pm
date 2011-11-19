@@ -6,6 +6,8 @@ use utf8;
 use DBIx::Sunny;
 use Time::Piece;
 use Digest::MD5 qw/md5_hex/;
+use List::Util;
+use Encode;
 
 sub new {
     my $class = shift;
@@ -22,6 +24,11 @@ CREATE TABLE IF NOT EXISTS graphs (
     graph_name   VARCHAR(255) NOT NULL,
     number       INT NOT NULL DEFAULT 0,
     description  VARCHAR(255) NOT NULL,
+    sort         UNSIGNED INT NOT NULL DEFAULT 0,
+    color        VARCHAR(255) NOT NULL DEFAULT '#00CC00',
+    ulimit       INT NOT NULL DEFAULT 1000000000,
+    llimit       INT NOT NULL DEFAULT -1000000000,
+    type         VARCHAR(255) NOT NULL DEFAULT 'AREA',
     created_at   UNSIGNED INT NOT NULL,
     updated_at   UNSIGNED INT NOT NULL,
     PRIMARY KEY  (service_name, section_name, graph_name)
@@ -37,7 +44,7 @@ EOF
 
 sub dbh {
     my $self = shift;
-    $self->{dbh} ||= DBIx::Sunny->connect_cached('dbi:SQLite:dbname='.$self->{root_dir}.'/data/gforest.db','','',{
+    $self->{dbh} ||= DBIx::Sunny->connect_cached('dbi:SQLite:dbname='.$self->{root_dir}.'/data/gforecast.db','','',{
         Callbacks => {
             connected => $_on_connect,
         },        
@@ -54,7 +61,7 @@ sub get {
     return unless $row;
     $row->{created_at} = localtime($row->{created_at})->strftime('%Y/%m/%d %T');
     $row->{updated_at} = localtime($row->{updated_at})->strftime('%Y/%m/%d %T');
-    $row->{md5} = md5_hex( join(':',$row->{service_name},$row->{section_name},$row->{graph_name}) );
+    $row->{md5} = md5_hex( join(':',map { Encode::encode_utf8($_) } $row->{service_name},$row->{section_name},$row->{graph_name}) );
     $row;
 }
 
@@ -75,10 +82,12 @@ sub update {
         );
     }
     else {
+        my @colors = List::Util::shuffle(qw/33 66 99 cc/);
+        my $color = '#' . join('', splice(@colors,0,3));
         $dbh->query(
-            'INSERT INTO graphs (service_name, section_name, graph_name, number, description, created_at, updated_at) 
-                         VALUES (?,?,?,?,?,?,?)',
-            $service, $section, $graph, $number, $description, time, time
+            'INSERT INTO graphs (service_name, section_name, graph_name, number, description, color, created_at, updated_at) 
+                         VALUES (?,?,?,?,?,?,?,?)',
+            $service, $section, $graph, $number, $description, $color, time, time
         ); 
     }
     my $row = $self->get($service, $section, $graph);
@@ -118,7 +127,7 @@ sub get_graphs {
    for my $row ( @$rows ) {
        $row->{created_at} = localtime($row->{created_at})->strftime('%Y/%m/%d %T');
        $row->{updated_at} = localtime($row->{updated_at})->strftime('%Y/%m/%d %T');
-       $row->{md5} = md5_hex( join(':',$row->{service_name},$row->{section_name},$row->{graph_name}) );
+       $row->{md5} = md5_hex( join(':', map { Encode::encode_utf8($_) } $row->{service_name},$row->{section_name},$row->{graph_name}) );
        push @ret, $row; 
    }
    \@ret;
@@ -133,7 +142,7 @@ sub get_all_graphs {
    for my $row ( @$rows ) {
        $row->{created_at} = localtime($row->{created_at})->strftime('%Y/%m/%d %T');
        $row->{updated_at} = localtime($row->{updated_at})->strftime('%Y/%m/%d %T');
-       $row->{md5} = md5_hex( join(':',$row->{service_name},$row->{section_name},$row->{graph_name}) );
+       $row->{md5} = md5_hex( join(':', map { Encode::encode_utf8($_) } $row->{service_name},$row->{section_name},$row->{graph_name}) );
        push @ret, $row; 
    }
    \@ret;
