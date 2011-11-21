@@ -122,7 +122,7 @@ post '/graph/:service_name/:section_name/:graph_name' => sub {
         'type' => {
             rule => [
                 ['NOT_NULL', '値がありません'],
-                [['CHOICE',qw/AREA LINE1/], '値が正しくありません'],
+                [['CHOICE',qw/AREA LINE1 LINE2/], '値が正しくありません'],
             ],
         },
         'llimit' => {

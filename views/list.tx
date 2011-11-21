@@ -81,6 +81,7 @@
 <div class="input"><select name="type" class="medium">
 <option value="AREA">塗りつぶし</option>
 <option value="LINE1">線グラフ</option>
+<option value="LINE2">線グラフ(太)</option>
 </select>
 <span id="pref-form-<: $~graph.index :>-type" class="validator-message help-inline"></span></div>
 </div>
