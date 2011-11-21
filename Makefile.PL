@@ -10,7 +10,10 @@ WriteMakefile(
         'HTTP::Date' => 0,
         'File::Zglob' => '0.09',
         'Log::Minimal' => '0.09',
+        'Starlet' => '0.14',
+        'Parallel::Scoreboard' => '0.03',
+        'Plack::Builder::Conditionals' => '0.03',
     },
-    MIN_PERL_VERSION => '5.010000',
+    MIN_PERL_VERSION => '5.008001',
 );
 
