@@ -86,7 +86,7 @@ sub update {
         my $color = '#' . join('', splice(@colors,0,3));
         $dbh->query(
             'INSERT INTO graphs (service_name, section_name, graph_name, number, description, color, created_at, updated_at) 
-                         VALUES (?,?,?,?,?,?,?,?,?)',
+                         VALUES (?,?,?,?,?,?,?,?)',
             $service, $section, $graph, $number, "", $color, time, time
         ); 
     }
