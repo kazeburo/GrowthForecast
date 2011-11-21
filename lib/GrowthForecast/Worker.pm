@@ -49,12 +49,12 @@ sub run {
         if ( $pid ) {
             my $kid = waitpid( $pid, WNOHANG );
             if ( $kid == -1 ) {
-                infof('no child processes');
+                warnf('no child processes');
                 $pid = undef;
             }
             elsif ( $kid ) {
-                infof( sprintf("update finished pid: %d, code:%d", $kid, $? >> 8) );
-                infof( sprintf( "next radar start in %s", scalar localtime $next) );
+                debugf( sprintf("update finished pid: %d, code:%d", $kid, $? >> 8) );
+                debugf( sprintf( "next radar start in %s", scalar localtime $next) );
                 $pid = undef;
             }
         }
@@ -66,7 +66,7 @@ sub run {
 
         $now = time;
         if ( $now >= $next ) {
-            infof( sprintf( "(%s) updater start ", scalar localtime $next) );
+            debugf( sprintf( "(%s) updater start ", scalar localtime $next) );
             $next = $now - ( $now % 60 ) + 60;
 
             if ( $pid ) {
