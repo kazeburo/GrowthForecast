@@ -18,6 +18,19 @@ section > .row {
     white-space:nowrap;
     margin-bottom: 3px;
 }
+.footer {
+  background-color: #eee;
+  min-width: 940px;
+  padding: 30px 0;
+  text-shadow: 0 1px 0 #fff;
+  border-top: 1px solid #e5e5e5;
+  -webkit-box-shadow: inset 0 5px 15px rgba(0,0,0,.025);
+     -moz-box-shadow: inset 0 5px 15px rgba(0,0,0,.025);
+/*          box-shadow: inset 0 5px 15px rgba(0,0,0,.025);
+*/}
+.footer p {
+  color: #555;
+
 </style>
 <title>GrowthForecast</title>
 </head>
@@ -50,6 +63,14 @@ section > .row {
 </section>
 
 </div>
+
+<footer class="footer">
+<div class="container">
+<p class="pull-right"><a href="#">Back to top</a></p>
+<p>Powered by Kossy</p>
+</div>
+</footer>
+
 <script type="text/javascript" src="<: $c.req.uri_for('/js/jquery-1.5.2.min.js') :>"></script>
 <script type="text/javascript" src="<: $c.req.uri_for('/js/bootstrap-modal.js') :>"></script>
 <script type="text/javascript" src="<: $c.req.uri_for('/js/bootstrap-alerts.js') :>"></script>
