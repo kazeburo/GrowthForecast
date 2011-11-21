@@ -23,7 +23,7 @@ sub path {
             RRDs::create(
                 $file,
                 '--step', '60',
-                'DS:num:GAUGE:600:0:U',
+                'DS:num:GAUGE:600:U:U',
                 'RRA:AVERAGE:0.5:1:11520',
                 'RRA:AVERAGE:0.5:30:1536',
                 'RRA:AVERAGE:0.5:120:768',

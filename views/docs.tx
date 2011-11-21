@@ -55,11 +55,6 @@
 <th>必須</th>
 </tr>
 <tr>
-<td>description</td>
-<td>グラフの説明を簡潔に入れます</td>
-<td>オプション</td>
-</tr>
-<tr>
 <td>mode</td>
 <td>登録済みの数値を number の値で加算する時には mode=count とします。<br />通常は number の数値で常に上書きます。</td>
 <td>オプション</td>
@@ -72,14 +67,13 @@
 my $ua = LWP::UserAgent->new;
 $ua->post('<: $c.req.uri_for('/') :>api/ninjyatoriai/items/syuriken_no_ureta_kazu', {
     number      => 10,
-    description => '説明文',
 });
 </pre>
 
 <p>curl を使うと以下の用になります。</p>
 
 <pre>
-$ curl -F number=10 -F description=説明文 <: $c.req.uri_for('/') :>api/ninjyatoriai/items/syuriken_no_ureta_kazu
+$ curl -F number=10 <: $c.req.uri_for('/') :>api/ninjyatoriai/items/syuriken_no_ureta_kazu
 </pre>
 
 <p>現在のところ一種類のグラフしか描けませんが、この辺はそのうちいい感じになる予定です。</p>

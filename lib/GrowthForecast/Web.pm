@@ -94,6 +94,68 @@ get '/graph/:service_name/:section_name/:graph_name' => sub {
     return $c->res;
 };
 
+post '/graph/:service_name/:section_name/:graph_name' => sub {
+    my ( $self, $c )  = @_;
+
+    my $row = $self->data->get(
+        $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
+    );
+    $c->halt(404) unless $row;
+
+    my $result = $c->req->validator([
+        'description' => {
+            default => '',
+            rule => [],
+        },
+        'sort' => {
+            rule => [
+                ['NOT_NULL', '値がありません'],
+                [['CHOICE',0..19], '値が正しくありません'],
+            ],
+        },
+        'color' => {
+            rule => [
+                ['NOT_NULL', '正しくありません'],
+                [sub{ $_[1] =~ m!^#[0-9A-F]{6}$!i }, '#000000の形式で入力してください'],
+            ],
+        },
+        'type' => {
+            rule => [
+                ['NOT_NULL', '値がありません'],
+                [['CHOICE',qw/AREA LINE1/], '値が正しくありません'],
+            ],
+        },
+        'llimit' => {
+            rule => [
+                ['NOT_NULL', '値がありません'],
+                ['INT', '値が正しくありません'],
+            ],
+        },
+        'ulimit' => {
+            rule => [
+                ['NOT_NULL', '値がありません'],
+                ['INT', '値が正しくありません'],
+            ],
+        },
+    ]);
+    if ( $result->has_error ) {
+        my $res = $c->render_json({
+            error => 1,
+            messages => $result->errors
+        });
+        return $res;
+    }
+
+    $self->data->update_graph(
+        $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
+        map { $result->valid($_) } qw/description sort color type llimit ulimit/ 
+    );
+
+    $c->render_json({
+        error => 0,
+    });
+};
+
 get '/api/:service_name/:section_name/:graph_name' => sub {
     my ( $self, $c )  = @_;
     my $row = $self->data->get(
@@ -111,10 +173,6 @@ post '/api/:service_name/:section_name/:graph_name' => sub {
                 ['NOT_NULL','number is null'],
                 ['INT','number is not null']
             ],
-        },
-        'description' => {
-            default => '',
-            rule => [],
         },
         'mode' => {
             default => 'gauge',
@@ -135,7 +193,7 @@ post '/api/:service_name/:section_name/:graph_name' => sub {
 
     my $row = $self->data->update(
         $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
-        $result->valid('number'), $result->valid('description'), $result->valid('mode')
+        $result->valid('number'), $result->valid('mode')
     );
     $c->render_json({ error => 0, data => $row });
 };

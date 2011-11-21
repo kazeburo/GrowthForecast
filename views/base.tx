@@ -50,7 +50,12 @@ section > .row {
 </section>
 
 </div>
-
+<script type="text/javascript" src="<: $c.req.uri_for('/js/jquery-1.5.2.min.js') :>"></script>
+<script type="text/javascript" src="<: $c.req.uri_for('/js/bootstrap-modal.js') :>"></script>
+<script type="text/javascript" src="<: $c.req.uri_for('/js/bootstrap-alerts.js') :>"></script>
+<script type="text/javascript">
+: block javascript -> { }
+</script>
 </body>
 </html>
 

@@ -66,7 +66,7 @@ sub get {
 }
 
 sub update {
-    my ($self, $service, $section, $graph, $number, $description, $mode ) = @_;
+    my ($self, $service, $section, $graph, $number, $mode ) = @_;
     my $dbh = $self->dbh;
     $dbh->begin_work;
 
@@ -76,8 +76,8 @@ sub update {
             $number += $data->{number};
         }
         $dbh->query(
-            'UPDATE graphs SET number=?, description =?, updated_at=? WHERE service_name = ? AND section_name = ? AND graph_name = ?',
-            $number, $description, time,
+            'UPDATE graphs SET number=?, updated_at=? WHERE service_name = ? AND section_name = ? AND graph_name = ?',
+            $number, time,
             $service, $section, $graph,
         );
     }
@@ -85,15 +85,27 @@ sub update {
         my @colors = List::Util::shuffle(qw/33 66 99 cc/);
         my $color = '#' . join('', splice(@colors,0,3));
         $dbh->query(
-            'INSERT INTO graphs (service_name, section_name, graph_name, number, description, color, created_at, updated_at) 
+            'INSERT INTO graphs (service_name, section_name, graph_name, number, color, created_at, updated_at) 
                          VALUES (?,?,?,?,?,?,?,?)',
-            $service, $section, $graph, $number, $description, $color, time, time
+            $service, $section, $graph, $number, $color, time, time
         ); 
     }
     my $row = $self->get($service, $section, $graph);
     $dbh->commit;
 
     $row;
+}
+
+sub update_graph {
+    my ($self, $service, $section, $graph, $description, $sort, $color, $type, $llimit, $ulimit ) = @_;
+    my $dbh = $self->dbh;
+    $dbh->query(
+        'UPDATE graphs SET description=?, sort=?, color=?, type=?, llimit=?, ulimit=?
+          WHERE service_name = ? AND section_name = ? AND graph_name = ?',
+            $description, $sort, $color, $type, $llimit, $ulimit,
+            $service, $section, $graph,
+    );
+    return 1;
 }
 
 sub get_services {
@@ -120,7 +132,7 @@ sub get_graphs {
    my $self = shift;
    my ($service_name, $section_name) = @_;
    my $rows = $self->dbh->select_all(
-       'SELECT * FROM graphs WHERE service_name = ? AND section_name = ?',
+       'SELECT * FROM graphs WHERE service_name = ? AND section_name = ? ORDER BY sort DESC',
        $service_name, $section_name
    );
    my @ret;
