@@ -50,9 +50,14 @@
 
 <table>
 <tr>
-<th>number</th>
-<th>グラフに与える数値</th>
-<th>必須</th>
+<th>パラメータ</th>
+<th>説明</th>
+<th>必須/オプション</th>
+</tr>
+<tr>
+<td>number</td>
+<td>グラフに与える数値</td>
+<td>必須</td>
 </tr>
 <tr>
 <td>mode</td>
