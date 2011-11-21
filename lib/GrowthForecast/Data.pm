@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS graphs (
     section_name VARCHAR(255) NOT NULL,
     graph_name   VARCHAR(255) NOT NULL,
     number       INT NOT NULL DEFAULT 0,
-    description  VARCHAR(255) NOT NULL,
+    description  VARCHAR(255) NOT NULL DEFAULT '',
     sort         UNSIGNED INT NOT NULL DEFAULT 0,
     color        VARCHAR(255) NOT NULL DEFAULT '#00CC00',
     ulimit       INT NOT NULL DEFAULT 1000000000,
@@ -85,9 +85,9 @@ sub update {
         my @colors = List::Util::shuffle(qw/33 66 99 cc/);
         my $color = '#' . join('', splice(@colors,0,3));
         $dbh->query(
-            'INSERT INTO graphs (service_name, section_name, graph_name, number, color, created_at, updated_at) 
-                         VALUES (?,?,?,?,?,?,?,?)',
-            $service, $section, $graph, $number, $color, time, time
+            'INSERT INTO graphs (service_name, section_name, graph_name, number, description, color, created_at, updated_at) 
+                         VALUES (?,?,?,?,?,?,?,?,?)',
+            $service, $section, $graph, $number, "", $color, time, time
         ); 
     }
     my $row = $self->get($service, $section, $graph);
