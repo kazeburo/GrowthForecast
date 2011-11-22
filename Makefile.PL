@@ -6,6 +6,7 @@ WriteMakefile(
     PREREQ_PM     => {
         'Kossy' => '0.01',
         'DBIx::Sunny' =>  '0.14',
+        'DBD::SQLite' => '1.33',
         'Time::Piece' => '1.15',
         'HTTP::Date' => 0,
         'File::Zglob' => '0.09',
