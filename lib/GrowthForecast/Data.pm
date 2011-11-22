@@ -57,6 +57,7 @@ EOF
 sub dbh {
     my $self = shift;
     $self->{dbh} ||= DBIx::Sunny->connect_cached('dbi:SQLite:dbname='.$self->{root_dir}.'/data/gforecast.db','','',{
+        sqlite_use_immediate_transaction => 1,
         Callbacks => {
             connected => $_on_connect,
         },        
@@ -87,6 +88,7 @@ sub get_for_rrdupdate {
     );
     return if !$data;
 
+    $dbh->begin_work;
     my $prev = $dbh->select_row(
         'SELECT * FROM prev_graphs WHERE service_name = ? AND section_name = ? AND graph_name = ?',
         $service, $section, $graph
@@ -113,6 +115,8 @@ sub get_for_rrdupdate {
         $subtract = $prev->{subtract};
         $subtract = 'U' if ! defined $subtract;
     }
+
+    $dbh->commit;
 
     $data->{created_at} = localtime($data->{created_at})->strftime('%Y/%m/%d %T');
     $data->{updated_at} = localtime($data->{updated_at})->strftime('%Y/%m/%d %T');
