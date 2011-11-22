@@ -187,6 +187,22 @@ post '/graph/:service_name/:section_name/:graph_name' => sub {
     });
 };
 
+post '/graph/:service_name/:section_name/:graph_name/delete' => sub {
+    my ( $self, $c )  = @_;
+
+    my $row = $self->data->get(
+        $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
+    );
+    $c->halt(404) unless $row;
+
+    $self->data->remove($c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name});
+    $self->rrd->remove($row);
+
+    $c->render_json({
+        error => 0,
+    });
+};
+
 get '/api/:service_name/:section_name/:graph_name' => sub {
     my ( $self, $c )  = @_;
     my $row = $self->data->get(

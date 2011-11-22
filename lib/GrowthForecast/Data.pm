@@ -29,9 +29,9 @@ CREATE TABLE IF NOT EXISTS graphs (
     gmode        VARCHAR(255) NOT NULL DEFAULT 'gauge',
     color        VARCHAR(255) NOT NULL DEFAULT '#00CC00',
     ulimit       INT NOT NULL DEFAULT 1000000000,
-    llimit       INT NOT NULL DEFAULT -1000000000,
+    llimit       INT NOT NULL DEFAULT 0,
     sulimit       INT NOT NULL DEFAULT 100000,
-    sllimit       INT NOT NULL DEFAULT -100000,
+    sllimit       INT NOT NULL DEFAULT 0,
     type         VARCHAR(255) NOT NULL DEFAULT 'AREA',
     stype         VARCHAR(255) NOT NULL DEFAULT 'AREA',
     created_at   UNSIGNED INT NOT NULL,
@@ -86,7 +86,10 @@ sub get_for_rrdupdate {
         'SELECT * FROM graphs WHERE service_name = ? AND section_name = ? AND graph_name = ?',
         $service, $section, $graph
     );
-    return if !$data;
+    if ( !$data ) {
+        $dbh->rollback;
+        return;
+    }
 
     my $prev = $dbh->select_row(
         'SELECT * FROM prev_graphs WHERE service_name = ? AND section_name = ? AND graph_name = ?',
@@ -210,6 +213,23 @@ sub get_all_graphs {
    );
 }
 
+sub remove {
+    my ($self, $service, $section, $graph ) = @_;
+    my $dbh = $self->dbh;
+    $dbh->begin_work;
+
+    $dbh->query(
+        'DELETE FROM graphs WHERE service_name = ? AND section_name = ? AND graph_name = ?',
+        $service, $section, $graph
+    );
+
+    $dbh->query(
+        'DELETE FROM prev_graphs WHERE service_name = ? AND section_name = ? AND graph_name = ?',
+        $service, $section, $graph
+    );
+
+    $dbh->commit;
+}
 
 1;
 

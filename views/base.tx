@@ -30,7 +30,10 @@ section > .row {
 */}
 .footer p {
   color: #555;
-
+}
+.modal form {
+  margin: 0 0;
+}
 </style>
 <title>GrowthForecast</title>
 </head>

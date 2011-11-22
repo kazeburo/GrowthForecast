@@ -7,6 +7,7 @@ use RRDs;
 use HTTP::Date;
 use File::Temp;
 use File::Zglob;
+use File::Path qw//;
 
 sub new {
     my $class = shift;
@@ -98,27 +99,27 @@ sub graph {
         }
     }
     elsif ( $span eq 'h' ) {
-        $period_title = 'Hourly';
+        $period_title = 'Hourly (5min avg)';
         $period = -1 * 60 * 60 * 2;
         $xgrid = 'MINUTE:10:MINUTE:20:MINUTE:10:0:%M';
     }
     elsif ( $span eq 'w' ) {
-        $period_title = 'Weekly';
+        $period_title = 'Weekly (30min avg)';
         $period = -1 * 60 * 60 * 24 * 8;
         $xgrid = 'DAY:1:DAY:1:DAY:1:86400:%a'
     }
     elsif ( $span eq 'm' ) {
-        $period_title = 'Monthly';
+        $period_title = 'Monthly (2hour avg)';
         $period = -1 * 60 * 60 * 24 * 35;
         $xgrid = 'DAY:1:WEEK:1:WEEK:1:604800:Week %W'
     }
     elsif ( $span eq 'y' ) {
-        $period_title = 'Yearly';
+        $period_title = 'Yearly (1day avg)';
         $period = -1 * 60 * 60 * 24 * 400;
         $xgrid = 'WEEK:1:MONTH:1:MONTH:1:2592000:%b'
     }
     else {
-        $period_title = 'Daily';
+        $period_title = 'Daily (5min avg)';
         $period = -1 * 60 * 60 * 33; # 33 hours
         $xgrid = 'HOUR:1:HOUR:2:HOUR:2:0:%H';
     }
@@ -127,7 +128,7 @@ sub graph {
     my ($tmpfh, $tmpfile) = File::Temp::tempfile(UNLINK => 0, SUFFIX => ".png");
     my @args = (
         $tmpfile,
-        '-w', 385,
+        '-w', 390,
         '-h', 110,
         '-a', 'PNG',
         '-t', "$period_title",
@@ -150,10 +151,10 @@ sub graph {
         sprintf('DEF:%s%dt=%s:%s:AVERAGE', $gdata, $i, $file, $gdata),
         sprintf('CDEF:%s%d=%s%dt,%s,%s,LIMIT', $gdata, $i, $gdata, $i, $llimit, $ulimit),
         sprintf('%s:%s%d%s:%s ', $type, $gdata, $i, $data->{color}, $data->{graph_name}),
-        sprintf('GPRINT:%s%d:LAST:Cur\: %%4.1lf', $gdata, $i),
-        sprintf('GPRINT:%s%d:AVERAGE:Ave\: %%4.1lf', $gdata, $i),
-        sprintf('GPRINT:%s%d:MAX:Max\: %%4.1lf', $gdata, $i),
-        sprintf('GPRINT:%s%d:MIN:Min\: %%4.1lf\l', $gdata, $i);
+        sprintf('GPRINT:%s%d:LAST:Cur\: %%4.1lf%%s', $gdata, $i),
+        sprintf('GPRINT:%s%d:AVERAGE:Avg\: %%4.1lf%%s', $gdata, $i),
+        sprintf('GPRINT:%s%d:MAX:Max\: %%4.1lf%%s', $gdata, $i),
+        sprintf('GPRINT:%s%d:MIN:Min\: %%4.1lf%%s\l', $gdata, $i);
     $i++;
 
 
@@ -175,6 +176,13 @@ sub graph {
     die 'something wrong with image' unless $graph_img;
 
     return $graph_img;    
+}
+
+sub remove {
+    my $self = shift;
+    my $data = shift;
+    my $file = $self->{root_dir} . '/data/' . $data->{md5} . '.rrd';
+    File::Path::rmtree($file);
 }
 
 1;
