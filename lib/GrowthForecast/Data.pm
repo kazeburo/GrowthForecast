@@ -80,17 +80,14 @@ sub get {
 sub get_for_rrdupdate {
     my ($self, $service, $section, $graph) = @_;
     my $dbh = $self->dbh;
-    $dbh->begin_work;
 
     my $data = $dbh->select_row(
         'SELECT * FROM graphs WHERE service_name = ? AND section_name = ? AND graph_name = ?',
         $service, $section, $graph
     );
-    if ( !$data ) {
-        $dbh->rollback;
-        return;
-    }
+    return if !$data;
 
+    $dbh->begin_work;
     my $prev = $dbh->select_row(
         'SELECT * FROM prev_graphs WHERE service_name = ? AND section_name = ? AND graph_name = ?',
         $service, $section, $graph
@@ -216,19 +213,15 @@ sub get_all_graphs {
 sub remove {
     my ($self, $service, $section, $graph ) = @_;
     my $dbh = $self->dbh;
-    $dbh->begin_work;
-
     $dbh->query(
         'DELETE FROM graphs WHERE service_name = ? AND section_name = ? AND graph_name = ?',
         $service, $section, $graph
     );
-
     $dbh->query(
         'DELETE FROM prev_graphs WHERE service_name = ? AND section_name = ? AND graph_name = ?',
         $service, $section, $graph
     );
 
-    $dbh->commit;
 }
 
 1;
