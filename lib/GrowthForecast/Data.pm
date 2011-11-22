@@ -87,7 +87,6 @@ sub get_for_rrdupdate {
     );
     return if !$data;
 
-    $dbh->begin_work;
     my $prev = $dbh->select_row(
         'SELECT * FROM prev_graphs WHERE service_name = ? AND section_name = ? AND graph_name = ?',
         $service, $section, $graph
@@ -115,7 +114,6 @@ sub get_for_rrdupdate {
         $subtract = 'U' if ! defined $subtract;
     }
 
-    $dbh->commit;
     $data->{created_at} = localtime($data->{created_at})->strftime('%Y/%m/%d %T');
     $data->{updated_at} = localtime($data->{updated_at})->strftime('%Y/%m/%d %T');
     $data->{md5} = md5_hex( join(':',map { Encode::encode_utf8($_) } $data->{service_name},$data->{section_name},$data->{graph_name}) );
