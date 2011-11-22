@@ -22,15 +22,17 @@ sub path {
         eval {
             RRDs::create(
                 $file,
-                '--step', '60',
+                '--step', '300',
                 'DS:num:GAUGE:600:U:U',
-                'RRA:AVERAGE:0.5:1:11520',
-                'RRA:AVERAGE:0.5:30:1536',
-                'RRA:AVERAGE:0.5:120:768',
-                'RRA:AVERAGE:0.5:1440:794',
-                'RRA:MAX:0.5:30:1536',
-                'RRA:MAX:0.5:120:768',
-                'RRA:MAX:0.5:1440:794'
+                'DS:sub:GAUGE:600:U:U', 
+                'RRA:AVERAGE:0.5:1:1440',  #5分, 5日
+                'RRA:AVERAGE:0.5:6:1008', #30分, 21日
+                'RRA:AVERAGE:0.5:24:1344', #2時間, 112日 
+                'RRA:AVERAGE:0.5:288:2500', #24時間, 500日
+                'RRA:MAX:0.5:1:1440',  #5分, 5日
+                'RRA:MAX:0.5:6:1008', #30分, 21日
+                'RRA:MAX:0.5:24:1344', #2時間, 112日 
+                'RRA:MAX:0.5:288:2500', #24時間, 500日
             );
             my $ERR=RRDs::error;
             die $ERR if $ERR;
@@ -48,8 +50,8 @@ sub update {
     eval {
         RRDs::update(
             $file,
-            '-t', 'num',
-            '--', 'N:'.$data->{number},
+            '-t', 'num:sub',
+            '--', join(':','N',$data->{number},$data->{subtract}),
         );
         my $ERR=RRDs::error;
         die $ERR if $ERR;
@@ -58,10 +60,10 @@ sub update {
 }
 
 
-my @jp_fonts = map { -f $_ } zglob("/usr/share/fonts/**/*-gothic.ttf");
+my @jp_fonts = grep { -f $_ } zglob("/usr/share/fonts/**/sazanami-gothic.ttf");
 sub graph {
     my $self = shift;
-    my ($span, $from, $to, @datas) = @_;
+    my ($gmode, $span, $from, $to, $data) = @_;
     $span ||= 'd';
 
     my $period_title;
@@ -80,7 +82,7 @@ sub graph {
         $end = $to_time;
         my $diff = $to_time - $from_time;
         if ( $diff < 3 * 60 * 60 ) {
-            $xgrid = 'MINUTE:10:MINUTE:10:MINUTE:10:0:%M';
+            $xgrid = 'MINUTE:10:MINUTE:20:MINUTE:10:0:%M';
         }
         elsif ( $diff < 2 * 24 * 60 * 60 ) {
             $xgrid = 'HOUR:1:HOUR:1:HOUR:2:0:%H';
@@ -98,7 +100,7 @@ sub graph {
     elsif ( $span eq 'h' ) {
         $period_title = 'Hourly';
         $period = -1 * 60 * 60 * 2;
-        $xgrid = 'MINUTE:10:MINUTE:10:MINUTE:10:0:%M';
+        $xgrid = 'MINUTE:10:MINUTE:20:MINUTE:10:0:%M';
     }
     elsif ( $span eq 'w' ) {
         $period_title = 'Weekly';
@@ -121,6 +123,7 @@ sub graph {
         $xgrid = 'HOUR:1:HOUR:2:HOUR:2:0:%H';
     }
 
+    if ( $gmode eq 'subtract' ) { $period_title = "[subtract] $period_title" } 
     my ($tmpfh, $tmpfile) = File::Temp::tempfile(UNLINK => 0, SUFFIX => ".png");
     my @args = (
         $tmpfile,
@@ -138,22 +141,21 @@ sub graph {
     push @args, '--font', "DEFAULT:0:".$jp_fonts[0] if @jp_fonts;
 
     my $i=0;
-    for my $data ( @datas ) {
-        my $type = ( $i == 0 ) ? $data->{type} : 'STACK';
-        my $file = $self->path($data);
-        push @args, 
-            sprintf('DEF:num%dt=%s:num:AVERAGE', $i, $file),
-            sprintf('CDEF:num%d=num%dt,%s,%s,LIMIT', $i, $i, $data->{llimit}, $data->{ulimit}),
-            sprintf('%s:num%d%s:%s ', $type, $i, $data->{color}, $data->{graph_name}),
-            sprintf('GPRINT:num%d:LAST:Cur\: %%4.1lf', $i),
-            sprintf('GPRINT:num%d:AVERAGE:Ave\: %%4.1lf', $i),
-            sprintf('GPRINT:num%d:MAX:Max\: %%4.1lf', $i),
-            sprintf('GPRINT:num%d:MIN:Min\: %%4.1lf\l',$i);
-        $i++;
-    }
+    my $type = ( $gmode eq 'subtract' ) ? $data->{stype} : $data->{type};
+    my $gdata = ( $gmode eq 'subtract' ) ? 'sub' : 'num';
+    my $llimit = ( $gmode eq 'subtract' ) ? $data->{sllimit} : $data->{llimit};
+    my $ulimit = ( $gmode eq 'subtract' ) ? $data->{sulimit} : $data->{ulimit};
+    my $file = $self->path($data);
+    push @args, 
+        sprintf('DEF:%s%dt=%s:%s:AVERAGE', $gdata, $i, $file, $gdata),
+        sprintf('CDEF:%s%d=%s%dt,%s,%s,LIMIT', $gdata, $i, $gdata, $i, $llimit, $ulimit),
+        sprintf('%s:%s%d%s:%s ', $type, $gdata, $i, $data->{color}, $data->{graph_name}),
+        sprintf('GPRINT:%s%d:LAST:Cur\: %%4.1lf', $gdata, $i),
+        sprintf('GPRINT:%s%d:AVERAGE:Ave\: %%4.1lf', $gdata, $i),
+        sprintf('GPRINT:%s%d:MAX:Max\: %%4.1lf', $gdata, $i),
+        sprintf('GPRINT:%s%d:MIN:Min\: %%4.1lf\l', $gdata, $i);
+    $i++;
 
-    use Log::Minimal;
-    local $Log::Minimal::AUTODUMP = 1;
 
     eval {
         RRDs::graph(map { Encode::encode_utf8($_) } @args);

@@ -8,6 +8,7 @@ use Time::Piece;
 use Digest::MD5 qw/md5_hex/;
 use List::Util;
 use Encode;
+use Log::Minimal;
 
 sub new {
     my $class = shift;
@@ -25,22 +26,33 @@ CREATE TABLE IF NOT EXISTS graphs (
     number       INT NOT NULL DEFAULT 0,
     description  VARCHAR(255) NOT NULL DEFAULT '',
     sort         UNSIGNED INT NOT NULL DEFAULT 0,
+    gmode        VARCHAR(255) NOT NULL DEFAULT 'gauge',
     color        VARCHAR(255) NOT NULL DEFAULT '#00CC00',
     ulimit       INT NOT NULL DEFAULT 1000000000,
     llimit       INT NOT NULL DEFAULT -1000000000,
+    sulimit       INT NOT NULL DEFAULT 100000,
+    sllimit       INT NOT NULL DEFAULT -100000,
     type         VARCHAR(255) NOT NULL DEFAULT 'AREA',
+    stype         VARCHAR(255) NOT NULL DEFAULT 'AREA',
     created_at   UNSIGNED INT NOT NULL,
     updated_at   UNSIGNED INT NOT NULL,
     PRIMARY KEY  (service_name, section_name, graph_name)
-);
+)
 EOF
-#
-#    $dbh->do(<<EOF);
-#CREATE INDEX IF NOT EXISTS section_created_at ON graphs ( service_name, section_name, created_at )
-#EOF
-     return;
-};
 
+    $dbh->do(<<EOF);
+CREATE TABLE IF NOT EXISTS prev_graphs (
+    service_name VARCHAR(255) NOT NULL,
+    section_name VARCHAR(255) NOT NULL,
+    graph_name   VARCHAR(255) NOT NULL,
+    number       INT NOT NULL DEFAULT 0,
+    subtract     INT,
+    updated_at   UNSIGNED INT NOT NULL,
+    PRIMARY KEY  (service_name, section_name, graph_name)
+)
+EOF
+    return;
+};
 
 sub dbh {
     my $self = shift;
@@ -63,6 +75,52 @@ sub get {
     $row->{updated_at} = localtime($row->{updated_at})->strftime('%Y/%m/%d %T');
     $row->{md5} = md5_hex( join(':',map { Encode::encode_utf8($_) } $row->{service_name},$row->{section_name},$row->{graph_name}) );
     $row;
+}
+
+sub get_for_rrdupdate {
+    my ($self, $service, $section, $graph) = @_;
+    my $dbh = $self->dbh;
+    $dbh->begin_work;
+
+    my $data = $dbh->select_row(
+        'SELECT * FROM graphs WHERE service_name = ? AND section_name = ? AND graph_name = ?',
+        $service, $section, $graph
+    );
+    return if !$data;
+
+    my $prev = $dbh->select_row(
+        'SELECT * FROM prev_graphs WHERE service_name = ? AND section_name = ? AND graph_name = ?',
+        $service, $section, $graph
+    );
+
+    my $subtract;
+    if ( !$prev ) {
+        $subtract = 'U';
+        $dbh->query(
+            'INSERT INTO prev_graphs (service_name, section_name, graph_name, number, subtract, updated_at) 
+                         VALUES (?,?,?,?,?,?)',
+            $service, $section, $graph, $data->{number}, undef, $data->{updated_at});
+
+    }
+    elsif ( $data->{updated_at} != $prev->{updated_at} ) {
+        $subtract = $data->{number} - $prev->{number};
+        $dbh->query(
+            'UPDATE prev_graphs SET number=?, subtract=?, updated_at=? WHERE service_name = ? AND section_name = ? AND graph_name = ?',
+            $data->{number}, $subtract, $data->{updated_at},
+            $service, $section, $graph,
+        );        
+    }
+    else {
+        $subtract = $prev->{subtract};
+        $subtract = 'U' if ! defined $subtract;
+    }
+
+    $dbh->commit;
+    $data->{created_at} = localtime($data->{created_at})->strftime('%Y/%m/%d %T');
+    $data->{updated_at} = localtime($data->{updated_at})->strftime('%Y/%m/%d %T');
+    $data->{md5} = md5_hex( join(':',map { Encode::encode_utf8($_) } $data->{service_name},$data->{section_name},$data->{graph_name}) );
+    $data->{subtract} = $subtract;
+    $data;
 }
 
 sub update {
@@ -97,12 +155,12 @@ sub update {
 }
 
 sub update_graph {
-    my ($self, $service, $section, $graph, $description, $sort, $color, $type, $llimit, $ulimit ) = @_;
+    my ($self, $service, $section, $graph, $description, $sort, $gmode, $color, $type, $stype, $llimit, $ulimit, $sllimit, $sulimit ) = @_;
     my $dbh = $self->dbh;
     $dbh->query(
-        'UPDATE graphs SET description=?, sort=?, color=?, type=?, llimit=?, ulimit=?
+        'UPDATE graphs SET description=?, sort=?, gmode=?, color=?, type=?, stype=?, llimit=?, ulimit=?, sllimit=?, sulimit=?
           WHERE service_name = ? AND section_name = ? AND graph_name = ?',
-            $description, $sort, $color, $type, $llimit, $ulimit,
+            $description, $sort, $gmode, $color, $type, $stype, $llimit, $ulimit, $sllimit, $sulimit,
             $service, $section, $graph,
     );
     return 1;
@@ -147,17 +205,9 @@ sub get_graphs {
 
 sub get_all_graphs {
    my $self = shift;
-   my $rows = $self->dbh->select_all(
-       'SELECT * FROM graphs',
+   $self->dbh->select_all(
+       'SELECT service_name, section_name, graph_name FROM graphs',
    );
-   my @ret;
-   for my $row ( @$rows ) {
-       $row->{created_at} = localtime($row->{created_at})->strftime('%Y/%m/%d %T');
-       $row->{updated_at} = localtime($row->{updated_at})->strftime('%Y/%m/%d %T');
-       $row->{md5} = md5_hex( join(':', map { Encode::encode_utf8($_) } $row->{service_name},$row->{section_name},$row->{graph_name}) );
-       push @ret, $row; 
-   }
-   \@ret;
 }
 
 

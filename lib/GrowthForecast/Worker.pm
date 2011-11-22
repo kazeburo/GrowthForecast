@@ -39,7 +39,7 @@ sub run {
     $SIG{PIPE} = 'IGNORE';
 
     my $now = time;
-    my $next = $now - ( $now % 60 )  + 60;
+    my $next = $now - ( $now % 300 )  + 300;
     my $pid;
 
     infof( sprintf( "first updater start in %s", scalar localtime $next) );
@@ -67,7 +67,7 @@ sub run {
         $now = time;
         if ( $now >= $next ) {
             debugf( sprintf( "(%s) updater start ", scalar localtime $next) );
-            $next = $now - ( $now % 60 ) + 60;
+            $next = $now - ( $now % 300 ) + 300;
 
             if ( $pid ) {
                 warnf( "Previous radar exists, skipping this time");
@@ -82,7 +82,8 @@ sub run {
             my $all_rows = $self->data->get_all_graphs;
             for my $row ( @$all_rows ) {
                 debugf( "update %s", $row);
-                $self->rrd->update($row);
+                my $data = $self->data->get_for_rrdupdate($row->{service_name},$row->{section_name},$row->{graph_name});
+                $self->rrd->update($data);
             }
             exit 0;
         }

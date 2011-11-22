@@ -7,6 +7,7 @@ use Kossy;
 use Time::Piece;
 use GrowthForecast::Data;
 use GrowthForecast::RRD;
+use Log::Minimal;
 
 sub data {
     my $self = shift;
@@ -65,6 +66,12 @@ get '/graph/:service_name/:section_name/:graph_name' => sub {
                 [['CHOICE',qw/y m w d h c/],'invalid drawing term'],
             ],
         },
+        'gmode' => {
+            default => 'gauge',
+            rule => [
+                [['CHOICE',qw/gauge subtract/],'invalid drawing data'],
+            ],
+        },
         'from' => {
             default => localtime(time-86400*8)->strftime('%Y/%m/%d %T'),
             rule => [
@@ -85,7 +92,7 @@ get '/graph/:service_name/:section_name/:graph_name' => sub {
     $c->halt(404) unless $row;
 
     my $img = $self->rrd->graph(
-        $result->valid('t'), $result->valid('from'),
+        $result->valid('gmode'), $result->valid('t'), $result->valid('from'),
         $result->valid('to'),  $row
     );
 
@@ -113,6 +120,12 @@ post '/graph/:service_name/:section_name/:graph_name' => sub {
                 [['CHOICE',0..19], '値が正しくありません'],
             ],
         },
+        'gmode' => {
+            rule => [
+                ['NOT_NULL', '値がありません'],
+                [['CHOICE',qw/gauge subtract both/], '値が正しくありません'],
+            ],
+        },
         'color' => {
             rule => [
                 ['NOT_NULL', '正しくありません'],
@@ -120,6 +133,12 @@ post '/graph/:service_name/:section_name/:graph_name' => sub {
             ],
         },
         'type' => {
+            rule => [
+                ['NOT_NULL', '値がありません'],
+                [['CHOICE',qw/AREA LINE1 LINE2/], '値が正しくありません'],
+            ],
+        },
+        'stype' => {
             rule => [
                 ['NOT_NULL', '値がありません'],
                 [['CHOICE',qw/AREA LINE1 LINE2/], '値が正しくありません'],
@@ -137,6 +156,18 @@ post '/graph/:service_name/:section_name/:graph_name' => sub {
                 ['INT', '値が正しくありません'],
             ],
         },
+        'sllimit' => {
+            rule => [
+                ['NOT_NULL', '値がありません'],
+                ['INT', '値が正しくありません'],
+            ],
+        },
+        'sulimit' => {
+            rule => [
+                ['NOT_NULL', '値がありません'],
+                ['INT', '値が正しくありません'],
+            ],
+        },
     ]);
     if ( $result->has_error ) {
         my $res = $c->render_json({
@@ -148,7 +179,7 @@ post '/graph/:service_name/:section_name/:graph_name' => sub {
 
     $self->data->update_graph(
         $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
-        map { $result->valid($_) } qw/description sort color type llimit ulimit/ 
+        map { $result->valid($_) } qw/description sort gmode color type stype llimit ulimit sllimit sulimit/ 
     );
 
     $c->render_json({

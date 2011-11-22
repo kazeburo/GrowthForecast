@@ -70,6 +70,17 @@
 </div>
 
 <div class="clearfix">
+<label for="">グラフのタイプ</label>
+<div class="input"><select name="gmode" class="medium">
+<option value="gauge">実績</option>
+<option value="subtract">差分</option>
+<option value="both">両方</option>
+</select>
+<span id="pref-form-<: $~graph.index :>-type" class="validator-message help-inline"></span></div>
+</div>
+
+
+<div class="clearfix">
 <label for="">グラフの色</label>
 <div class="input"><input class="small" name="color" />
 <span id="pref-form-<: $~graph.index :>-color" class="validator-message help-inline"></span>
@@ -77,7 +88,7 @@
 </div>
 
 <div class="clearfix">
-<label for="">グラフのタイプ</label>
+<label for="">グラフの表示</label>
 <div class="input"><select name="type" class="medium">
 <option value="AREA">塗りつぶし</option>
 <option value="LINE1">線グラフ</option>
@@ -97,6 +108,32 @@
 <span id="pref-form-<: $~graph.index :>-ulimit" class="validator-message help-inline"></span>
 </div>
 </div>
+</div>
+
+<div class="clearfix">
+<label for="">差分グラフの表示</label>
+<div class="input"><select name="stype" class="medium">
+<option value="AREA">塗りつぶし</option>
+<option value="LINE1">線グラフ</option>
+<option value="LINE2">線グラフ(太)</option>
+</select>
+<span id="pref-form-<: $~graph.index :>-stype" class="validator-message help-inline"></span></div>
+</div>
+
+
+<div class="clearfix">
+<label for="">差分データ有効範囲</label>
+<div class="input">
+<div class="inline-inputs">
+<input class="medium" name="sllimit" />
+<span id="pref-form-<: $~graph.index :>-sllimit" class="validator-message help-inline"></span>
+〜
+<input class="medium" name="sulimit" />
+<span id="pref-form-<: $~graph.index :>-sulimit" class="validator-message help-inline"></span>
+</div>
+</div>
+</div>
+
 </fieldset>
 </div>
 
@@ -108,9 +145,12 @@
 : }
 
 <div style="margin-bottom: 13px">
+: my $gmodes = ( $graph.gmode == 'both' ) ? ['gauge','subtract'] : ( $graph.gmode == 'gauge') ? ['gauge'] : ['subtract']
+: for $gmodes -> $gmode {
 : my $terms = ( $c.req.param('t') == 'h' ) ? ['h','d'] : ( $c.req.param('t') == 'm') ? ['m','y'] : ['d','w']
 : for $terms -> $term {
-<img src="<: $c.req.uri_for('/graph/'~$graph.service_name~'/'~$graph.section_name~'/'~$graph.graph_name, [t=>$term]) :>" />
+<img src="<: $c.req.uri_for('/graph/'~$graph.service_name~'/'~$graph.section_name~'/'~$graph.graph_name, [t=>$term,gmode=>$gmode]) :>" />
+: }
 : }
 </div>
 : }
