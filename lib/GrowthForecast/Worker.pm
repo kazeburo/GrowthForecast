@@ -79,10 +79,10 @@ sub run {
             next if $pid; #main process
 
             #child process
-            my $all_rows = $self->data->get_all_graphs;
+            my $all_rows = $self->data->get_all_graph_id;
             for my $row ( @$all_rows ) {
                 debugf( "update %s", $row);
-                my $data = $self->data->get_for_rrdupdate($row->{service_name},$row->{section_name},$row->{graph_name});
+                my $data = $self->data->get_by_id_for_rrdupdate($row->{id});
                 $self->rrd->update($data);
             }
             exit 0;

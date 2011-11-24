@@ -21,6 +21,19 @@ sub rrd {
     $self->{__rrd};
 }
 
+filter 'get_graph' => sub {
+    my $app = shift;
+    sub {
+        my ($self, $c) = @_;
+        my $row = $self->data->get(
+            $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
+        );
+        $c->halt(404) unless $row;
+        $c->stash->{graph} = $row;
+        $app->($self,$c);
+    }
+};
+
 get '/' => sub {
     my ( $self, $c )  = @_;
     my $services = $self->data->get_services();
@@ -57,7 +70,7 @@ get '/list/:service_name/:section_name' => sub {
     $c->render('list.tx',{ graphs => $rows });
 };
 
-get '/graph/:service_name/:section_name/:graph_name' => sub {
+get '/graph/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
     my ( $self, $c )  = @_;
     my $result = $c->req->validator([
         't' => {
@@ -83,17 +96,29 @@ get '/graph/:service_name/:section_name/:graph_name' => sub {
             rule => [
                 [sub{ HTTP::Date::str2time($_[1]) }, 'invalid To datetime'],
             ],
-        }
+        },
+        'width' => {
+            default => 390,
+            rule => [
+                ['NATURAL','invalid width'],
+            ],
+        },
+        'height' => {
+            default => 110,
+            rule => [
+                ['NATURAL','invalid height'],
+            ],
+        },
+        'graphonly' => {
+            default => 0,
+            rule => [
+                [['CHOICE',qw/0 1/],'invalid only flag'],
+            ],
+        },
     ]);
 
-    my $row = $self->data->get(
-        $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
-    );
-    $c->halt(404) unless $row;
-
     my $img = $self->rrd->graph(
-        $result->valid('gmode'), $result->valid('t'), $result->valid('from'),
-        $result->valid('to'),  $row
+        $c->stash->{graph}, $result->valid->as_hashref
     );
 
     $c->res->content_type('image/png');
@@ -101,13 +126,8 @@ get '/graph/:service_name/:section_name/:graph_name' => sub {
     return $c->res;
 };
 
-post '/graph/:service_name/:section_name/:graph_name' => sub {
+post '/graph/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
     my ( $self, $c )  = @_;
-
-    my $row = $self->data->get(
-        $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
-    );
-    $c->halt(404) unless $row;
 
     my $result = $c->req->validator([
         'description' => {
@@ -125,6 +145,24 @@ post '/graph/:service_name/:section_name/:graph_name' => sub {
                 ['NOT_NULL', '値がありません'],
                 [['CHOICE',qw/gauge subtract both/], '値が正しくありません'],
             ],
+        },
+        'adjust' => {
+            default => '*',
+            rule => [
+                ['NOT_NULL', '値がありません'],
+                [['CHOICE','*','/'], '値が正しくありません'],
+            ]
+        },
+        'adjustval' => {
+            default => '1',
+            rule => [
+                ['NOT_NULL', '正しくありません'],
+                ['NATURAL', '1以上の数値にしてください'],
+            ],
+        },
+        'unit' => {
+            default => '',
+            rule => [],
         },
         'color' => {
             rule => [
@@ -177,9 +215,10 @@ post '/graph/:service_name/:section_name/:graph_name' => sub {
         return $res;
     }
 
+    
     $self->data->update_graph(
-        $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
-        map { $result->valid($_) } qw/description sort gmode color type stype llimit ulimit sllimit sulimit/ 
+        $c->stash->{graph}->{id},
+        $result->valid->as_hashref
     );
 
     $c->render_json({
@@ -187,29 +226,20 @@ post '/graph/:service_name/:section_name/:graph_name' => sub {
     });
 };
 
-post '/graph/:service_name/:section_name/:graph_name/delete' => sub {
+post '/graph/:service_name/:section_name/:graph_name/delete' => [qw/get_graph/] => sub {
     my ( $self, $c )  = @_;
 
-    my $row = $self->data->get(
-        $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
-    );
-    $c->halt(404) unless $row;
-
-    $self->data->remove($c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name});
-    $self->rrd->remove($row);
+    $self->data->remove($c->stash->{graph}->{id});
+    $self->rrd->remove($c->stash->{graph});
 
     $c->render_json({
         error => 0,
     });
 };
 
-get '/api/:service_name/:section_name/:graph_name' => sub {
+get '/api/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
     my ( $self, $c )  = @_;
-    my $row = $self->data->get(
-        $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
-    );
-    $c->halt(404) unless $row;
-    $c->render_json($row);
+    $c->render_json($c->stash->{graph});
 };
 
 post '/api/:service_name/:section_name/:graph_name' => sub {
