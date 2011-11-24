@@ -98,7 +98,7 @@ get '/graph/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
             ],
         },
         'width' => {
-            default => 390,
+            default => 400,
             rule => [
                 ['NATURAL','invalid width'],
             ],

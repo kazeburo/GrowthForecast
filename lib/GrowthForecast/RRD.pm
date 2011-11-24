@@ -68,7 +68,7 @@ sub graph {
     my $args = shift;
     my ($gmode, $span, $from, $to, $width, $height) = map { $args->{$_} } qw/gmode t from to width height/;
     $span ||= 'd';
-    $width ||= 390;
+    $width ||= 400;
     $height ||= 110;
 
     my $period_title;
