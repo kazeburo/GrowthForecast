@@ -68,7 +68,7 @@ sub graph {
     my $args = shift;
     my ($gmode, $span, $from, $to, $width, $height) = map { $args->{$_} } qw/gmode t from to width height/;
     $span ||= 'd';
-    $width ||= 400;
+    $width ||= 390;
     $height ||= 110;
 
     my $period_title;
@@ -142,7 +142,7 @@ sub graph {
         '-s', $period,
         '-e', $end,
         '--slope-mode',
-        '--disable-rrdtool-tag',
+#        '--disable-rrdtool-tag',
     );
     push @opt, '--only-graph' if $args->{graphonly};
     push @opt, '--font', "DEFAULT:0:".$jp_fonts[0] if @jp_fonts;
