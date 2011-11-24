@@ -21,7 +21,7 @@
 <span class="label">current</span> <: $graph.number | format_number :>
 <span class="label">created_at</span> <: $graph.created_at :>
 <span class="label">updated_at</span> <: $graph.updated_at :>
-<a class="label pull-right" style="cursor: pointer" data-controls-modal="modal-remove-<: $~graph.index :>" data-backdrop="true" data-keyboard="true">✖</a>
+<a class="pull-right" style="cursor: pointer" data-controls-modal="modal-remove-<: $~graph.index :>" data-backdrop="true" data-keyboard="true">✖</a>
 </p>
 : block form |  fillinform( $graph ) -> {
 <div id="modal-form-<: $~graph.index :>" class="modal hide fade">
@@ -30,7 +30,7 @@
 <h3><: $graph.graph_name :> グラフ設定変更</h3>
 </div>
 
-<div class="modal-body" style="height:330px; overflow: auto">
+<div class="modal-body" style="height: 370px; overflow: auto">
 <div class="alert-message error hide">
 <p>System Error! <a href="#">try again</a>.</p>
 </div>
