@@ -20,7 +20,7 @@
 <label for="">パス</label>
 <div class="input">
 <div class="inline-inputs">
-<span class="help-inlne"><: $c.req.uri_for('/graph/') :></span>
+<span class="help-inlne"><: $c.req.uri_for('/complex_graph/') :></span>
 <input class="small" name="service_name" /> / <input class="small" name="section_name" /> / <input class="small" name="graph_name" />
 <span id="complex-form-service_name" class="validator-message help-block"></span>
 <span id="complex-form-section_name" class="validator-message help-block"></span>
