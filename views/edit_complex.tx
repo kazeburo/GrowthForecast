@@ -1,0 +1,180 @@
+: cascade base
+: around page_header -> {
+<h1>複合グラフの編集</h1>
+: }
+
+
+: around content -> {
+<div style="margin-bottom: 13px; text-align: center" id="preview-graph">
+</div>
+
+<form class="complex-form" id="complex-form" method="post" action="<: $c.req.uri_for('/edit_complex/'~$c.stash.complex.id) :>">
+<div class="alert-message error hide">
+<p>System Error! <a href="#">try again</a>.</p>
+</div>
+
+<fieldset>
+
+: block form |  fillinform( $c.stash.complex ) -> {
+<div class="clearfix">
+<label for="">パス</label>
+<div class="input">
+<div class="inline-inputs">
+<span class="help-inlne"><: $c.req.uri_for('/graph/') :></span>
+<input class="small" name="service_name" /> / <input class="small" name="section_name" /> / <input class="small" name="graph_name" />
+<span id="complex-form-service_name" class="validator-message help-block"></span>
+<span id="complex-form-section_name" class="validator-message help-block"></span>
+<span id="complex-form-graph_name" class="validator-message help-block"></span>
+<span class="help-block">グラフを表示するURI(サービス名/セクション名/グラフ名)</span>
+</div>
+</div>
+</div>
+
+<div class="clearfix">
+<label for="">説明</label>
+<div class="input"><input class="xlarge" name="description" />
+<span id="complex-form-description" class="validator-message help-inline"></span></div>
+</div>
+
+<div class="clearfix">
+<label for="">表示順</label>
+<div class="input"><select name="sort" class="small">
+<option value="19">19</option>
+<option value="18">18</option>
+<option value="17">17</option>
+<option value="16">16</option>
+<option value="15">15</option>
+<option value="14">14</option>
+<option value="13">13</option>
+<option value="12">12</option>
+<option value="11">11</option>
+<option value="10">10</option>
+<option value="9">9</option>
+<option value="8">8</option>
+<option value="7">7</option>
+<option value="6">6</option>
+<option value="5">5</option>
+<option value="4">4</option>
+<option value="3">3</option>
+<option value="2">2</option>
+<option value="1">1</option>
+<option value="0">0</option>
+</select>
+<span id="complex-form-sort" class="validator-message help-inline"></span>
+<span class="help-block">数値が大きい方が先頭</span></div>
+</div>
+
+
+<div class="clearfix">
+<label for="">グラフデータ</label>
+<div class="input">
+<h4>最初のデータ</h4>
+<table class="bordered-table zebra-striped">
+<tr>
+<th class="span1">&nbsp;</th>
+<th class="span3">タイプ</th>
+<th class="span10">データパス</th>
+<th class="span2" style="text-align: center">モード</th>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td><select name="type-1" class="span3">
+<option value="AREA">塗りつぶし</option>
+<option value="LINE1">線グラフ</option>
+<option value="LINE2">線グラフ(太)</option>
+</select></td>
+<td><select name="path-1" class="span10">
+: for $graphs -> $graph {
+<option value="<: $graph.id :>">/graph/<: $graph.service_name :>/<: $graph.section_name :>/<: $graph.graph_name :></option>
+: }
+</select></td>
+<td style="text-align: center"><select name="gmode-1" class="span2">
+<option value="gauge">実績</option>
+<option value="subtract">差分</option>
+</select></td>
+</tr>
+</table>
+<span id="complex-form-type-1" class="validator-message help-block"></span>
+<span id="complex-form-path-1" class="validator-message help-block"></span>
+<span id="complex-form-gmode-1" class="validator-message help-block"></span>
+
+: } # fillin
+
+<h4>2番目以降のデータ</h4>
+
+<table class="bordered-table zebra-striped" id="add-data-tbl">
+<tr>
+<th class="span1">&nbsp;</th>
+<th class="span3">タイプ</th>
+<th class="span6">データパス</th>
+<th class="span2" style="text-align:center;">モード</th>
+<th class="span2" style="text-align:center;">スタック</th>
+<th class="span2" style="text-align:center;">削除</th>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+<td><select name="type-add" id="type-add" class="span3">
+<option value="AREA">塗りつぶし</option>
+<option value="LINE1">線グラフ</option>
+<option value="LINE2">線グラフ(太)</option>
+</select></t>
+<td><select name="path-add" id="path-add" class="span6">
+: for $graphs -> $graph {
+<option value="<: $graph.id :>">/graph/<: $graph.service_name :>/<: $graph.section_name :>/<: $graph.graph_name :></option>
+: }
+</select></td>
+<td style="text-align: center"><select name="gmode-add" id="gmode-add" class="span2">
+<option value="gauge">実績</option>
+<option value="subtract">差分</option>
+</select></td>
+<td style="text-align:center;"><select name="stack-add" id="stack-add" class="span2">
+<option value="1">する</option>
+<option value="0">しない</option>
+</select>
+</td>
+<td style="text-align:center;"><button id="add-new-row" class="btn" style="padding: 3px 14px 4px;">追加</button></td>
+</tr>
+
+: my $type_hash = { 'AREA' => '塗りつぶし', 'LINE1' => '線グラフ', 'LINE2' => '線グラフ(太)' }
+: my $gmode_hash = { 'gauge' => '実績', 'subtract' => '差分' }
+: my $stack_hash = { '1' => 'する', 'subtract' => 'しない' }
+: for $c.stash.complex.data_rows ->  $row {
+<tr class="can-table-order">
+<td><span class="table-order-pointer table-order-up">⬆</span><span class="table-order-pointer table-order-down">⬇</span></td>
+<td><: $type_hash[$row.type] :><input type="hidden" name="type-2" value="<: $row.type :>"/></td>
+<td>/graph/<: $row.graph.service_name :>/<: $row.graph.section_name :>/<: $row.graph.graph_name :><input type="hidden" name="path-2" value="<: $row.path :>"/></td>
+<td style="text-align:center"><: $gmode_hash[$row.gmode] :><input type="hidden" name="gmode-2" value="<: $row.gmode :>" /></td>
+<td style="text-align:center"><: $stack_hash[$row.stack] :><input type="hidden" name="stack-2" value="<: $row.stack :>" /></td>
+<td style="text-align:center"><span class="table-order-remove">✖</span></td>
+</tr>
+: }
+
+
+</table>
+<span id="complex-form-type-2" class="validator-message help-block"></span>
+<span id="complex-form-path-2" class="validator-message help-block"></span>
+<span id="complex-form-gmode-2" class="validator-message help-block"></span>
+<span id="complex-form-stack-2" class="validator-message help-block"></span>
+</div>
+
+</fieldset>
+<div class="actions">
+<input type="submit" class="btn primary" value="変更" />
+</div>
+
+</form>
+: }
+
+: around javascript_load -> {
+$('.table-order-up').click(table_order_up);
+$('.table-order-down').click(table_order_down);
+$('.table-order-remove').click(table_order_remove);
+$('#add-new-row').click(add_new_row);
+$('#complex-form').submit(submit_complex);
+$('#complex-form select[name$="-1"]').change(function(){
+  setTimeout(function(){ preview_complex_graph($('#complex-form')) },10);
+});
+preview_complex_graph($('#complex-form'));
+: }
+

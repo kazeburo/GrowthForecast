@@ -5,7 +5,10 @@
 
 : around content -> {
 : for $services ->  $service {
-<h2><: $service.name :></h2>
+<h2>
+<span><: $service.name :></span>
+<span class="pull-right"><small style="vertical-align: text-middle;"><a href="<: $c.req.uri_for('/add_complex',[service_name=>$service.name]) :>">複合グラフの追加</a></small></span>
+</h2>
 <table class="zebra-striped">
 : for $service.sections -> $section {
 <tr>
@@ -13,7 +16,6 @@
 </tr>
 : }
 </table>
-<div id="headspacer"></div>
 : }
 
 : }

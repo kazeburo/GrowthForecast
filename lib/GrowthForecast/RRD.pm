@@ -64,9 +64,10 @@ sub update {
 my @jp_fonts = grep { -f $_ } zglob("/usr/share/fonts/**/sazanami-gothic.ttf");
 sub graph {
     my $self = shift;
-    my $data = shift;
+    my $datas = shift;
+    my @datas = ref($datas) eq 'ARRAY' ? @$datas : ($datas);
     my $args = shift;
-    my ($gmode, $span, $from, $to, $width, $height) = map { $args->{$_} } qw/gmode t from to width height/;
+    my ($a_gmode, $span, $from, $to, $width, $height) = map { $args->{$_} } qw/gmode t from to width height/;
     $span ||= 'd';
     $width ||= 390;
     $height ||= 110;
@@ -107,6 +108,11 @@ sub graph {
         $period = -1 * 60 * 60 * 2;
         $xgrid = 'MINUTE:10:MINUTE:20:MINUTE:10:0:%M';
     }
+    elsif ( $span eq 'n' ) {
+        $period_title = 'Half Day (5min avg)';
+        $period = -1 * 60 * 60 * 14;
+        $xgrid = 'MINUTE:60:MINUTE:120:MINUTE:120:0:%H %M';
+    }
     elsif ( $span eq 'w' ) {
         $period_title = 'Weekly (30min avg)';
         $period = -1 * 60 * 60 * 24 * 8;
@@ -128,7 +134,7 @@ sub graph {
         $xgrid = 'HOUR:1:HOUR:2:HOUR:2:0:%H';
     }
 
-    if ( $gmode eq 'subtract' ) { $period_title = "[subtract] $period_title" } 
+    if ( @datas == 1 && $a_gmode eq 'subtract' ) { $period_title = "[subtract] $period_title" } 
     my ($tmpfh, $tmpfile) = File::Temp::tempfile(UNLINK => 0, SUFFIX => ".png");
     my @opt = (
         $tmpfile,
@@ -148,21 +154,24 @@ sub graph {
     push @opt, '--font', "DEFAULT:0:".$jp_fonts[0] if @jp_fonts;
 
     my $i=0;
-    my $type = ( $gmode eq 'subtract' ) ? $data->{stype} : $data->{type};
-    my $gdata = ( $gmode eq 'subtract' ) ? 'sub' : 'num';
-    my $llimit = ( $gmode eq 'subtract' ) ? $data->{sllimit} : $data->{llimit};
-    my $ulimit = ( $gmode eq 'subtract' ) ? $data->{sulimit} : $data->{ulimit};
-    my $file = $self->path($data);
-    push @opt, 
-        sprintf('DEF:%s%dt=%s:%s:AVERAGE', $gdata, $i, $file, $gdata),
-        sprintf('CDEF:%s%d=%s%dt,%s,%s,LIMIT,%d,%s', $gdata, $i, $gdata, $i, $llimit, $ulimit, $data->{adjustval}, $data->{adjust}),
-        sprintf('%s:%s%d%s:%s ', $type, $gdata, $i, $data->{color}, $data->{graph_name}),
-        sprintf('GPRINT:%s%d:LAST:Cur\: %%4.1lf%%s%s', $gdata, $i, $data->{unit}),
-        sprintf('GPRINT:%s%d:AVERAGE:Avg\: %%4.1lf%%s%s', $gdata, $i, $data->{unit}),
-        sprintf('GPRINT:%s%d:MAX:Max\: %%4.1lf%%s%s', $gdata, $i, $data->{unit}),
-        sprintf('GPRINT:%s%d:MIN:Min\: %%4.1lf%%s%s\l', $gdata, $i, $data->{unit});
-    $i++;
-
+    for my $data ( @datas ) {
+        my $gmode = ($data->{c_gmode}) ? $data->{c_gmode} : $a_gmode;
+        my $type = ($data->{c_type}) ? $data->{c_type} : ( $gmode eq 'subtract' ) ? $data->{stype} : $data->{type};
+        my $gdata = ( $gmode eq 'subtract' ) ? 'sub' : 'num';
+        my $llimit = ( $gmode eq 'subtract' ) ? $data->{sllimit} : $data->{llimit};
+        my $ulimit = ( $gmode eq 'subtract' ) ? $data->{sulimit} : $data->{ulimit};
+        my $stack = ( $data->{stack} && $i > 0 ) ? ':STACK' : '';
+        my $file = $self->path($data);
+        push @opt, 
+            sprintf('DEF:%s%dt=%s:%s:AVERAGE', $gdata, $i, $file, $gdata),
+            sprintf('CDEF:%s%d=%s%dt,%s,%s,LIMIT,%d,%s', $gdata, $i, $gdata, $i, $llimit, $ulimit, $data->{adjustval}, $data->{adjust}),
+            sprintf('%s:%s%d%s:%s %s', $type, $gdata, $i, $data->{color}, $data->{graph_name},$stack),
+            sprintf('GPRINT:%s%d:LAST:Cur\: %%4.1lf%%s%s', $gdata, $i, $data->{unit}),
+            sprintf('GPRINT:%s%d:AVERAGE:Avg\: %%4.1lf%%s%s', $gdata, $i, $data->{unit}),
+            sprintf('GPRINT:%s%d:MAX:Max\: %%4.1lf%%s%s', $gdata, $i, $data->{unit}),
+            sprintf('GPRINT:%s%d:MIN:Min\: %%4.1lf%%s%s\l', $gdata, $i, $data->{unit});
+        $i++;
+    }
 
     eval {
         RRDs::graph(map { Encode::encode_utf8($_) } @opt);

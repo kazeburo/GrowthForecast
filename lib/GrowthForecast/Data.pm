@@ -10,6 +10,7 @@ use List::Util;
 use Encode;
 use JSON;
 use Log::Minimal;
+use List::MoreUtils qw/uniq/;
 
 sub new {
     my $class = shift;
@@ -50,6 +51,22 @@ CREATE TABLE IF NOT EXISTS prev_graphs (
     subtract     INT,
     updated_at   UNSIGNED INT NOT NULL,
     PRIMARY KEY  (graph_id)
+)
+EOF
+
+    $dbh->do(<<EOF);
+CREATE TABLE IF NOT EXISTS complex_graphs (
+    id           INTEGER NOT NULL PRIMARY KEY,
+    service_name VARCHAR(255) NOT NULL,
+    section_name VARCHAR(255) NOT NULL,
+    graph_name   VARCHAR(255) NOT NULL,
+    number       INT NOT NULL DEFAULT 0,
+    description  VARCHAR(255) NOT NULL DEFAULT '',
+    sort         UNSIGNED INT NOT NULL DEFAULT 0,
+    meta         TEXT NOT NULL DEFAULT '',
+    created_at   UNSIGNED INT NOT NULL,
+    updated_at   UNSIGNED INT NOT NULL,
+    UNIQUE  (service_name, section_name, graph_name)
 )
 EOF
     return;
@@ -190,9 +207,12 @@ sub update_graph {
 sub get_services {
     my $self = shift;
     my $rows = $self->dbh->select_all(
-        'SELECT DISTINCT service_name FROM graphs',
+        'SELECT DISTINCT service_name FROM graphs ORDER BY service_name',
     );
-    my @names = map { $_->{service_name} } @$rows;
+    my $complex_rows = $self->dbh->select_all(
+        'SELECT DISTINCT service_name FROM complex_graphs ORDER BY service_name',
+    );
+    my @names = uniq map { $_->{service_name} } (@$rows,@$complex_rows);
     \@names
 }
 
@@ -200,10 +220,14 @@ sub get_sections {
     my $self = shift;
     my $service_name = shift;
     my $rows = $self->dbh->select_all(
-        'SELECT DISTINCT section_name FROM graphs WHERE service_name = ?',
+        'SELECT DISTINCT section_name FROM graphs WHERE service_name = ? ORDER BY section_name',
         $service_name,
     );
-    my @names = map { $_->{section_name} } @$rows;
+    my $complex_rows = $self->dbh->select_all(
+        'SELECT DISTINCT section_name FROM complex_graphs WHERE service_name = ? ORDER BY section_name',
+        $service_name,
+    );
+    my @names = uniq map { $_->{section_name} } (@$rows,@$complex_rows);
     \@names;
 } 
 
@@ -214,10 +238,18 @@ sub get_graphs {
        'SELECT * FROM graphs WHERE service_name = ? AND section_name = ? ORDER BY sort DESC',
        $service_name, $section_name
    );
+   my $complex_rows = $self->dbh->select_all(
+       'SELECT * FROM complex_graphs WHERE service_name = ? AND section_name = ? ORDER BY sort DESC',
+       $service_name, $section_name
+   );
    my @ret;
    for my $row ( @$rows ) {
        push @ret, $self->inflate_row($row); 
    }
+   for my $row ( @$complex_rows ) {
+       push @ret, $self->inflate_complex_row($row); 
+   }
+   @ret = sort { $b->{sort} <=> $a->{sort} } @ret;
    \@ret;
 }
 
@@ -227,6 +259,14 @@ sub get_all_graph_id {
        'SELECT id FROM graphs',
    );
 }
+
+sub get_all_graph_name {
+   my $self = shift;
+   $self->dbh->select_all(
+       'SELECT id,service_name,section_name,graph_name FROM graphs ORDER BY service_name, section_name, sort DESC',
+   );
+}
+
 
 sub remove {
     my ($self, $id ) = @_;
@@ -242,6 +282,94 @@ sub remove {
     );
     $dbh->commit;
 
+}
+
+sub inflate_complex_row {
+    my ($self, $row) = @_;
+    $row->{created_at} = localtime($row->{created_at})->strftime('%Y/%m/%d %T');
+    $row->{updated_at} = localtime($row->{updated_at})->strftime('%Y/%m/%d %T');
+
+    my $ref =  decode_json($row->{meta}||'{}');
+    my $uri = join ":", map { $ref->{$_} } qw /type-1 path-1 gmode-1/;
+    $uri .= ":0"; #stack
+
+    if ( !ref $ref->{'type-2'} ) {
+        $ref->{$_} = [$ref->{$_}] for qw /type-2 path-2 gmode-2 stack-2/;
+    }
+    my $num = scalar @{$ref->{'type-2'}};
+    my @ret;
+    for ( my $i = 0; $i < $num; $i++ ) {
+        $uri .= ':' . join ":", map { $ref->{$_}->[$i] } qw /type-2 path-2 gmode-2 stack-2/;
+        push @ret, {
+            type => $ref->{'type-2'}->[$i],
+            path => $ref->{'path-2'}->[$i],
+            gmode => $ref->{'gmode-2'}->[$i],
+            stack => $ref->{'stack-2'}->[$i],
+            graph => $self->get_by_id($ref->{'path-2'}->[$i]),
+        };        
+    }
+
+    $ref->{data_rows} = \@ret;
+    $ref->{complex_graph} = $uri;
+    my %result = (
+        %$ref,
+        %$row
+    );
+    \%result
+}
+
+sub get_complex {
+    my ($self, $service, $section, $graph) = @_;
+    my $row = $self->dbh->select_row(
+        'SELECT * FROM complex_graphs WHERE service_name = ? AND section_name = ? AND graph_name = ?',
+        $service, $section, $graph
+    );
+    return unless $row;
+    $self->inflate_complex_row($row);
+}
+
+sub get_complex_by_id {
+    my ($self, $id) = @_;
+    my $row = $self->dbh->select_row(
+        'SELECT * FROM complex_graphs WHERE id = ?',
+        $id
+    );
+    return unless $row;
+    $self->inflate_complex_row($row);
+}
+
+sub create_complex {
+    my ($self, $service, $section, $graph, $args) = @_;
+    my @update = map { delete $args->{$_} } qw/description sort/;
+    my $meta = encode_json($args);
+    $self->dbh->query(
+        'INSERT INTO complex_graphs (service_name, section_name, graph_name, description, sort, meta,  created_at, updated_at) 
+                         VALUES (?,?,?,?,?,?,?,?)',
+        $service, $section, $graph, @update, $meta, time, time
+    ); 
+    $self->get_complex($service, $section, $graph);
+}
+
+sub update_complex {
+    my ($self, $id, $args) = @_;
+    my @update = map { delete $args->{$_} } qw/service_name section_name graph_name description sort/;
+    my $meta = encode_json($args);
+    $self->dbh->query(
+        'UPDATE complex_graphs SET service_name = ?, section_name = ?, graph_name = ? , 
+                                   description = ?, sort = ?, meta = ?, updated_at = ?
+                             WHERE id=?',
+        @update, $meta, time, $id        
+    );
+    $self->get_complex_by_id($id);
+}
+
+sub remove_complex {
+    my ($self, $id ) = @_;
+    my $dbh = $self->dbh;
+    $dbh->query(
+        'DELETE FROM complex_graphs WHERE id = ?',
+        $id
+    );
 }
 
 1;

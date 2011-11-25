@@ -6,23 +6,37 @@
 : around content -> {
 
 <div class="pagination" style="margin: 1px 0;">
-<ul style="float: right">
-<li class="prev <: ( $c.req.param('t') == 'h' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/list/'~$c.args.service_name~'/'~$c.args.section_name, [t=>'h']) :>">時・日</a></li>
+<div class="pull-right">
+<ul>
+<li class="prev <: ( $c.req.param('t') == 'h' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/list/'~$c.args.service_name~'/'~$c.args.section_name, [t=>'h']) :>">時・半日</a></li>
 <li class="<: ( $c.req.param('t') != 'h' && $c.req.param('t') != 'm' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/list/'~$c.args.service_name~'/'~$c.args.section_name) :>">日・週</a></li>
 <li class="next <: ( $c.req.param('t') == 'm' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/list/'~$c.args.service_name~'/'~$c.args.section_name, [t=>'m']) :>">月・年</a></li>
 </ul>
+</div>
 </div>
 
 : for $graphs ->  $graph {
 <h2><: $graph.graph_name :>
 <small><: $graph.description :></small></h2>
 <p>
+: if $graph.complex_graph {
+<a class="label success" style="cursor: pointer" href="<: $c.req.uri_for('/edit_complex/'~$graph.id) :>">設定</a>
+<span class="label important">複合</span>
+: } else {
 <a class="label success" style="cursor: pointer" data-controls-modal="modal-form-<: $~graph.index :>" data-backdrop="true" data-keyboard="true">設定</a>
 <span class="label">current</span> <: $graph.number | format_number :>
+: }
 <span class="label">created_at</span> <: $graph.created_at :>
 <span class="label">updated_at</span> <: $graph.updated_at :>
+: if $graph.complex_graph {
+<a class="pull-right" style="cursor: pointer" data-controls-modal="modal-remove-complex-<: $~graph.index :>" data-backdrop="true" data-keyboard="true">✖</a>
+</p>
+: } else {
 <a class="pull-right" style="cursor: pointer" data-controls-modal="modal-remove-<: $~graph.index :>" data-backdrop="true" data-keyboard="true">✖</a>
 </p>
+: }
+
+: if ! $graph.complex_graph {
 : block form |  fillinform( $graph ) -> {
 <div id="modal-form-<: $~graph.index :>" class="modal hide fade">
 <form class="pref-form" id="pref-form-<: $~graph.index :>" method="post" action="<: $c.req.uri_for('/graph/'~$graph.service_name~'/'~$graph.section_name~'/'~$graph.graph_name, [t=>$c.req.param('t')]) :>">
@@ -161,7 +175,7 @@
 </div>
 </form>
 </div>
-: }
+: } # fillin
 
 <div id="modal-remove-<: $~graph.index :>" class="modal hide fade">
 <form class="remove-form" id="remove-form-<: $~graph.index :>" method="post" action="<: $c.req.uri_for('/graph/'~$graph.service_name~'/'~$graph.section_name~'/'~$graph.graph_name~'/delete') :>">
@@ -179,75 +193,48 @@
 </div>
 </form>
 </div>
+: } else { #if ! $graph.complex_graph
+<div id="modal-remove-complex-<: $~graph.index :>" class="modal hide fade">
+<form class="remove-form" id="remove-form-<: $~graph.index :>" method="post" action="<: $c.req.uri_for('/remove_complex/'~$graph.id) :>">
+<div class="modal-header">
+<h3><: $graph.graph_name :> グラフ削除</h3>
+</div>
+<div class="modal-body">
+<div class="alert-message error hide">
+<p>System Error! <a href="#">try again</a>.</p>
+</div>
+<p><strong><: $graph.graph_name :></strong> を削除します</p>
+</div>
+<div class="modal-footer">
+<input type="submit" class="btn primary" value="削除" />
+</div>
+</form>
+</div>
+
+: } # else ! $graph.complex_graph
 
 <div style="margin-bottom: 13px; text-align: center">
-: my $gmodes = ( $graph.gmode == 'both' ) ? ['gauge','subtract'] : ( $graph.gmode == 'gauge') ? ['gauge'] : ['subtract']
-: for $gmodes -> $gmode {
-: my $terms = ( $c.req.param('t') == 'h' ) ? ['h','d'] : ( $c.req.param('t') == 'm') ? ['m','y'] : ['d','w']
-: for $terms -> $term {
+: if ! $graph.complex_graph {
+  : my $gmodes = ( $graph.gmode == 'both' ) ? ['gauge','subtract'] : ( $graph.gmode == 'gauge') ? ['gauge'] : ['subtract']
+  : for $gmodes -> $gmode {
+    : my $terms = ( $c.req.param('t') == 'h' ) ? ['h','n'] : ( $c.req.param('t') == 'm') ? ['m','y'] : ['d','w']
+    : for $terms -> $term {
 <img src="<: $c.req.uri_for('/graph/'~$graph.service_name~'/'~$graph.section_name~'/'~$graph.graph_name, [t=>$term,gmode=>$gmode]) :>" />
-: }
+    : }
+  : }
+: } else {
+  : my $terms = ( $c.req.param('t') == 'h' ) ? ['h','n'] : ( $c.req.param('t') == 'm') ? ['m','y'] : ['d','w']
+  : for $terms -> $term {
+<img src="<: $c.req.uri_for('/graph/'~$graph.complex_graph, [t=>$term]) :>" />
+  : }
 : }
 </div>
+
+: } # for graphs
+: } # arround
+
+: around javascript_load -> {
+$('.pref-form').submit(submit_pref_form);
+$('.remove-form').submit(submit_remove_form);
 : }
-: }
 
-: around javascript -> {
-$(function(){
-  $('.pref-form').submit(submit_pref_form);
-  $('.remove-form').submit(submit_remove_form);
-});
-
-function submit_pref_form() {
-  pref_form = this;
-  $.ajax({
-    type: 'POST',
-    url: pref_form.action,
-    data: $(pref_form).serialize(),
-    success: function(data) {
-      $(pref_form).find('.alert-message').hide();
-      if ( data.error == 0 ) {
-          location.reload();
-      }
-      else {
-          $(pref_form).find('.validator-message').text('');
-	  $(pref_form).find('div.clearfix').removeClass('error');
-          $.each(data.messages, function (param,message) {
-             $(pref_form).find('#'+pref_form.id +'-'+ param).text(message);
-	     $(pref_form).find('#'+pref_form.id +'-'+ param).parents('div.clearfix').first().addClass('error');
-          });
-      }
-    },
-    error: function() {
-      $(pref_form).find('.alert-message').show();
-    },
-    dataType: 'json'
-  });
-  return false;
-};
-
-function submit_remove_form() {
-  remove_form = this;
-  $.ajax({
-    type: 'POST',
-    url: remove_form.action,
-    data: $(remove_form).serialize(),
-    success: function(data) {
-      $(remove_form).find('.alert-message').hide();
-      if ( data.error == 0 ) {
-        location.reload();
-      }
-      else {
-        $(remove_form).find('.alert-message').show();
-      }
-    },
-    error: function() {
-      $(remove_form).find('.alert-message').show();
-    },
-    dataType: 'json'
-  });
-  return false;
-};
-
-
-: }

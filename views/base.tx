@@ -34,6 +34,13 @@ section > .row {
 .modal form {
   margin: 0 0;
 }
+.table-order-pointer, .table-order-remove {
+  cursor: pointer;
+}
+.table-order-pointer:hover, .table-order-remove:hover {
+  color: #999;
+}
+
 </style>
 <title>GrowthForecast</title>
 </head>
@@ -78,7 +85,164 @@ section > .row {
 <script type="text/javascript" src="<: $c.req.uri_for('/js/bootstrap-modal.js') :>"></script>
 <script type="text/javascript" src="<: $c.req.uri_for('/js/bootstrap-alerts.js') :>"></script>
 <script type="text/javascript">
-: block javascript -> { }
+$(function(){
+: block javascript_load -> { }
+});
+
+function submit_pref_form() {
+  pref_form = this;
+  $.ajax({
+    type: 'POST',
+    url: pref_form.action,
+    data: $(pref_form).serialize(),
+    success: function(data) {
+      $(pref_form).find('.alert-message').hide();
+      if ( data.error == 0 ) {
+          location.reload();
+      }
+      else {
+          $(pref_form).find('.validator-message').text('');
+          $(pref_form).find('div.clearfix').removeClass('error');
+          $.each(data.messages, function (param,message) {
+             $(pref_form).find('#'+pref_form.id +'-'+ param).text(message);
+             $(pref_form).find('#'+pref_form.id +'-'+ param).parents('div.clearfix').first().addClass('error');
+          });
+      }
+    },
+    error: function() {
+      $(pref_form).find('.alert-message').show();
+    },
+    dataType: 'json'
+  });
+  return false;
+};
+
+function submit_remove_form() {
+  remove_form = this;
+  $.ajax({
+    type: 'POST',
+    url: remove_form.action,
+    data: $(remove_form).serialize(),
+    success: function(data) {
+      $(remove_form).find('.alert-message').hide();
+      if ( data.error == 0 ) {
+        location.reload();
+      }
+      else {
+        $(remove_form).find('.alert-message').show();
+      }
+    },
+    error: function() {
+      $(remove_form).find('.alert-message').show();
+    },
+    dataType: 'json'
+  });
+  return false;
+};
+
+function submit_complex() {
+  var myform = this;
+  $.ajax({
+    type: 'POST',
+    url: myform.action,
+    data: $(myform).serialize(),
+    success: function(data) {
+      $(myform).find('.alert-message').hide();
+      if ( data.error == 0 ) {
+          location.href = data.location;
+      }
+      else {
+          $(myform).find('.validator-message').text('');
+          $(myform).find('div.clearfix').removeClass('error');
+          $.each(data.messages, function (param,message) {
+             $(myform).find('#'+myform.id +'-'+ param).text(message);
+             $(myform).find('#'+myform.id +'-'+ param).parents('div.clearfix').first().addClass('error');
+          });
+      }
+    },
+    error: function() {
+      $(myform).find('.alert-message').show();
+    },
+    dataType: 'json'
+  });
+  return false;
+};
+
+function add_new_row() {
+  var path = $('#path-add').val();
+  var type = $('#type-add').val();
+  var gmode = $('#gmode-add').val();
+  var stack = $('#stack-add').val();
+
+  var tr = $('<tr></tr>');
+  tr.append('<td><span class="table-order-pointer table-order-up">⬆</span><span class="table-order-pointer table-order-down">⬇</span></td>');
+  tr.append('<td style="text-align:left">'+$('#type-add option:selected').html()+'<input type="hidden" name="type-2" value="'+type+'" /></td>');
+  tr.append('<td>'+$('#path-add option:selected').html()+'<input type="hidden" name="path-2" value="'+path+'" /></td>');
+  tr.append('<td style="text-align:center">'+$('#gmode-add option:selected').html()+'<input type="hidden" name="gmode-2" value="'+gmode+'" /></td>');
+  tr.append('<td style="text-align:center">'+$('#stack-add option:selected').html()+'<input type="hidden" name="stack-2" value="'+stack+'" /></td>');
+  tr.append('<td style="text-align:center"><span class="table-order-remove">✖</span></td>')
+  tr.appendTo($('table#add-data-tbl'));
+
+  $('#add-data-tbl').find('tr:last').addClass('can-table-order');
+  $('#add-data-tbl').find('span.table-order-up:last').click(table_order_up);
+  $('#add-data-tbl').find('span.table-order-down:last').click(table_order_down);
+  $('#add-data-tbl').find('span.table-order-remove:last').click(table_order_remove);
+
+  var myform = $('#path-add').parents('form').first();
+  setTimeout(function(){preview_complex_graph(myform)},10);
+
+  return false;
+}
+
+function table_order_up() {
+  var btn = this;
+  var mytr = $(this).parents('tr.can-table-order').first();
+  if ( mytr ) {
+    var prevtr = mytr.prev('tr.can-table-order');
+    mytr.insertBefore(prevtr);
+  }
+  var myform = $(this).parents('form').first();
+  setTimeout(function(){preview_complex_graph(myform)},10);
+  return false;
+};
+
+function table_order_down() {
+  var btn = this;
+  var mytr = $(this).parents('tr.can-table-order').first();
+  if ( mytr ) {
+    var nexttr = mytr.next('tr.can-table-order');
+    mytr.insertAfter(nexttr);
+  }
+  var myform = $(this).parents('form').first();
+  setTimeout(function(){preview_complex_graph(myform)},0);
+  return false;
+};
+
+function table_order_remove() {
+  var btn = this;
+  var mytr = $(this).parents('tr.can-table-order').first();
+  var myform = $(this).parents('form').first();
+  setTimeout(function(){preview_complex_graph(myform)},10);
+  mytr.detach();
+};
+
+function preview_complex_graph(myform) {
+  var uri =  myform.find('select[name="type-1"]').val() + ':' + myform.find('select[name="path-1"]').val() + ':' + myform.find('select[name="gmode-1"]').val() + ':0';
+  var num = myform.find('input[name=type-2]').length;
+
+  for (var i=0; i < num; i++ ) {
+      uri += ':'
+           + myform.find('input[name="type-2"]').eq(i).val() + ':'
+           + myform.find('input[name="path-2"]').eq(i).val() + ':'
+           + myform.find('input[name="gmode-2"]').eq(i).val() + ':'
+           + myform.find('input[name="stack-2"]').eq(i).val();
+  }
+  var base = $('ul.nav:first > li:first > a').attr('href');
+  var img = $('<img />');
+  img.attr('src',base + 'graph/' + uri);
+  $('#preview-graph').children('img').detach();
+  img.appendTo($('#preview-graph'));
+};
 </script>
 </body>
 </html>
