@@ -406,8 +406,37 @@ get '/graph/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
 
 post '/graph/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
     my ( $self, $c )  = @_;
+    my $check_uniq = sub {
+        my ($req,$val) = @_;
+        my $service = $req->param('service_name');
+        my $section = $req->param('section_name');
+        my $graph = $req->param('graph_name');
+        $service = '' if !defined $service;
+        $section = '' if !defined $section;
+        $graph = '' if !defined $graph;
+        my $row = $self->data->get($service,$section,$graph);
+        return 1 if $row && $row->{id} == $c->stash->{graph}->{id};
+        return 1 if !$row;
+        return;
+    };
 
     my $result = $c->req->validator([
+        'service_name' => {
+            rule => [
+                ['NOT_NULL', 'サービス名がありません'],
+            ],
+        },
+        'section_name' => {
+            rule => [
+                ['NOT_NULL', 'セクション名がありません'],
+            ],
+        },
+        'graph_name' => {
+            rule => [
+                ['NOT_NULL', 'グラフ名がありません'],
+                [$check_uniq,'同じ名前のグラフがあります'],
+            ],
+        },
         'description' => {
             default => '',
             rule => [],

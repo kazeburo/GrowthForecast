@@ -180,9 +180,9 @@ sub update {
         my @colors = List::Util::shuffle(qw/33 66 99 cc/);
         my $color = '#' . join('', splice(@colors,0,3));
         $dbh->query(
-            'INSERT INTO graphs (service_name, section_name, graph_name, number, color, created_at, updated_at) 
-                         VALUES (?,?,?,?,?,?,?)',
-            $service, $section, $graph, $number, $color, time, time
+            'INSERT INTO graphs (service_name, section_name, graph_name, number, color, llimit, sllimit, created_at, updated_at) 
+                         VALUES (?,?,?,?,?,?,?,?,?)',
+            $service, $section, $graph, $number, $color, -1000000000, -100000 ,time, time
         ); 
     }
     my $row = $self->get($service, $section, $graph);
@@ -193,11 +193,11 @@ sub update {
 
 sub update_graph {
     my ($self, $id, $args) = @_;
-    my @update = map { delete $args->{$_} } qw/description sort gmode color type stype llimit ulimit sllimit sulimit/;
+    my @update = map { delete $args->{$_} } qw/service_name section_name graph_name description sort gmode color type stype llimit ulimit sllimit sulimit/;
     my $meta = encode_json($args);
     my $dbh = $self->dbh;
     $dbh->query(
-        'UPDATE graphs SET description=?, sort=?, gmode=?, color=?, type=?, stype=?,
+        'UPDATE graphs SET service_name=?, section_name=?, graph_name=?, description=?, sort=?, gmode=?, color=?, type=?, stype=?,
          llimit=?, ulimit=?, sllimit=?, sulimit=?, meta=? WHERE id = ?',
         @update, $meta, $id
     );

@@ -53,6 +53,21 @@
 </div>
 
 <fieldset>
+
+<div class="clearfix">
+<label for="">パス</label>
+<div class="input">
+<div class="inline-inputs">
+<span class="help-block"><: $c.req.uri_for('/graph') :></span>
+/ <input class="small" name="service_name" /> / <input class="small" name="section_name" /> / <input class="small" name="graph_name" />
+<span id="pref-form-<: $~graph.index :>-service_name" class="validator-message help-block"></span>
+<span id="pref-form-<: $~graph.index :>-section_name" class="validator-message help-block"></span>
+<span id="pref-form-<: $~graph.index :>-graph_name" class="validator-message help-block"></span>
+<span class="help-block">グラフを表示するURI(サービス名/セクション名/グラフ名)</span>
+</div>
+</div>
+</div>
+
 <div class="clearfix">
 <label for="">説明</label>
 <div class="input"><input class="xlarge" name="description" />
