@@ -81,7 +81,7 @@ $ua->post('<: $c.req.uri_for('/') :>api/ninjyatoriai/items/syuriken_no_ureta_kaz
 $ curl -F number=10 <: $c.req.uri_for('/') :>api/ninjyatoriai/items/syuriken_no_ureta_kazu
 </pre>
 
-<p>グラフのデータの取り込みは1分に1度行われます。POST後すぐに反映されないので注意してください</p>
+<p>グラフのデータの取り込みは5分に1度行われます。POST後すぐに反映されないので注意してください</p>
 
 <p>現在のところ一種類のグラフしか描けませんが、この辺はそのうちいい感じになる予定です。</p>
 

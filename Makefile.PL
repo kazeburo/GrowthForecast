@@ -11,7 +11,7 @@ WriteMakefile(
         'HTTP::Date' => 0,
         'File::Zglob' => '0.09',
         'Log::Minimal' => '0.09',
-        'List::MoreUtils' => '0,
+        'List::MoreUtils' => '0',
         'Starlet' => '0.14',
         'Parallel::Scoreboard' => '0.03',
         'Plack::Builder::Conditionals' => '0.03',
