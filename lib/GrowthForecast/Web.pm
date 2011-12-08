@@ -362,6 +362,24 @@ my $GRAPH_VALIDATOR = [
             [['CHOICE',qw/0 1/],'invalid only flag'],
         ],
     },
+    'back' => {
+        default => 'f3f3f3',
+        rule => [
+            [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i }, 'invalid background color'],
+        ],
+    },
+    'canvas' => {
+        default => 'ffffff',
+        rule => [
+            [[sub{ $_[1] =~ m!^[0-9A-F]{6}$!i }], 'invalid canvas color'],
+        ],
+    },
+    'border' => {
+        default => 3,
+        rule => [
+            ['UINT','invalid border width'],
+        ],
+    },
 ];
 
 get '/graph/:complex' => sub {

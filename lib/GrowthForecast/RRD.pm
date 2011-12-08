@@ -8,6 +8,8 @@ use HTTP::Date;
 use File::Temp;
 use File::Zglob;
 use File::Path qw//;
+use Log::Minimal;
+$Log::Minimal::AUTODUMP =1;
 
 sub new {
     my $class = shift;
@@ -67,6 +69,7 @@ sub graph {
     my $datas = shift;
     my @datas = ref($datas) eq 'ARRAY' ? @$datas : ($datas);
     my $args = shift;
+warnf $args;
     my ($a_gmode, $span, $from, $to, $width, $height) = map { $args->{$_} } qw/gmode t from to width height/;
     $span ||= 'd';
     $width ||= 390;
@@ -163,10 +166,15 @@ sub graph {
         '-s', $period,
         '-e', $end,
         '--slope-mode',
+        '--color', 'BACK#'.uc($args->{back}),
+        '--color', 'CANVAS#'.uc($args->{canvas}),
+        '--border', $args->{border},
 #        '--disable-rrdtool-tag',
     );
+
     push @opt, '--only-graph' if $args->{graphonly};
     push @opt, '--font', "DEFAULT:0:".$jp_fonts[0] if @jp_fonts;
+warnf \@opt;
 
     my $i=0;
     for my $data ( @datas ) {
