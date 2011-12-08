@@ -362,16 +362,46 @@ my $GRAPH_VALIDATOR = [
             [['CHOICE',qw/0 1/],'invalid only flag'],
         ],
     },
-    'back' => {
+    'background_color' => {
         default => 'f3f3f3',
         rule => [
-            [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i }, 'invalid background color'],
+            [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid background color'],
         ],
     },
-    'canvas' => {
+    'canvas_color' => {
         default => 'ffffff',
         rule => [
-            [[sub{ $_[1] =~ m!^[0-9A-F]{6}$!i }], 'invalid canvas color'],
+            [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid canvas color'],
+        ],
+    },
+    'font_color' => {
+        default => '000000',
+        rule => [
+            [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid font color'],
+        ],
+    },
+    'frame_color' => {
+        default => '000000',
+        rule => [
+            [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid frame color'],
+        ],
+    },
+    'axis_color' => {
+        default => '000000',
+        rule => [
+            [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid axis color'],
+        ],
+    },
+    'shadea_color' => {
+        default => 'cfcfcf',
+        rule => [
+            [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid shadea color'],
+        ],
+    },
+    'shadeb_color' => {
+        default => '9e9e9e',
+        rule => [
+            [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid shadeb color'],
         ],
     },
     'border' => {
@@ -380,6 +410,18 @@ my $GRAPH_VALIDATOR = [
             ['UINT','invalid border width'],
         ],
     },
+    'legend' => {
+        default => 1,
+        rule => [
+            [['CHOICE',qw/0 1/],'invalid legend flag'],
+        ],
+    },
+    'notitle' => {
+        default => 0,
+        rule => [
+            [['CHOICE',qw/0 1/],'invalid title flag'],
+        ],        
+    }
 ];
 
 get '/graph/:complex' => sub {

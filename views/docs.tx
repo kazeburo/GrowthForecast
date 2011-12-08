@@ -83,6 +83,95 @@ $ curl -F number=10 <: $c.req.uri_for('/') :>api/ninjyatoriai/items/syuriken_no_
 
 <p>グラフのデータの取り込みは5分に1度行われます。POST後すぐに反映されないので注意してください</p>
 
-<p>現在のところ一種類のグラフしか描けませんが、この辺はそのうちいい感じになる予定です。</p>
+<h4>グラフの表示オプション</h4>
+
+<p>グラフのURIに対していくつかオプションを与えるとグラフの描画をカスタマイズすることができます</p>
+
+<pre>
+グラフのURI <: $c.req.uri_for('/') :>graph/:service_name/:section_name/:graph_name
+複合グラフのURI  <: $c.req.uri_for('/') :>graph/:pattern
+</pre>
+
+<table>
+<tr>
+<th>パラメータ</th>
+<th>説明</th>
+</tr>
+<tr>
+<td>t</td>
+<td>グラフの範囲。y(年間)、m(月間)、w(週間)、3d(3日間)、d(一日)、8h(8時間)、4h(4時間)、h(1時間)、n(半日)、c(任意)</td>
+</tr>
+<tr>
+<td>from</td>
+<td>「t」が「c」の場合、描画する開始日付。「2011/12/08 12:10:00」の形式で指定</td>
+</tr>
+<tr>
+<td>to</td>
+<td>「t」が「c」の場合、描画する終了日付。「2011/12/08 12:10:00」の形式で指定</td>
+</tr>
+<tr>
+<td>gmode</td>
+<td>積算か差分グラフの選択、「gauge」または「subtract」。デフォルトは「gauge」</td>
+</tr>
+<tr>
+<td>width</td>
+<td>横幅。実際には凡例などを含むので指定したサイズより大きくなる</td>
+</tr>
+<tr>
+<td>height</td>
+<td>縦幅。実際には凡例などを含むので指定したサイズより大きくなる</td>
+</tr>
+<tr>
+<td>graphonly</td>
+<td>グラフ部分しか描画しないモード。デフォルト「0」</td>
+</tr>
+
+<tr>
+<td>background_color</td>
+<td>背景色。FFFFFF または FFFFFF00 で指定。最後の2文字はアルファチャンネル</td>
+</tr>
+
+<tr>
+<td>canvas_color</td>
+<td>グラフ部分背景色。FFFFFF または FFFFFF00 で指定</td>
+</tr>
+
+<tr>
+<td>font_color</td>
+<td>文字色。FFFFFF または FFFFFF00 で指定</td>
+</tr>
+
+<tr>
+<td>frame_color</td>
+<td>凡例の色を囲っている部分。FFFFFF または FFFFFF00 で指定</td>
+</tr>
+
+<tr>
+<td>axis_color</td>
+<td>グラフ部分の枠線。FFFFFF または FFFFFF00 で指定</td>
+</tr>
+
+<tr>
+<td>shadea_color</td>
+<td>左上、上の枠線。FFFFFF または FFFFFF00 で指定</td>
+</tr>
+
+<tr>
+<td>shadeb_color</td>
+<td>右下、下の枠線。FFFFFF または FFFFFF00 で指定</td>
+</tr>
+
+<tr>
+<td>border</td>
+<td>枠線の太さ。「0」も可能。デフォルト「3」</td>
+</tr>
+
+<tr>
+<td>legend</td>
+<td>凡例の有無。デフォルト「1」</td>
+</tr>
+
+</table>
+
 
 : }

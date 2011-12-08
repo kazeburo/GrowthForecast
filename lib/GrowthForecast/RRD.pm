@@ -158,19 +158,25 @@ sub graph {
         '-w', $width,
         '-h', $height,
         '-a', 'PNG',
-        '-t', "$period_title",
         '-l', 0, #minimum
         '-u', 2, #maximum
         '-x', $xgrid,
         '-s', $period,
         '-e', $end,
         '--slope-mode',
-        '--color', 'BACK#'.uc($args->{back}),
-        '--color', 'CANVAS#'.uc($args->{canvas}),
+        '--color', 'BACK#'.uc($args->{background_color}),
+        '--color', 'CANVAS#'.uc($args->{canvas_color}),
+        '--color', 'FONT#'.uc($args->{font_color}),
+        '--color', 'FRAME#'.uc($args->{frame_color}),
+        '--color', 'AXIS#'.uc($args->{axis_color}),
+        '--color', 'SHADEA#'.uc($args->{shadea_color}),
+        '--color', 'SHADEB#'.uc($args->{shadeb_color}),
         '--border', $args->{border},
 #        '--disable-rrdtool-tag',
     );
 
+    push @opt, '-t', "$period_title" if !$args->{notitle};
+    push @opt, '--no-legend' if !$args->{legend};
     push @opt, '--only-graph' if $args->{graphonly};
     push @opt, '--font', "DEFAULT:0:".$jp_fonts[0] if @jp_fonts;
 
