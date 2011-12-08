@@ -152,8 +152,7 @@ sub get_by_id_for_rrdupdate {
         );        
     }
     else {
-        $subtract = $prev->{subtract};
-        $subtract = 'U' if ! defined $subtract;
+        $subtract = 0;
     }
 
     $dbh->commit;

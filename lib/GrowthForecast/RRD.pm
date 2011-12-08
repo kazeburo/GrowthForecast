@@ -128,6 +128,21 @@ sub graph {
         $period = -1 * 60 * 60 * 24 * 400;
         $xgrid = 'WEEK:1:MONTH:1:MONTH:1:2592000:%b'
     }
+    elsif ( $span eq '3d' ) {
+        $period_title = '3 Days (5min avg)';
+        $period = -1 * 60 * 60 * 24 * 3;
+        $xgrid = 'HOUR:6:DAY:1:HOUR:6:0:%H';
+    }
+    elsif ( $span eq '8h' ) {
+        $period_title = '8 Hours (5min avg)';
+        $period = -1 * 8 * 60 * 60;
+        $xgrid = 'MINUTE:30:HOUR:1:HOUR:1:0:%H:%M';
+    }
+    elsif ( $span eq '4h' ) {
+        $period_title = '4 Hours (5min avg)';
+        $period = -1 * 4 * 60 * 60;
+        $xgrid = 'MINUTE:30:HOUR:1:MINUTE:30:0:%H:%M';
+    }
     else {
         $period_title = 'Daily (5min avg)';
         $period = -1 * 60 * 60 * 33; # 33 hours

@@ -323,7 +323,7 @@ my $GRAPH_VALIDATOR = [
     't' => {
         default => 'd',
         rule => [
-            [['CHOICE',qw/y m w d h n c/],'invalid drawing term'],
+            [['CHOICE',qw/y m w 3d d 8h 4h h n c/],'invalid drawing term'],
         ],
     },
     'gmode' => {
