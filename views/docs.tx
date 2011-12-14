@@ -61,7 +61,11 @@
 </tr>
 <tr>
 <td>mode</td>
-<td>登録済みの数値を number の値で加算する時には mode=count とします。<br />通常は number の数値で常に上書きます。</td>
+<td>数値のアップデート方法。count or modified or gauge。<br />
+count: 登録済みの数値を number の値で加算<br />
+modified: 前回と異なる数値の時だけ上書き更新<br />
+gauge: number の数値で常に上書き<br />
+デフォルトは gauge</td>
 <td>オプション</td>
 </tr>
 </table>

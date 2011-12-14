@@ -170,10 +170,12 @@ sub update {
         if ( $mode eq 'count' ) {
             $number += $data->{number};
         }
-        $dbh->query(
-            'UPDATE graphs SET number=?, updated_at=? WHERE id = ?',
-            $number, time, $data->{id}
-        );
+        if ( $mode ne 'modified' || ($mode eq 'modified' && $data->{number} != $number) ) {
+            $dbh->query(
+                'UPDATE graphs SET number=?, updated_at=? WHERE id = ?',
+                $number, time, $data->{id}
+            );
+        }
     }
     else {
         my @colors = List::Util::shuffle(qw/33 66 99 cc/);

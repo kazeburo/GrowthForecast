@@ -621,7 +621,7 @@ post '/api/:service_name/:section_name/:graph_name' => sub {
         'mode' => {
             default => 'gauge',
             rule => [
-                [['CHOICE',qw/count gauge/],'count or gauge']
+                [['CHOICE',qw/count gauge modified/],'count or gauge or modified']
             ],
         }
     ]);
