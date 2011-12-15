@@ -28,6 +28,7 @@
 : } else {
 <a class="label success" style="cursor: pointer" data-controls-modal="modal-form-<: $~graph.index :>" data-backdrop="true" data-keyboard="true">設定</a>
 <span class="label">current</span> <: $graph.number | format_number :>
+<span class="label">mode</span> <: $graph.mode :>
 : }
 <span class="label">created_at</span> <: $graph.created_at :>
 <span class="label">updated_at</span> <: $graph.updated_at :>

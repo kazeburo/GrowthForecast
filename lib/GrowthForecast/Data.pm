@@ -11,6 +11,7 @@ use Encode;
 use JSON;
 use Log::Minimal;
 use List::MoreUtils qw/uniq/;
+use List::Util qw/first/;
 
 sub new {
     my $class = shift;
@@ -27,6 +28,7 @@ CREATE TABLE IF NOT EXISTS graphs (
     section_name VARCHAR(255) NOT NULL,
     graph_name   VARCHAR(255) NOT NULL,
     number       INT NOT NULL DEFAULT 0,
+    mode         VARCHAR(255) NOT NULL DEFAULT 'gauge',
     description  VARCHAR(255) NOT NULL DEFAULT '',
     sort         UNSIGNED INT NOT NULL DEFAULT 0,
     gmode        VARCHAR(255) NOT NULL DEFAULT 'gauge',
@@ -43,6 +45,17 @@ CREATE TABLE IF NOT EXISTS graphs (
     UNIQUE  (service_name, section_name, graph_name)
 )
 EOF
+
+    $dbh->begin_work;
+    my $columns = $dbh->select_all(q{PRAGMA table_info("graphs")});
+    my %graphs_columns;
+    $graphs_columns{$_->{name}} = 1 for @$columns;
+    if ( ! exists $graphs_columns{mode} ) {
+        infof("add new column 'mode'");
+        $dbh->do(q{ALTER TABLE graphs ADD mode VARCHAR(255) NOT NULL DEFAULT 'gauge'});
+        $dbh->query(q{UPDATE graphs SET mode='-'});
+    }
+    $dbh->commit;
 
     $dbh->do(<<EOF);
 CREATE TABLE IF NOT EXISTS prev_graphs (
@@ -152,7 +165,13 @@ sub get_by_id_for_rrdupdate {
         );        
     }
     else {
-        $subtract = 0;
+        if ( $data->{mode} eq 'gauge' || $data->{mode} eq 'modified' ) {
+            $subtract = $prev->{subtract};
+            $subtract = 'U' if ! defined $subtract;
+        }
+        else {
+            $subtract = 0;
+        }
     }
 
     $dbh->commit;
@@ -172,8 +191,8 @@ sub update {
         }
         if ( $mode ne 'modified' || ($mode eq 'modified' && $data->{number} != $number) ) {
             $dbh->query(
-                'UPDATE graphs SET number=?, updated_at=? WHERE id = ?',
-                $number, time, $data->{id}
+                'UPDATE graphs SET number=?, mode=?, updated_at=? WHERE id = ?',
+                $number, $mode, time, $data->{id}
             );
         }
     }
@@ -181,9 +200,9 @@ sub update {
         my @colors = List::Util::shuffle(qw/33 66 99 cc/);
         my $color = '#' . join('', splice(@colors,0,3));
         $dbh->query(
-            'INSERT INTO graphs (service_name, section_name, graph_name, number, color, llimit, sllimit, created_at, updated_at) 
-                         VALUES (?,?,?,?,?,?,?,?,?)',
-            $service, $section, $graph, $number, $color, -1000000000, -100000 ,time, time
+            'INSERT INTO graphs (service_name, section_name, graph_name, number, mode, color, llimit, sllimit, created_at, updated_at) 
+                         VALUES (?,?,?,?,?,?,?,?,?,?)',
+            $service, $section, $graph, $number, $mode, $color, -1000000000, -100000 ,time, time
         ); 
     }
     my $row = $self->get($service, $section, $graph);
