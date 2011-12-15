@@ -126,7 +126,7 @@ function submit_remove_form() {
     success: function(data) {
       $(remove_form).find('.alert-message').hide();
       if ( data.error == 0 ) {
-        location.reload();
+        location.href = data.location;
       }
       else {
         $(remove_form).find('.alert-message').show();

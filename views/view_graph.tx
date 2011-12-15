@@ -1,0 +1,35 @@
+: cascade base
+: around page_header -> {
+: my $term_arg = $c.req.param('t') ? [ 't', $c.req.param('t') ] : [];
+<h1>
+<span><a href="<: $c.req.uri_for('/') :>">Home</a> » <a href="<: $c.req.uri_for('/list/'~$c.args.service_name~'/'~$c.args.section_name,$term_arg) :>"><: $c.args.service_name :></a> » <a href="<: $c.req.uri_for('/list/'~$c.args.service_name~'/'~$c.args.section_name,$term_arg) :>"><: $c.args.section_name :></a> » <: $c.args.graph_name :></span>
+<span class="pull-right"><small style="font-size: 0.4em;vertical-align: text-middle;"><a href="<: $c.req.uri_for('/add_complex',[service_name=>$c.args.service_name,section_name=>$c.args.section_name]) :>">複合グラフの追加</a></small></span>
+</h1>
+: }
+
+: around content -> {
+
+: my $base = $view_complex ? 'view_complex' : 'view_graph';
+<div class="pagination" style="margin: 1px 0;">
+<div class="pull-right">
+<ul>
+<li class="prev <: ( $c.req.param('t') == 'h' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/'~$base~'/'~$c.args.service_name~'/'~$c.args.section_name~'/'~$c.args.graph_name, [t=>'h']) :>">時・半日</a></li>
+<li class="<: ( $c.req.param('t') != 'h' && $c.req.param('t') != 'm' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/'~$base~'/'~$c.args.service_name~'/'~$c.args.section_name~'/'~$c.args.graph_name) :>">日・週</a></li>
+<li class="next <: ( $c.req.param('t') == 'm' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/'~$base~'/'~$c.args.service_name~'/'~$c.args.section_name~'/'~$c.args.graph_name, [t=>'m']) :>">月・年</a></li>
+</ul>
+</div>
+</div>
+
+
+: for $graphs ->  $graph {
+: my $index = $~graph.index;
+: include "view.tx" { graph => $graph, index => $index };
+: } # for graphs
+: } # arround
+
+: around javascript_load -> {
+$('.pref-form').submit(submit_pref_form);
+$('.remove-form').submit(submit_remove_form);
+: }
+
+

@@ -84,6 +84,7 @@ post '/remove_complex/:complex_id' => [qw/get_complex/] => sub {
     $self->data->remove_complex($c->stash->{complex}->{id});
     $c->render_json({
         error => 0,
+        location => "". $c->req->uri_for(sprintf('/list/%s/%s', map { $c->stash->{complex}->{$_} } qw/service_name section_name/))
     });
 };
 
@@ -315,9 +316,39 @@ get '/list/:service_name/:section_name' => sub {
     my $rows = $self->data->get_graphs(
         $c->args->{service_name}, $c->args->{section_name}
     );
-    $c->halt(404) unless scalar @$rows;
     $c->render('list.tx',{ graphs => $rows });
 };
+
+get '/view_graph/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
+    my ( $self, $c )  = @_;
+    my $result = $c->req->validator([
+        't' => {
+            default => 'd',
+            rule => [
+                [['CHOICE',qw/h m/],'invalid browse term'],
+            ],
+        },
+    ]);
+    $c->render('view_graph.tx',{ graphs => [$c->stash->{graph}] });
+};
+
+get '/view_complex/:service_name/:section_name/:graph_name' => sub {
+    my ( $self, $c )  = @_;
+    my $result = $c->req->validator([
+        't' => {
+            default => 'd',
+            rule => [
+                [['CHOICE',qw/h m/],'invalid browse term'],
+            ],
+        },
+    ]);
+    my $row = $self->data->get_complex(
+        $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
+    );
+    $c->halt(404) unless $row;
+    $c->render('view_graph.tx',{ graphs => [$row], view_complex => 1 } );
+};
+
 
 my $GRAPH_VALIDATOR = [
     't' => {
@@ -601,6 +632,7 @@ post '/graph/:service_name/:section_name/:graph_name/delete' => [qw/get_graph/] 
 
     $c->render_json({
         error => 0,
+        location => "".$c->req->uri_for(sprintf('/list/%s/%s', map { $c->args->{$_} } qw/service_name section_name/))
     });
 };
 
