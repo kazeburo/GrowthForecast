@@ -1,12 +1,14 @@
 : cascade base
 : around page_header -> {
-<h1>Home</h1>
+<h1>
+<a href="<: $c.req.uri_for('/') :>">Home</a><: if $c.args.service_name { :> » <: $c.args.service_name :><: } :>
+</h1>
 : }
 
 : around content -> {
 : for $services ->  $service {
 <h2>
-<span><: $service.name :></span>
+<span><a href="<: $c.req.uri_for('/list/'~$service.name)  :>"><: $service.name :></a></span>
 <span class="pull-right"><small style="vertical-align: text-middle;font-size: 0.5em"><a href="<: $c.req.uri_for('/add_complex',[service_name=>$service.name]) :>">複合グラフの追加</a></small></span>
 </h2>
 <table class="zebra-striped">

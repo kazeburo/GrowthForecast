@@ -62,6 +62,7 @@ get '/' => sub {
     $c->render('index.tx', { services => \@services });
 };
 
+
 get '/docs' => sub {
     my ( $self, $c )  = @_;
     $c->render('docs.tx',{});
@@ -301,6 +302,18 @@ post '/edit_complex/:complex_id' => [qw/get_complex/] => sub {
         error => 0,
         location => $c->req->uri_for('/list/'.$result->valid('service_name').'/'.$result->valid('section_name'))->as_string,
     });
+};
+
+get '/list/:service_name' => sub {
+    my ( $self, $c )  = @_;
+    my $services = $self->data->get_services();
+    my @services;
+    my $sections = $self->data->get_sections($c->args->{service_name});
+    push @services , {
+        name => $c->args->{service_name},
+        sections => $sections,
+    };
+    $c->render('index.tx', { services => \@services });
 };
 
 get '/list/:service_name/:section_name' => sub {
