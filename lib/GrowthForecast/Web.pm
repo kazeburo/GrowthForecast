@@ -406,6 +406,12 @@ my $GRAPH_VALIDATOR = [
             [['CHOICE',qw/0 1/],'invalid only flag'],
         ],
     },
+    'logarithmic' => {
+        default => 0,
+        rule => [
+            [['CHOICE',qw/0 1/],'invalid logarithmic flag'],
+        ],
+    },
     'background_color' => {
         default => 'f3f3f3',
         rule => [
@@ -465,6 +471,14 @@ my $GRAPH_VALIDATOR = [
         rule => [
             [['CHOICE',qw/0 1/],'invalid title flag'],
         ],        
+    },
+    'xgrid' => {
+        default => '',
+        rule => [],
+    },
+    'ygrid' => {
+        default => '',
+        rule => [],
     }
 ];
 

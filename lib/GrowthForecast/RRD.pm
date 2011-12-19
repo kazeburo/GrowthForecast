@@ -92,8 +92,8 @@ sub graph {
         if ( $diff < 3 * 60 * 60 ) {
             $xgrid = 'MINUTE:10:MINUTE:20:MINUTE:10:0:%M';
         }
-        elsif ( $diff < 2 * 24 * 60 * 60 ) {
-            $xgrid = 'HOUR:1:HOUR:1:HOUR:2:0:%H';
+        elsif ( $diff < 4 * 24 * 60 * 60 ) {
+            $xgrid = 'HOUR:6:DAY:1:HOUR:6:0:%H';
         }
         elsif ( $diff < 14 * 24 * 60 * 60) {
             $xgrid = 'DAY:1:DAY:1:DAY:2:86400:%m/%d';
@@ -160,7 +160,7 @@ sub graph {
         '-a', 'PNG',
         '-l', 0, #minimum
         '-u', 2, #maximum
-        '-x', $xgrid,
+        '-x', $args->{xgrid} ? $args->{xgrid} : $xgrid,
         '-s', $period,
         '-e', $end,
         '--slope-mode',
@@ -175,9 +175,11 @@ sub graph {
 #        '--disable-rrdtool-tag',
     );
 
+    push @opt, '-y', $args->{ygrid} if $args->{ygrid};
     push @opt, '-t', "$period_title" if !$args->{notitle};
     push @opt, '--no-legend' if !$args->{legend};
     push @opt, '--only-graph' if $args->{graphonly};
+    push @opt, '--logarithmic' if $args->{logarithmic};
     push @opt, '--font', "DEFAULT:0:".$jp_fonts[0] if @jp_fonts;
 
     my $i=0;

@@ -125,9 +125,25 @@ $ curl -F number=10 <: $c.req.uri_for('/') :>api/ninjyatoriai/items/syuriken_no_
 <td>height</td>
 <td>縦幅。実際には凡例などを含むので指定したサイズより大きくなる</td>
 </tr>
+
 <tr>
 <td>graphonly</td>
 <td>グラフ部分しか描画しないモード。デフォルト「0」</td>
+</tr>
+
+<tr>
+<td>logarithmic</td>
+<td>対数グラフ。デフォルト「0」</td>
+</tr>
+
+<tr>
+<td>xgrid</td>
+<td>X軸の設定。フォーマットはrrdtoolのドキュメント参照のこと</td>
+</tr>
+
+<tr>
+<td>ygrid</td>
+<td>Y軸の設定。フォーマットはrrdtoolのドキュメント参照のこと</td>
 </tr>
 
 <tr>
