@@ -19,11 +19,13 @@ use GrowthForecast::Worker;
 my $port = 5125;
 my $host = 0;
 my @front_proxy;
+my @allowfrom;
 Getopt::Long::Configure ("no_ignore_case");
 GetOptions(
     'port=s' => \$port,
     'host=s' => \$host,
     'front-proxy=s' => \@front_proxy,
+    'allow-from=s' => \@allowfrom,
     "h|help" => \my $help,
 );
 
@@ -61,6 +63,14 @@ while ($pm->signal_received ne 'TERM' ) {
                 enable 'StackTrace';
                 if ( @front_proxy ) {
                     enable match_if addr(\@front_proxy), 'ReverseProxy';
+                }
+                if ( @allowfrom ) {
+                    my @rule;
+                    for ( @allowfrom ) {
+                        push @rule, 'allow', $_;
+                    }
+                    push @rule, 'deny', 'all';
+                    enable 'Plack::Middleware::Access', rules => \@rule;
                 }
                 enable 'Static',
                     path => qr!^/(?:(?:css|js|images)/|favicon\.ico$)!,
