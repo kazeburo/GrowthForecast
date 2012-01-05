@@ -19,16 +19,18 @@ use GrowthForecast::Worker;
 my $port = 5125;
 my $host = 0;
 my @front_proxy;
+my @allow_from;
 Getopt::Long::Configure ("no_ignore_case");
 GetOptions(
     'port=s' => \$port,
     'host=s' => \$host,
     'front-proxy=s' => \@front_proxy,
+    'allow-from=s' => \@allow_from,
     "h|help" => \my $help,
 );
 
 if ( $help ) {
-    print "usage: $0 --port 5005 --host 127.0.0.1 --front-proxy 127.0.0.1\n";
+    print "usage: $0 --port 5005 --host 127.0.0.1 --front-proxy 127.0.0.1 --allow-from 127.0.0.1\n";
     exit(1);
 }
 
@@ -61,6 +63,11 @@ while ($pm->signal_received ne 'TERM' ) {
                 enable 'StackTrace';
                 if ( @front_proxy ) {
                     enable match_if addr(\@front_proxy), 'ReverseProxy';
+                }
+                if ( @allow_from ) {
+                    enable match_if addr('!',\@allow_from), sub {
+                        sub { [403,['Content-Type','text/plain'], ['Forbidden']] }
+                    };
                 }
                 enable 'Static',
                     path => qr!^/(?:(?:css|js|images)/|favicon\.ico$)!,
