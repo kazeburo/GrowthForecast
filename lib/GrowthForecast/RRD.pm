@@ -181,6 +181,9 @@ sub graph {
     push @opt, '--only-graph' if $args->{graphonly};
     push @opt, '--logarithmic' if $args->{logarithmic};
     push @opt, '--font', "DEFAULT:0:".$jp_fonts[0] if @jp_fonts;
+    push @opt, '-u', $args->{upper_limit} if defined $args->{upper_limit};
+    push @opt, '-l', $args->{lower_limit} if defined $args->{lower_limit};
+    push @opt, '-r' if $args->{rigid};
 
     my $i=0;
     for my $data ( @datas ) {

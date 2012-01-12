@@ -479,7 +479,21 @@ my $GRAPH_VALIDATOR = [
     'ygrid' => {
         default => '',
         rule => [],
-    }
+    },
+    'upper_limit' => {
+        default => '',
+        rule => [],
+    },
+    'lower_limit' => {
+        default => '',
+        rule => [],
+    },
+    'rigid' => {
+        default => '0',
+        rule => [
+            [['CHOICE',qw/0 1/],'invalid rigid flag'],
+        ],
+    },
 ];
 
 get '/graph/:complex' => sub {
