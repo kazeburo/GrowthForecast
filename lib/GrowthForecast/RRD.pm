@@ -238,9 +238,9 @@ sub graph {
         my $stack = ( $data->{stack} && $i > 0 ) ? ':STACK' : '';
         my $file = $span =~ m!^s! ? $self->path_short($data) : $self->path($data);
         push @opt, 
-            sprintf('DEF:%s%dv=%s:%s:AVERAGE', $gdata, $i, $file, $gdata),
-            sprintf('VDEF:%s%dt=%s%sv,MAXIMUM', $gdata, $i, $gdata, $i),
-            sprintf('CDEF:%s%d=%s%dt,%s,%s,LIMIT,%d,%s', $gdata, $i, $gdata, $i, $llimit, $ulimit, $data->{adjustval}, $data->{adjust}),
+            sprintf('DEF:%s%dt=%s:%s:AVERAGE', $gdata, $i, $file, $gdata),
+            sprintf('CDEF:%s%dv=%s%dt,%s,%s,LIMIT,%d,%s', $gdata, $i, $gdata, $i, $llimit, $ulimit, $data->{adjustval}, $data->{adjust}),
+            sprintf('VDEF:%s%d=%s%dv', $gdata, $i,$gdata, $i),
             sprintf('%s:%s%d%s:%s %s', $type, $gdata, $i, $data->{color}, $data->{graph_name},$stack),
             sprintf('GPRINT:%s%d:LAST:Cur\: %%4.1lf%%s%s', $gdata, $i, $data->{unit}),
             sprintf('GPRINT:%s%d:AVERAGE:Avg\: %%4.1lf%%s%s', $gdata, $i, $data->{unit}),
