@@ -240,7 +240,7 @@ sub graph {
         push @opt, 
             sprintf('DEF:%s%dt=%s:%s:AVERAGE', $gdata, $i, $file, $gdata),
             sprintf('CDEF:%s%dv=%s%dt,%s,%s,LIMIT,%d,%s', $gdata, $i, $gdata, $i, $llimit, $ulimit, $data->{adjustval}, $data->{adjust}),
-            sprintf('VDEF:%s%d=%s%dv', $gdata, $i,$gdata, $i),
+            sprintf('VDEF:%s%d=%s%dv,MAXIMUM', $gdata, $i,$gdata, $i),
             sprintf('%s:%s%d%s:%s %s', $type, $gdata, $i, $data->{color}, $data->{graph_name},$stack),
             sprintf('GPRINT:%s%d:LAST:Cur\: %%4.1lf%%s%s', $gdata, $i, $data->{unit}),
             sprintf('GPRINT:%s%d:AVERAGE:Avg\: %%4.1lf%%s%s', $gdata, $i, $data->{unit}),
