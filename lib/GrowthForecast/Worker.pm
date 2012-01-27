@@ -29,6 +29,8 @@ sub rrd {
 
 sub run {
     my $self = shift;
+    my $method = shift || 'update';
+    my $interval = ( $method eq 'update' ) ? 300 : 60;
 
     local $Log::Minimal::AUTODUMP = 1;
 
@@ -39,10 +41,10 @@ sub run {
     $SIG{PIPE} = 'IGNORE';
 
     my $now = time;
-    my $next = $now - ( $now % 300 )  + 300;
+    my $next = $now - ( $now % $interval )  + $interval;
     my $pid;
 
-    infof( sprintf( "first updater start in %s", scalar localtime $next) );
+    infof( "[%s] first updater start in %s", $method, scalar localtime $next );
 
     while ( 1 ) {
         select( undef, undef, undef, 0.5 );
@@ -53,24 +55,24 @@ sub run {
                 $pid = undef;
             }
             elsif ( $kid ) {
-                debugf( sprintf("update finished pid: %d, code:%d", $kid, $? >> 8) );
-                debugf( sprintf( "next radar start in %s", scalar localtime $next) );
+                debugf( "[%s] update finished pid: %d, code:%d", $method, $kid, $? >> 8);
+                debugf( "[%s] next radar start in %s",  $method, scalar localtime $next);
                 $pid = undef;
             }
         }
 
         if ( scalar @signals_received ) {
-            warnf( "signals_received:" . join ",",  @signals_received );
+            warnf( "[$method] signals_received:" . join ",",  @signals_received );
             last;
         }
 
         $now = time;
         if ( $now >= $next ) {
-            debugf( sprintf( "(%s) updater start ", scalar localtime $next) );
-            $next = $now - ( $now % 300 ) + 300;
+            debugf( "[%s] (%s) updater start ", $method, scalar localtime $next);
+            $next = $now - ( $now % $interval ) + $interval;
 
             if ( $pid ) {
-                warnf( "Previous radar exists, skipping this time");
+                warnf( "[%s] Previous radar exists, skipping this time", $method);
                 next;
             }
 
@@ -81,16 +83,22 @@ sub run {
             #child process
             my $all_rows = $self->data->get_all_graph_id;
             for my $row ( @$all_rows ) {
-                debugf( "update %s", $row);
-                my $data = $self->data->get_by_id_for_rrdupdate($row->{id});
-                $self->rrd->update($data);
+                debugf( "[%s] update %s", $method, $row);
+                if ( $method eq 'update' ) {
+                    my $data = $self->data->get_by_id_for_rrdupdate($row->{id});
+                    $self->rrd->update($data);
+                }
+                else {
+                    my $data = $self->data->get_by_id_for_rrdupdate_short($row->{id});
+                    $self->rrd->update_short($data);
+                }
             }
             exit 0;
         }
     }
 
     if ( $pid ) {
-        warnf( "waiting for updater process finishing" );
+        warnf( "[%s] waiting for updater process finishing",$method );
         waitpid( $pid, 0 );
     }
     

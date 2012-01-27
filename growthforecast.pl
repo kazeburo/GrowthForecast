@@ -39,7 +39,7 @@ my $sc_board_dir = tempdir( CLEANUP => 1 );
 my $scoreboard = Parallel::Scoreboard->new( base_dir => $sc_board_dir );
 
 my $pm = Parallel::Prefork->new({
-    max_workers => 2,
+    max_workers => 3,
     spawn_interval  => 1,
     trap_signals    => {
         map { ($_ => 'TERM') } qw(TERM HUP)
@@ -54,7 +54,7 @@ while ($pm->signal_received ne 'TERM' ) {
             my $val = $stats->{$pid};
             $running{$val}++;
         }
-        if ( $running{worker} ) {
+        if ( $running{worker} && $running{short_worker}) {
             local $0 = "$0 (GrowthForecast::Web)";
             $scoreboard->update('web');
             my $app = GrowthForecast::Web->psgi($root_dir);
@@ -82,6 +82,12 @@ while ($pm->signal_received ne 'TERM' ) {
              );
              $loader->run($app);
         }
+        elsif ( !$running{short_worker} ) {
+            local $0 = "$0 (GrowthForecast::Worker short)";
+            $scoreboard->update('short_worker');
+            my $worker = GrowthForecast::Worker->new($root_dir);
+            $worker->run('short');
+        }            
         else {
             local $0 = "$0 (GrowthForecast::Worker)";
             $scoreboard->update('worker');

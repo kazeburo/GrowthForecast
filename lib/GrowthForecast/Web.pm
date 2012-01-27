@@ -322,7 +322,7 @@ get '/list/:service_name/:section_name' => sub {
         't' => {
             default => 'd',
             rule => [
-                [['CHOICE',qw/h m/],'invalid browse term'],
+                [['CHOICE',qw/h m sh sd/],'invalid browse term'],
             ],
         },
     ]);
@@ -367,7 +367,7 @@ my $GRAPH_VALIDATOR = [
     't' => {
         default => 'd',
         rule => [
-            [['CHOICE',qw/y m w 3d d 8h 4h h n c/],'invalid drawing term'],
+            [['CHOICE',qw/y m w 3d s3d d sd 8h s8h 4h s4h h sh n sn c sc/],'invalid drawing term'],
         ],
     },
     'gmode' => {
@@ -700,6 +700,7 @@ post '/api/:service_name/:section_name/:graph_name' => sub {
     ]);
 
     if ( $result->has_error ) {
+        warnf $c->req;
         my $res = $c->render_json({
             error => 1,
             messages => $result->messages

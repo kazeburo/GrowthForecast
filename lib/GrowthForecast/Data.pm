@@ -68,6 +68,16 @@ CREATE TABLE IF NOT EXISTS prev_graphs (
 EOF
 
     $dbh->do(<<EOF);
+CREATE TABLE IF NOT EXISTS prev_short_graphs (
+    graph_id     INT NOT NULL,
+    number       INT NOT NULL DEFAULT 0,
+    subtract     INT,
+    updated_at   UNSIGNED INT NOT NULL,
+    PRIMARY KEY  (graph_id)
+)
+EOF
+
+    $dbh->do(<<EOF);
 CREATE TABLE IF NOT EXISTS complex_graphs (
     id           INTEGER NOT NULL PRIMARY KEY,
     service_name VARCHAR(255) NOT NULL,
@@ -132,6 +142,50 @@ sub get_by_id {
     $self->inflate_row($row);
 }
 
+sub get_by_id_for_rrdupdate_short {
+    my ($self, $id) = @_;
+    my $dbh = $self->dbh;
+
+    my $data = $dbh->select_row(
+        'SELECT * FROM graphs WHERE id = ?',
+        $id
+    );
+    return if !$data;
+
+    $dbh->begin_work;
+    my $subtract;
+    my $prev = $dbh->select_row(
+        'SELECT * FROM prev_short_graphs WHERE graph_id = ?',
+        $data->{id}
+    );
+    if ( !$prev ) {
+        $subtract = 'U';
+        $dbh->query(
+            'INSERT INTO prev_short_graphs (graph_id, number, subtract, updated_at) 
+                         VALUES (?,?,?,?)',
+            $data->{id}, $data->{number}, undef, $data->{updated_at});
+    }
+    elsif ( $data->{updated_at} != $prev->{updated_at} ) {
+        $subtract = $data->{number} - $prev->{number};
+        $dbh->query(
+            'UPDATE prev_short_graphs SET number=?, subtract=?, updated_at=? WHERE graph_id = ?',
+            $data->{number}, $subtract, $data->{updated_at}, $data->{id}
+        );
+    }
+    else {
+        if ( $data->{mode} eq 'gauge' || $data->{mode} eq 'modified' ) {
+            $subtract = $prev->{subtract};
+            $subtract = 'U' if ! defined $subtract;
+        }
+        else {
+            $subtract = 0;
+        }
+    }
+    $dbh->commit;
+    $data->{subtract_short} = $subtract;
+    $self->inflate_row($data);
+}
+
 sub get_by_id_for_rrdupdate {
     my ($self, $id) = @_;
     my $dbh = $self->dbh;
@@ -143,19 +197,19 @@ sub get_by_id_for_rrdupdate {
     return if !$data;
 
     $dbh->begin_work;
+    my $subtract;
+
     my $prev = $dbh->select_row(
         'SELECT * FROM prev_graphs WHERE graph_id = ?',
         $data->{id}
     );
-
-    my $subtract;
+    
     if ( !$prev ) {
         $subtract = 'U';
         $dbh->query(
             'INSERT INTO prev_graphs (graph_id, number, subtract, updated_at) 
                          VALUES (?,?,?,?)',
             $data->{id}, $data->{number}, undef, $data->{updated_at});
-
     }
     elsif ( $data->{updated_at} != $prev->{updated_at} ) {
         $subtract = $data->{number} - $prev->{number};

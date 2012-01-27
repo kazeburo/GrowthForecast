@@ -221,7 +221,7 @@
 : if ! $graph.complex_graph {
   : my $gmodes = ( $graph.gmode == 'both' ) ? ['gauge','subtract'] : ( $graph.gmode == 'gauge') ? ['gauge'] : ['subtract']
   : for $gmodes -> $gmode {
-    : my $terms = ( $c.req.param('t') == 'h' ) ? ['h','n'] : ( $c.req.param('t') == 'm') ? ['m','y'] : ['d','w']
+    : my $terms = ( $c.req.param('t') == 'h' ) ? ['h','n'] :  ( $c.req.param('t') == 'm') ? ['m','y'] :  ( $c.req.param('t') == 'sh' ) ? ['sh','sn'] :  ( $c.req.param('t') == 'sd') ? ['sd','s3d'] : ['d','w'];
     : for $terms -> $term {
 <img src="<: $c.req.uri_for('/graph/'~$graph.service_name~'/'~$graph.section_name~'/'~$graph.graph_name, [t=>$term,gmode=>$gmode]) :>" />
     : }

@@ -45,6 +45,27 @@ sub path {
     $file;
 }
 
+sub path_short {
+    my $self = shift;
+    my $data = shift;
+    my $file = $self->{root_dir} . '/data/' . $data->{md5} . '_s.rrd';
+    if ( ! -f $file ) {
+        eval {
+            RRDs::create(
+                $file,
+                '--step', '60',
+                'DS:num:GAUGE:120:U:U',
+                'DS:sub:GAUGE:120:U:U', 
+                'RRA:AVERAGE:0.5:1:4800',  #1分, 3日(80時間)
+            );
+            my $ERR=RRDs::error;
+            die $ERR if $ERR;
+        };
+        die "init failed: $@" if $@;
+    }
+    $file;
+}
+
 sub update {
     my $self = shift;
     my $data = shift;
@@ -62,6 +83,22 @@ sub update {
     die "udpate rrdfile failed: $@" if $@;
 }
 
+sub update_short {
+    my $self = shift;
+    my $data = shift;
+
+    my $file = $self->path_short($data);
+    eval {
+        RRDs::update(
+            $file,
+            '-t', 'num:sub',
+            '--', join(':','N',$data->{number},$data->{subtract_short}),
+        );
+        my $ERR=RRDs::error;
+        die $ERR if $ERR;
+    };
+    die "udpate rrdfile failed: $@" if $@;
+}
 
 my @jp_fonts = grep { -f $_ } zglob("/usr/share/fonts/**/sazanami-gothic.ttf");
 sub graph {
@@ -78,7 +115,7 @@ sub graph {
     my $period;
     my $end = 'now';
     my $xgrid;
-    if ( $span eq 'c' ) {
+    if ( $span eq 'c' || $span eq 'sc' ) {
         my $from_time = HTTP::Date::str2time($from);  
         die "invalid from date: $from" unless $from_time;
         my $to_time = $to ? HTTP::Date::str2time($to) : time;
@@ -105,13 +142,15 @@ sub graph {
             $xgrid = 'WEEK:1:MONTH:1:MONTH:1:2592000:%b';
         }
     }
-    elsif ( $span eq 'h' ) {
+    elsif ( $span eq 'h' || $span eq 'sh' ) {
         $period_title = 'Hourly (5min avg)';
+        $period_title = 'Hourly (1min avg)' if $span eq 'sh';
         $period = -1 * 60 * 60 * 2;
         $xgrid = 'MINUTE:10:MINUTE:20:MINUTE:10:0:%M';
     }
-    elsif ( $span eq 'n' ) {
+    elsif ( $span eq 'n' || $span eq 'sn' ) {
         $period_title = 'Half Day (5min avg)';
+        $period_title = 'Half Day (1min avg)' if $span eq 'sn';
         $period = -1 * 60 * 60 * 14;
         $xgrid = 'MINUTE:60:MINUTE:120:MINUTE:120:0:%H %M';
     }
@@ -130,23 +169,27 @@ sub graph {
         $period = -1 * 60 * 60 * 24 * 400;
         $xgrid = 'WEEK:1:MONTH:1:MONTH:1:2592000:%b'
     }
-    elsif ( $span eq '3d' ) {
+    elsif ( $span eq '3d' || $span eq 's3d') {
         $period_title = '3 Days (5min avg)';
+        $period_title = '3 Days (1min avg)' if $span eq 's3d';
         $period = -1 * 60 * 60 * 24 * 3;
         $xgrid = 'HOUR:6:DAY:1:HOUR:6:0:%H';
     }
-    elsif ( $span eq '8h' ) {
+    elsif ( $span eq '8h' || $span eq 's8h' ) {
         $period_title = '8 Hours (5min avg)';
+        $period_title = '8 Hours (1min avg)' if $span eq 's8h'; 
         $period = -1 * 8 * 60 * 60;
         $xgrid = 'MINUTE:30:HOUR:1:HOUR:1:0:%H:%M';
     }
-    elsif ( $span eq '4h' ) {
+    elsif ( $span eq '4h' || $span eq 's4h') {
         $period_title = '4 Hours (5min avg)';
+        $period_title = '4 Hours (1min avg)' if $span eq 's4h'; 
         $period = -1 * 4 * 60 * 60;
         $xgrid = 'MINUTE:30:HOUR:1:MINUTE:30:0:%H:%M';
     }
     else {
         $period_title = 'Daily (5min avg)';
+        $period_title = 'Daily (1min avg)' if $span eq 'sd';
         $period = -1 * 60 * 60 * 33; # 33 hours
         $xgrid = 'HOUR:1:HOUR:2:HOUR:2:0:%H';
     }
@@ -193,7 +236,7 @@ sub graph {
         my $llimit = ( $gmode eq 'subtract' ) ? $data->{sllimit} : $data->{llimit};
         my $ulimit = ( $gmode eq 'subtract' ) ? $data->{sulimit} : $data->{ulimit};
         my $stack = ( $data->{stack} && $i > 0 ) ? ':STACK' : '';
-        my $file = $self->path($data);
+        my $file = $span =~ m!^s! ? $self->path_short($data) : $self->path($data);
         push @opt, 
             sprintf('DEF:%s%dt=%s:%s:AVERAGE', $gdata, $i, $file, $gdata),
             sprintf('CDEF:%s%d=%s%dt,%s,%s,LIMIT,%d,%s', $gdata, $i, $gdata, $i, $llimit, $ulimit, $data->{adjustval}, $data->{adjust}),
