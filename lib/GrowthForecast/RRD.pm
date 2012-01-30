@@ -256,18 +256,40 @@ sub graph {
             sprintf('GPRINT:%s%d:LAST:Cur\: %%4.1lf%%s%s', $gdata, $i, $data->{unit}),
             sprintf('GPRINT:%s%d:AVERAGE:Avg\: %%4.1lf%%s%s', $gdata, $i, $data->{unit}),
             sprintf('GPRINT:%s%d:MAX:Max\: %%4.1lf%%s%s', $gdata, $i, $data->{unit}),
-            sprintf('GPRINT:%s%d:MIN:Min\: %%4.1lf%%s%s\l', $gdata, $i, $data->{unit});
+            sprintf('GPRINT:%s%d:MIN:Min\: %%4.1lf%%s%s\l', $gdata, $i, $data->{unit}),
+            sprintf('VDEF:%s%dcur=%s%d,LAST', $gdata, $i, $gdata, $i),
+            sprintf('PRINT:%s%dcur:%%.8lf',$gdata, $i),
+            sprintf('VDEF:%s%davg=%s%d,AVERAGE', $gdata, $i, $gdata, $i),
+            sprintf('PRINT:%s%davg:%%.8lf',$gdata, $i),
+            sprintf('VDEF:%s%dmax=%s%d,MAXIMUM', $gdata, $i, $gdata, $i),
+            sprintf('PRINT:%s%dmax:%%.8lf',$gdata, $i),
+            sprintf('VDEF:%s%dmin=%s%d,MINIMUM', $gdata, $i, $gdata, $i),
+            sprintf('PRINT:%s%dmin:%%.8lf',$gdata, $i);
         $i++;
     }
 
+    my @graphv;
     eval {
-        RRDs::graph(map { Encode::encode_utf8($_) } @opt);
+        @graphv = RRDs::graph(map { Encode::encode_utf8($_) } @opt);
         my $ERR=RRDs::error;
         die $ERR if $ERR;
     };
     if ( $@ ) {
         unlink($tmpfile);
         die "draw graph failed: $@";
+    }
+
+    $i=0;
+    my %graph_args;
+    for my $data ( @datas ) {
+        my ($current,$average,$max,$min) = (
+            $graphv[0]->[$i],
+            $graphv[0]->[$i+1],
+            $graphv[0]->[$i+2],
+            $graphv[0]->[$i+3]
+        );
+        $graph_args{$data->{graph_name}} = [$current, $average, $max, $min];
+        $i = $i + 4;
     }
 
     open( my $fh, '<:bytes', $tmpfile ) or die "cannot open graph tmpfile: $!";
@@ -277,7 +299,7 @@ sub graph {
 
     die 'something wrong with image' unless $graph_img;
 
-    return $graph_img;    
+    return ($graph_img,\%graph_args);
 }
 
 sub export {

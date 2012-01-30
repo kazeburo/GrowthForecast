@@ -496,7 +496,7 @@ my $GRAPH_VALIDATOR = [
     },
 ];
 
-get '/{method:(?:xport|graph)}/:complex' => sub {
+get '/{method:(?:xport|graph|summary)}/:complex' => sub {
     my ( $self, $c )  = @_;
     my $result = $c->req->validator($GRAPH_VALIDATOR);
     my @complex = split /:/, $c->args->{complex};
@@ -514,11 +514,17 @@ get '/{method:(?:xport|graph)}/:complex' => sub {
         push @data, $data;
     }
     if ( $c->args->{method} eq 'graph' ) {
-        my $img = $self->rrd->graph(
+        my ($img,$data) = $self->rrd->graph(
             \@data, $result->valid->as_hashref
         );
         $c->res->content_type('image/png');
         $c->res->body($img);
+    }
+    elsif ( $c->args->{method} eq 'summary' ) {
+        my ($img,$data) = $self->rrd->graph(
+            \@data, $result->valid->as_hashref
+        );
+        $c->render_json($data);
     }
     else {
         my $data = $self->rrd->export(
@@ -530,16 +536,22 @@ get '/{method:(?:xport|graph)}/:complex' => sub {
 };
 
 
-get '/{method:(?:xport|graph)}/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
+get '/{method:(?:xport|graph|summary)}/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
     my ( $self, $c )  = @_;
     my $result = $c->req->validator($GRAPH_VALIDATOR);
 
     if ( $c->args->{method} eq 'graph' ) {
-        my $img = $self->rrd->graph(
+        my ($img,$data) = $self->rrd->graph(
             $c->stash->{graph}, $result->valid->as_hashref
         );
         $c->res->content_type('image/png');
         $c->res->body($img);
+    }
+    elsif ( $c->args->{method} eq 'summary' ) {
+        my ($img,$data) = $self->rrd->graph(
+            $c->stash->{graph}, $result->valid->as_hashref
+        );
+        $c->render_json($data);
     }
     else {
         my $data = $self->rrd->export(
