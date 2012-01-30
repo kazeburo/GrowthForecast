@@ -338,7 +338,7 @@ get '/view_graph/:service_name/:section_name/:graph_name' => [qw/get_graph/] => 
         't' => {
             default => 'd',
             rule => [
-                [['CHOICE',qw/h m/],'invalid browse term'],
+                [['CHOICE',qw/h m sh sd/],'invalid browse term'],
             ],
         },
     ]);
@@ -351,7 +351,7 @@ get '/view_complex/:service_name/:section_name/:graph_name' => sub {
         't' => {
             default => 'd',
             rule => [
-                [['CHOICE',qw/h m/],'invalid browse term'],
+                [['CHOICE',qw/h m sh sd/],'invalid browse term'],
             ],
         },
     ]);
@@ -496,7 +496,7 @@ my $GRAPH_VALIDATOR = [
     },
 ];
 
-get '/graph/:complex' => sub {
+get '/{method:(?:xport|graph)}/:complex' => sub {
     my ( $self, $c )  = @_;
     my $result = $c->req->validator($GRAPH_VALIDATOR);
     my @complex = split /:/, $c->args->{complex};
@@ -513,26 +513,40 @@ get '/graph/:complex' => sub {
         $data->{stack} = $stack;
         push @data, $data;
     }
-    my $img = $self->rrd->graph(
-        \@data, $result->valid->as_hashref
-    );
-
-    $c->res->content_type('image/png');
-    $c->res->body($img);
+    if ( $c->args->{method} eq 'graph' ) {
+        my $img = $self->rrd->graph(
+            \@data, $result->valid->as_hashref
+        );
+        $c->res->content_type('image/png');
+        $c->res->body($img);
+    }
+    else {
+        my $data = $self->rrd->export(
+            \@data, $result->valid->as_hashref
+        );
+        $c->render_json($data);
+    }
     return $c->res;
 };
 
 
-get '/graph/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
+get '/{method:(?:xport|graph)}/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
     my ( $self, $c )  = @_;
     my $result = $c->req->validator($GRAPH_VALIDATOR);
 
-    my $img = $self->rrd->graph(
-        $c->stash->{graph}, $result->valid->as_hashref
-    );
-
-    $c->res->content_type('image/png');
-    $c->res->body($img);
+    if ( $c->args->{method} eq 'graph' ) {
+        my $img = $self->rrd->graph(
+            $c->stash->{graph}, $result->valid->as_hashref
+        );
+        $c->res->content_type('image/png');
+        $c->res->body($img);
+    }
+    else {
+        my $data = $self->rrd->export(
+            $c->stash->{graph}, $result->valid->as_hashref
+        );
+        $c->render_json($data);
+    }
     return $c->res;
 };
 

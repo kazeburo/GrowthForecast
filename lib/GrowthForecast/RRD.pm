@@ -101,20 +101,17 @@ sub update_short {
 }
 
 my @jp_fonts = grep { -f $_ } zglob("/usr/share/fonts/**/sazanami-gothic.ttf");
-sub graph {
+
+sub calc_period {
     my $self = shift;
-    my $datas = shift;
-    my @datas = ref($datas) eq 'ARRAY' ? @$datas : ($datas);
-    my $args = shift;
-    my ($a_gmode, $span, $from, $to, $width, $height) = map { $args->{$_} } qw/gmode t from to width height/;
+    my ($span, $from, $to) = @_;
     $span ||= 'd';
-    $width ||= 390;
-    $height ||= 110;
 
     my $period_title;
     my $period;
     my $end = 'now';
     my $xgrid;
+
     if ( $span eq 'c' || $span eq 'sc' ) {
         my $from_time = HTTP::Date::str2time($from);  
         die "invalid from date: $from" unless $from_time;
@@ -194,6 +191,22 @@ sub graph {
         $xgrid = 'HOUR:1:HOUR:2:HOUR:2:0:%H';
     }
 
+    return ( $period_title, $period, $end, $xgrid);
+}
+
+
+sub graph {
+    my $self = shift;
+    my $datas = shift;
+    my @datas = ref($datas) eq 'ARRAY' ? @$datas : ($datas);
+    my $args = shift;
+    my ($a_gmode, $span, $from, $to, $width, $height) = map { $args->{$_} } qw/gmode t from to width height/;
+    $span ||= 'd';
+    $width ||= 390;
+    $height ||= 110;
+
+    my ( $period_title, $period, $end, $xgrid ) = $self->calc_period($span, $from, $to);
+
     if ( @datas == 1 && $a_gmode eq 'subtract' ) { $period_title = "[subtract] $period_title" } 
     my ($tmpfh, $tmpfile) = File::Temp::tempfile(UNLINK => 0, SUFFIX => ".png");
     my @opt = (
@@ -215,7 +228,6 @@ sub graph {
         '--color', 'SHADEA#'.uc($args->{shadea_color}),
         '--color', 'SHADEB#'.uc($args->{shadeb_color}),
         '--border', $args->{border},
-#        '--disable-rrdtool-tag',
     );
 
     push @opt, '-y', $args->{ygrid} if $args->{ygrid};
@@ -239,8 +251,7 @@ sub graph {
         my $file = $span =~ m!^s! ? $self->path_short($data) : $self->path($data);
         push @opt, 
             sprintf('DEF:%s%dt=%s:%s:AVERAGE', $gdata, $i, $file, $gdata),
-            sprintf('CDEF:%s%dv=%s%dt,%s,%s,LIMIT,%d,%s', $gdata, $i, $gdata, $i, $llimit, $ulimit, $data->{adjustval}, $data->{adjust}),
-            sprintf('VDEF:%s%d=%s%dv,MAXIMUM', $gdata, $i,$gdata, $i),
+            sprintf('CDEF:%s%d=%s%dt,%s,%s,LIMIT,%d,%s', $gdata, $i, $gdata, $i, $llimit, $ulimit, $data->{adjustval}, $data->{adjust}),
             sprintf('%s:%s%d%s:%s %s', $type, $gdata, $i, $data->{color}, $data->{graph_name},$stack),
             sprintf('GPRINT:%s%d:LAST:Cur\: %%4.1lf%%s%s', $gdata, $i, $data->{unit}),
             sprintf('GPRINT:%s%d:AVERAGE:Avg\: %%4.1lf%%s%s', $gdata, $i, $data->{unit}),
@@ -268,6 +279,58 @@ sub graph {
 
     return $graph_img;    
 }
+
+sub export {
+    my $self = shift;
+    my $datas = shift;
+    my @datas = ref($datas) eq 'ARRAY' ? @$datas : ($datas);
+    my $args = shift;
+    my ($a_gmode, $span, $from, $to, $width) = map { $args->{$_} } qw/gmode t from to width/;
+    $span ||= 'd';
+    $width ||= 390;
+
+    my ( $period_title, $period, $end, $xgrid ) = $self->calc_period($span, $from, $to);
+
+    my @opt = (
+        '-m', $width,
+        '-s', $period,
+        '-e', $end,
+    );
+
+    my $i=0;
+    for my $data ( @datas ) {
+        my $gmode = ($data->{c_gmode}) ? $data->{c_gmode} : $a_gmode;
+        my $type = ($data->{c_type}) ? $data->{c_type} : ( $gmode eq 'subtract' ) ? $data->{stype} : $data->{type};
+        my $gdata = ( $gmode eq 'subtract' ) ? 'sub' : 'num';
+        my $llimit = ( $gmode eq 'subtract' ) ? $data->{sllimit} : $data->{llimit};
+        my $ulimit = ( $gmode eq 'subtract' ) ? $data->{sulimit} : $data->{ulimit};
+        my $stack = ( $data->{stack} && $i > 0 ) ? ':STACK' : '';
+        my $file = $span =~ m!^s! ? $self->path_short($data) : $self->path($data);
+        push @opt, 
+            sprintf('DEF:%s%dt=%s:%s:AVERAGE', $gdata, $i, $file, $gdata),
+            sprintf('CDEF:%s%d=%s%dt,%s,%s,LIMIT,%d,%s', $gdata, $i, $gdata, $i, $llimit, $ulimit, $data->{adjustval}, $data->{adjust}),
+            sprintf('XPORT:%s%d:%s', $gdata, $i ,$data->{graph_name});
+        $i++;
+    }
+    my %export;
+    eval {
+        my ($start_timestamp, $end_timestamp, $step, $columns, $column_names, $rows) = RRDs::xport(map { Encode::encode_utf8($_) } @opt);
+        my $ERR=RRDs::error;
+        die $ERR if $ERR;
+        $export{start_timestamp} = $start_timestamp;
+        $export{end_timestamp} = $end_timestamp;
+        $export{step} = $step;
+        $export{columns} = $columns;
+        $export{column_names} = $column_names;
+        $export{rows} = $rows;
+    };
+    if ( $@ ) {
+        die "export failed: $@";
+    }
+
+    return \%export;
+}
+
 
 sub remove {
     my $self = shift;
