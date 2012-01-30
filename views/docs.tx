@@ -193,5 +193,42 @@ $ curl -F number=10 <: $c.req.uri_for('/') :>api/ninjyatoriai/items/syuriken_no_
 
 </table>
 
+<h4>グラフデータのエクスポート</h4>
+
+<p>グラフデータをJSON形式でエクスポートできます</p>
+
+<pre>
+グラフのURI <: $c.req.uri_for('/') :>xport/:service_name/:section_name/:graph_name
+複合グラフのURI  <: $c.req.uri_for('/') :>xport/:pattern
+</pre>
+
+<table>
+<tr>
+<th>パラメータ</th>
+<th>説明</th>
+</tr>
+<tr>
+<td>t</td>
+<td>グラフの範囲。y(年間)、m(月間)、w(週間)、3d(3日間)、s3d(3日間・1分更新)、d(一日)、sd(一日・1分更新)、8h(8時間)、s8h(8時間・1分更新)、4h(4時間)、s4h(4時間・1分更新)、h(1時間)、sh(1時間・1分更新)、n(半日)、sn(半日・1分更新)、c(任意)、sc(任意・1分更新)</td>
+</tr>
+<tr>
+<td>from</td>
+<td>「t」が「c」または「sc」の場合、描画する開始日付。「2011/12/08 12:10:00」の形式で指定</td>
+</tr>
+<tr>
+<td>to</td>
+<td>「t」が「c」または「sc」の場合、描画する終了日付。「2011/12/08 12:10:00」の形式で指定</td>
+</tr>
+<tr>
+<td>gmode</td>
+<td>積算か差分グラフの選択、「gauge」または「subtract」。デフォルトは「gauge」</td>
+</tr>
+<tr>
+<td>width</td>
+<td>rowの最大個数</td>
+</tr>
+</table>
+
+
 
 : }
