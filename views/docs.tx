@@ -191,7 +191,24 @@ $ curl -F number=10 <: $c.req.uri_for('/') :>api/ninjyatoriai/items/syuriken_no_
 <td>凡例の有無。デフォルト「1」</td>
 </tr>
 
+<tr>
+<td>sumup</td>
+<td>凡例に合計値を含むかどうか。デフォルト「0」</td>
+</tr>
+
+
 </table>
+
+<h4>グラフデータのサマリー</h4>
+
+<p>グラフデータの凡例部分ををJSON形式でエクスポートできます</p>
+
+<pre>
+グラフのURI <: $c.req.uri_for('/') :>summary/:service_name/:section_name/:graph_name
+複合グラフのURI  <: $c.req.uri_for('/') :>summary/:pattern
+</pre>
+
+<p>パラメータはグラフを描画する時と同じです</p>
 
 <h4>グラフデータのエクスポート</h4>
 

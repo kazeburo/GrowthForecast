@@ -241,6 +241,7 @@ sub graph {
     push @opt, '-r' if $args->{rigid};
 
     my $i=0;
+    my @defs;
     for my $data ( @datas ) {
         my $gmode = ($data->{c_gmode}) ? $data->{c_gmode} : $a_gmode;
         my $type = ($data->{c_type}) ? $data->{c_type} : ( $gmode eq 'subtract' ) ? $data->{stype} : $data->{type};
@@ -265,7 +266,27 @@ sub graph {
             sprintf('PRINT:%s%dmax:%%.8lf',$gdata, $i),
             sprintf('VDEF:%s%dmin=%s%d,MINIMUM', $gdata, $i, $gdata, $i),
             sprintf('PRINT:%s%dmin:%%.8lf',$gdata, $i);
+        push @defs, sprintf('%s%d',$gdata, $i);
         $i++;
+    }
+    if ( $args->{sumup} ) {
+        my @sumup = (shift @defs);
+        push @sumup, $_, '+' for @defs;
+        push @opt, 
+            sprintf('CDEF:sumup=%s',join(',',@sumup)),
+            sprintf('LINE0:sumup#cccccc:total'),
+            sprintf('GPRINT:sumup:LAST:Cur\: %%4.1lf%%s%s', $datas[0]->{unit}),
+            sprintf('GPRINT:sumup:AVERAGE:Avg\: %%4.1lf%%s%s', $datas[0]->{unit}),
+            sprintf('GPRINT:sumup:MAX:Max\: %%4.1lf%%s%s', $datas[0]->{unit}),
+            sprintf('GPRINT:sumup:MIN:Min\: %%4.1lf%%s%s\l', $datas[0]->{unit}),
+            sprintf('VDEF:sumupcur=sumup,LAST'),
+            sprintf('PRINT:sumupcur:%%.8lf'),
+            sprintf('VDEF:sumupavg=sumup,AVERAGE'),
+            sprintf('PRINT:sumupavg:%%.8lf'),
+            sprintf('VDEF:sumupmax=sumup,MAXIMUM'),
+            sprintf('PRINT:sumupmax:%%.8lf'),
+            sprintf('VDEF:sumupmin=sumup,MINIMUM'),
+            sprintf('PRINT:sumupmin:%%.8lf');
     }
 
     my @graphv;
@@ -291,7 +312,15 @@ sub graph {
         $graph_args{$data->{graph_name}} = [$current, $average, $max, $min];
         $i = $i + 4;
     }
-
+    if ( $args->{sumup} ) {
+        my ($current,$average,$max,$min) = (
+            $graphv[0]->[$i],
+            $graphv[0]->[$i+1],
+            $graphv[0]->[$i+2],
+            $graphv[0]->[$i+3]
+        );
+        $graph_args{'total'} = [$current, $average, $max, $min];
+    }
     open( my $fh, '<:bytes', $tmpfile ) or die "cannot open graph tmpfile: $!";
     local $/;
     my $graph_img = <$fh>;
@@ -320,6 +349,7 @@ sub export {
     );
 
     my $i=0;
+    my @defs;
     for my $data ( @datas ) {
         my $gmode = ($data->{c_gmode}) ? $data->{c_gmode} : $a_gmode;
         my $type = ($data->{c_type}) ? $data->{c_type} : ( $gmode eq 'subtract' ) ? $data->{stype} : $data->{type};
@@ -332,8 +362,17 @@ sub export {
             sprintf('DEF:%s%dt=%s:%s:AVERAGE', $gdata, $i, $file, $gdata),
             sprintf('CDEF:%s%d=%s%dt,%s,%s,LIMIT,%d,%s', $gdata, $i, $gdata, $i, $llimit, $ulimit, $data->{adjustval}, $data->{adjust}),
             sprintf('XPORT:%s%d:%s', $gdata, $i ,$data->{graph_name});
+        push @defs, sprintf('%s%d',$gdata,$i);
         $i++;
     }
+    if ( $args->{sumup} ) {
+        my @sumup = (shift @defs);
+        push @sumup, $_, '+' for @defs;
+        push @opt, 
+            sprintf('CDEF:sumup=%s',join(',',@sumup)),
+            sprintf('XPORT:sumup:total');
+    }
+
     my %export;
     eval {
         my ($start_timestamp, $end_timestamp, $step, $columns, $column_names, $rows) = RRDs::xport(map { Encode::encode_utf8($_) } @opt);

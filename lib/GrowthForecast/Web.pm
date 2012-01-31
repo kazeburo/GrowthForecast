@@ -134,6 +134,12 @@ post '/add_complex' => sub {
             default => '',
             rule => [],
         },
+        'sumup' => {
+            rule => [
+                ['NOT_NULL', '値がありません'],
+                [['CHOICE',0,1], '値が正しくありません'],
+            ],
+        },
         'sort' => {
             rule => [
                 ['NOT_NULL', '値がありません'],
@@ -232,6 +238,12 @@ post '/edit_complex/:complex_id' => [qw/get_complex/] => sub {
         'description' => {
             default => '',
             rule => [],
+        },
+        'sumup' => {
+            rule => [
+                ['NOT_NULL', '値がありません'],
+                [['CHOICE',0,1], '値が正しくありません'],
+            ],
         },
         'sort' => {
             rule => [
@@ -492,6 +504,12 @@ my $GRAPH_VALIDATOR = [
         default => '0',
         rule => [
             [['CHOICE',qw/0 1/],'invalid rigid flag'],
+        ],
+    },
+    'sumup' => {
+        default => 0,
+        rule => [
+            [['CHOICE',qw/0 1/],'invalid sumup flag'],
         ],
     },
 ];

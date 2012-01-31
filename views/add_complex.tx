@@ -36,6 +36,17 @@
 <span id="complex-form-description" class="validator-message help-inline"></span></div>
 </div>
 
+
+<div class="clearfix">
+<label for="">合計値の表示</label>
+<div class="input"><select name="sumup" class="small">
+<option value="0">しない</option>
+<option value="1">する</option>
+</select>
+<span id="complex-form-sumup" class="validator-message help-inline"></span></div>
+</div>
+
+
 <div class="clearfix">
 <label for="">表示順</label>
 <div class="input"><select name="sort" class="small">
@@ -158,6 +169,9 @@ $('.table-order-down').click(table_order_down);
 $('.table-order-remove').click(table_order_remove);
 $('#add-new-row').click(add_new_row);
 $('#complex-form').submit(submit_complex);
+$('#complex-form select[name="sumup"]').change(function(){
+  setTimeout(function(){ preview_complex_graph($('#complex-form')) },10);
+});
 $('#complex-form select[name$="-1"]').change(function(){
   setTimeout(function(){ preview_complex_graph($('#complex-form')) },10);
 });

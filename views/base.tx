@@ -239,7 +239,7 @@ function preview_complex_graph(myform) {
   }
   var base = $('ul.nav:first > li:first > a').attr('href');
   var img = $('<img />');
-  img.attr('src',base + 'graph/' + uri);
+  img.attr('src',base + 'graph/' + uri + '?sumup=' + myform.find('select[name="sumup"]').val());
   $('#preview-graph').children('img').detach();
   img.appendTo($('#preview-graph'));
 };

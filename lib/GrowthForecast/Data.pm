@@ -383,6 +383,7 @@ sub inflate_complex_row {
         };        
     }
 
+    $ref->{sumup} = 0 if ! exists $ref->{sumup};
     $ref->{data_rows} = \@ret;
     $ref->{complex_graph} = $uri;
     my %result = (
