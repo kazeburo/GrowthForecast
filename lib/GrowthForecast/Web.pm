@@ -8,6 +8,7 @@ use Time::Piece;
 use GrowthForecast::Data;
 use GrowthForecast::RRD;
 use Log::Minimal;
+use Class::Accessor::Lite ( rw => [qw/short/] );
 
 sub data {
     my $self = shift;
@@ -20,6 +21,15 @@ sub rrd {
     $self->{__rrd} ||= GrowthForecast::RRD->new($self->root_dir);
     $self->{__rrd};
 }
+
+filter 'set_enable_short' => sub {
+    my $app = shift;
+    sub {
+        my ($self, $c) = @_;
+        $c->stash->{enable_short} = $self->short;
+        $app->($self,$c);
+    }
+};
 
 filter 'get_graph' => sub {
     my $app = shift;
@@ -328,7 +338,7 @@ get '/list/:service_name' => sub {
     $c->render('index.tx', { services => \@services });
 };
 
-get '/list/:service_name/:section_name' => sub {
+get '/list/:service_name/:section_name' => [qw/set_enable_short/] => sub {
     my ( $self, $c )  = @_;
     my $result = $c->req->validator([
         't' => {
@@ -344,7 +354,7 @@ get '/list/:service_name/:section_name' => sub {
     $c->render('list.tx',{ graphs => $rows });
 };
 
-get '/view_graph/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
+get '/view_graph/:service_name/:section_name/:graph_name' => [qw/get_graph set_enable_short/] => sub {
     my ( $self, $c )  = @_;
     my $result = $c->req->validator([
         't' => {
@@ -357,7 +367,7 @@ get '/view_graph/:service_name/:section_name/:graph_name' => [qw/get_graph/] => 
     $c->render('view_graph.tx',{ graphs => [$c->stash->{graph}] });
 };
 
-get '/view_complex/:service_name/:section_name/:graph_name' => sub {
+get '/view_complex/:service_name/:section_name/:graph_name' => [qw/set_enable_short/] => sub {
     my ( $self, $c )  = @_;
     my $result = $c->req->validator([
         't' => {

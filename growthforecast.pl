@@ -26,20 +26,22 @@ GetOptions(
     'host=s' => \$host,
     'front-proxy=s' => \@front_proxy,
     'allow-from=s' => \@allow_from,
+    'disable-1min-metrics' => \my $disable_short,
     "h|help" => \my $help,
 );
 
 if ( $help ) {
-    print "usage: $0 --port 5005 --host 127.0.0.1 --front-proxy 127.0.0.1 --allow-from 127.0.0.1\n";
+    print "usage: $0 --port 5005 --host 127.0.0.1 --front-proxy 127.0.0.1 --allow-from 127.0.0.1 --disable-1min-metrics\n";
     exit(1);
 }
 
+my $enable_short = $disable_short ? 0 : 1;
 my $root_dir = File::Basename::dirname(__FILE__);
 my $sc_board_dir = tempdir( CLEANUP => 1 );
 my $scoreboard = Parallel::Scoreboard->new( base_dir => $sc_board_dir );
 
 my $pm = Parallel::Prefork->new({
-    max_workers => 3,
+    max_workers => $enable_short ? 3 : 2,
     spawn_interval  => 1,
     trap_signals    => {
         map { ($_ => 'TERM') } qw(TERM HUP)
@@ -54,11 +56,12 @@ while ($pm->signal_received ne 'TERM' ) {
             my $val = $stats->{$pid};
             $running{$val}++;
         }
-        if ( $running{worker} && $running{short_worker}) {
+        if ( $running{worker} && ($enable_short ? $running{short_worker} : 1)) {
             local $0 = "$0 (GrowthForecast::Web)";
             $scoreboard->update('web');
-            my $app = GrowthForecast::Web->psgi($root_dir);
-            $app = builder {
+            my $web = GrowthForecast::Web->new($root_dir);
+            $web->short($enable_short);
+            my $app = builder {
                 enable 'Lint';
                 enable 'StackTrace';
                 if ( @front_proxy ) {
@@ -72,7 +75,7 @@ while ($pm->signal_received ne 'TERM' ) {
                 enable 'Static',
                     path => qr!^/(?:(?:css|js|images)/|favicon\.ico$)!,
                     root => $root_dir . '/public';
-                $app;
+                $web->psgi;
             };
              my $loader = Plack::Loader->load(
                  'Starlet',
@@ -82,8 +85,8 @@ while ($pm->signal_received ne 'TERM' ) {
              );
              $loader->run($app);
         }
-        elsif ( !$running{short_worker} ) {
-            local $0 = "$0 (GrowthForecast::Worker short)";
+        elsif ( $enable_short && !$running{short_worker} ) {
+            local $0 = "$0 (GrowthForecast::Worker 1min)";
             $scoreboard->update('short_worker');
             my $worker = GrowthForecast::Worker->new($root_dir);
             $worker->run('short');
