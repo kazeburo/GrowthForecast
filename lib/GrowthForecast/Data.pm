@@ -234,7 +234,7 @@ sub get_by_id_for_rrdupdate {
 }
 
 sub update {
-    my ($self, $service, $section, $graph, $number, $mode ) = @_;
+    my ($self, $service, $section, $graph, $number, $mode, $color ) = @_;
     my $dbh = $self->dbh;
     $dbh->begin_work;
 
@@ -244,15 +244,16 @@ sub update {
             $number += $data->{number};
         }
         if ( $mode ne 'modified' || ($mode eq 'modified' && $data->{number} != $number) ) {
+            $color ||= $data->{color};
             $dbh->query(
-                'UPDATE graphs SET number=?, mode=?, updated_at=? WHERE id = ?',
-                $number, $mode, time, $data->{id}
+                'UPDATE graphs SET number=?, mode=?, color=?, updated_at=? WHERE id = ?',
+                $number, $mode, $color, time, $data->{id}
             );
         }
     }
     else {
         my @colors = List::Util::shuffle(qw/33 66 99 cc/);
-        my $color = '#' . join('', splice(@colors,0,3));
+        $color ||= '#' . join('', splice(@colors,0,3));
         $dbh->query(
             'INSERT INTO graphs (service_name, section_name, graph_name, number, mode, color, llimit, sllimit, created_at, updated_at) 
                          VALUES (?,?,?,?,?,?,?,?,?,?)',

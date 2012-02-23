@@ -750,11 +750,17 @@ post '/api/:service_name/:section_name/:graph_name' => sub {
             rule => [
                 [['CHOICE',qw/count gauge modified/],'count or gauge or modified']
             ],
-        }
+        },
+        'color' => {
+            default => '',
+            rule => [
+                [sub{ length($_[1]) == 0 || $_[1] =~ m!^#[0-9A-F]{6}$!i }, 'invalid color code'],
+            ],
+        },
+
     ]);
 
     if ( $result->has_error ) {
-        warnf $c->req;
         my $res = $c->render_json({
             error => 1,
             messages => $result->messages
@@ -765,7 +771,7 @@ post '/api/:service_name/:section_name/:graph_name' => sub {
 
     my $row = $self->data->update(
         $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
-        $result->valid('number'), $result->valid('mode')
+        $result->valid('number'), $result->valid('mode'), $result->valid('color')
     );
     $c->render_json({ error => 0, data => $row });
 };

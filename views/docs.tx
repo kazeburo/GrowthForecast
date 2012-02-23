@@ -68,6 +68,11 @@ gauge: number の数値で常に上書き<br />
 デフォルトは gauge</td>
 <td>オプション</td>
 </tr>
+<tr>
+<td>color</td>
+<td>グラフの色。#FFFFFF 形式で指定</td>
+<td>オプション/新規グラフで指定なしの場合自動生成</td>
+</tr>
 </table>
 
 <p>LWP::UserAgent を使うと以下の用になります。</p>
@@ -76,6 +81,7 @@ gauge: number の数値で常に上書き<br />
 my $ua = LWP::UserAgent->new;
 $ua->post('<: $c.req.uri_for('/') :>api/ninjyatoriai/items/syuriken_no_ureta_kazu', {
     number      => 10,
+    color       => '#333399'
 });
 </pre>
 
