@@ -1,0 +1,153 @@
+: cascade base
+: around page_header -> {
+<h1>グラフの編集</h1>
+: }
+
+: around content -> {
+
+: block form |  fillinform( $graph ) -> {
+
+<form class="hxrpost" method="post" action="<: $c.req.uri_for('/edit/'~$graph.service_name~'/'~$graph.section_name~'/'~$graph.graph_name) :>">
+
+<fieldset>
+
+<div class="clearfix">
+<label for="">パス</label>
+<div class="input">
+<div class="inline-inputs">
+/ <input class="small" name="service_name" /> / <input class="small" name="section_name" /> / <input class="small" name="graph_name" />
+</div>
+<span class="help-block">グラフを表示するURI(サービス名/セクション名/グラフ名)</span>
+</div>
+</div>
+
+<div class="clearfix">
+<label for="">説明</label>
+<div class="input">
+<input class="xlarge" name="description" />
+</div>
+</div>
+
+<div class="clearfix">
+<label for="">表示順</label>
+<div class="input">
+<select name="sort" class="small">
+<option value="19">19</option>
+<option value="18">18</option>
+<option value="17">17</option>
+<option value="16">16</option>
+<option value="15">15</option>
+<option value="14">14</option>
+<option value="13">13</option>
+<option value="12">12</option>
+<option value="11">11</option>
+<option value="10">10</option>
+<option value="9">9</option>
+<option value="8">8</option>
+<option value="7">7</option>
+<option value="6">6</option>
+<option value="5">5</option>
+<option value="4">4</option>
+<option value="3">3</option>
+<option value="2">2</option>
+<option value="1">1</option>
+<option value="0">0</option>
+</select>
+<span class="help-block">数値が大きい方が先頭</span>
+</div>
+</div>
+
+<div class="clearfix">
+<label for="">グラフのタイプ</label>
+<div class="input">
+<select name="gmode" class="medium">
+<option value="gauge">実績</option>
+<option value="subtract">差分</option>
+<option value="both">両方</option>
+</select>
+</div>
+</div>
+
+<div class="clearfix">
+<label for="">データ調整</label>
+<div class="input">
+<div class="inline-inputs">
+値
+<select name="adjust" class="small">
+<option value="*">×</option>
+<option value="/">÷</option>
+</select>
+<input class="small" name="adjustval" />
+単位
+<input class="small" name="unit" />
+</div>
+</div>
+</div>
+
+<div class="clearfix">
+<label for="">グラフの色</label>
+<div class="input">
+<input name="color" id="form-<: $index :>-color" class="small html5jp-cpick" />
+<span class="help-block">#000000-#FFFFFFの範囲</span>
+</div>
+</div>
+
+<div class="clearfix">
+<label for="">グラフの表示</label>
+<div class="input">
+<select name="type" class="medium">
+<option value="AREA">塗りつぶし</option>
+<option value="LINE1">線グラフ</option>
+<option value="LINE2">線グラフ(太)</option>
+</select>
+</div>
+</div>
+
+<div class="clearfix">
+<label for="">データ有効範囲</label>
+<div class="input">
+<div class="inline-inputs">
+<input class="medium" name="llimit" />
+〜
+<input class="medium" name="ulimit" />
+</div>
+</div>
+</div>
+
+<div class="clearfix">
+<label for="">差分グラフの表示</label>
+<div class="input">
+<select name="stype" class="medium">
+<option value="AREA">塗りつぶし</option>
+<option value="LINE1">線グラフ</option>
+<option value="LINE2">線グラフ(太)</option>
+</select>
+</div>
+</div>
+
+
+<div class="clearfix">
+<label for="">差分データ有効範囲</label>
+<div class="input">
+<div class="inline-inputs">
+<input class="medium" name="sllimit" />
+〜
+<input class="medium" name="sulimit" />
+</div>
+</div>
+</div>
+
+</fieldset>
+
+<div class="actions">
+<input type="submit" class="btn primary" value="変更" />
+<a href="<: $c.req.uri_for('/list/'~$graph.service_name~'/'~$graph.section_name) :>" class="btn">キャンセル</a>
+<button type="button" class="btn danger hxr_confirm_button" data-confirm="「<: $graph.graph_name :>」を削除しますか？" data-uri="<: $c.req.uri_for('/delete/'~$graph.service_name~'/'~$graph.section_name~'/'~$graph.graph_name) :>">削除</button>
+</div>
+
+</form>
+: } # fillin
+
+
+: }
+

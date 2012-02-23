@@ -29,8 +29,4 @@
 : } # for graphs
 : } # arround
 
-: around javascript_load -> {
-$('.pref-form').submit(submit_pref_form);
-$('.remove-form').submit(submit_remove_form);
-: }
 

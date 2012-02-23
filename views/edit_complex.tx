@@ -5,13 +5,8 @@
 
 
 : around content -> {
-<div style="margin-bottom: 13px; text-align: center" id="preview-graph">
-</div>
 
-<form class="complex-form" id="complex-form" method="post" action="<: $c.req.uri_for('/edit_complex/'~$c.stash.complex.id) :>">
-<div class="alert-message error hide">
-<p>System Error! <a href="#">try again</a>.</p>
-</div>
+<form id="complex-form" class="hxrpost" method="post" action="<: $c.req.uri_for('/edit_complex/'~$c.stash.complex.id) :>">
 
 <fieldset>
 
@@ -20,36 +15,35 @@
 <label for="">パス</label>
 <div class="input">
 <div class="inline-inputs">
-<span class="help-inlne"><: $c.req.uri_for('/complex_graph/') :></span>
 <input class="small" name="service_name" /> / <input class="small" name="section_name" /> / <input class="small" name="graph_name" />
-<span id="complex-form-service_name" class="validator-message help-block"></span>
-<span id="complex-form-section_name" class="validator-message help-block"></span>
-<span id="complex-form-graph_name" class="validator-message help-block"></span>
-<span class="help-block">グラフを表示するURI(サービス名/セクション名/グラフ名)</span>
 </div>
+<span class="help-block">グラフを表示するURI(サービス名/セクション名/グラフ名)</span>
 </div>
 </div>
 
 <div class="clearfix">
 <label for="">説明</label>
-<div class="input"><input class="xlarge" name="description" />
-<span id="complex-form-description" class="validator-message help-inline"></span></div>
+<div class="input">
+<input class="xlarge" name="description" />
+</div>
 </div>
 
 
 <div class="clearfix">
 <label for="">合計値の表示</label>
-<div class="input"><select name="sumup" class="small">
+<div class="input">
+<select name="sumup" class="small">
 <option value="0">しない</option>
 <option value="1">する</option>
 </select>
-<span id="complex-form-sumup" class="validator-message help-inline"></span></div>
+</div>
 </div>
 
 
 <div class="clearfix">
 <label for="">表示順</label>
-<div class="input"><select name="sort" class="small">
+<div class="input">
+<select name="sort" class="small">
 <option value="19">19</option>
 <option value="18">18</option>
 <option value="17">17</option>
@@ -71,15 +65,19 @@
 <option value="1">1</option>
 <option value="0">0</option>
 </select>
-<span id="complex-form-sort" class="validator-message help-inline"></span>
-<span class="help-block">数値が大きい方が先頭</span></div>
+<span class="help-block">数値が大きい方が先頭</span>
+</div>
 </div>
 
+</fieldset>
+
+<fieldset>
+<legend>グラフのデータ</legend>
 
 <div class="clearfix">
-<label for="">グラフデータ</label>
+<label for="">系列1</label>
 <div class="input">
-<h4>最初のデータ</h4>
+
 <table class="bordered-table zebra-striped">
 <tr>
 <th class="span1">&nbsp;</th>
@@ -105,13 +103,14 @@
 </select></td>
 </tr>
 </table>
-<span id="complex-form-type-1" class="validator-message help-block"></span>
-<span id="complex-form-path-1" class="validator-message help-block"></span>
-<span id="complex-form-gmode-1" class="validator-message help-block"></span>
+</div>
+</div>
 
 : } # fillin
 
-<h4>2番目以降のデータ</h4>
+<div class="clearfix">
+<label for="">2番目以降の系列</label>
+<div class="input">
 
 <table class="bordered-table zebra-striped" id="add-data-tbl">
 <tr>
@@ -161,34 +160,28 @@
 </tr>
 : }
 
-
 </table>
-<span id="complex-form-type-2" class="validator-message help-block"></span>
-<span id="complex-form-path-2" class="validator-message help-block"></span>
-<span id="complex-form-gmode-2" class="validator-message help-block"></span>
-<span id="complex-form-stack-2" class="validator-message help-block"></span>
+</div>
 </div>
 
 </fieldset>
+
+<fieldset>
+<legend>グラフのプレビュー</legend>
+<div class="clearfix">
+<label for="">&nbsp;</label>
+<div class="input">
+<div id="preview-graph"></div>
+</div>
+</div>
+</fieldset>
+
 <div class="actions">
 <input type="submit" class="btn primary" value="変更" />
+<a href="<: $c.req.uri_for('/list/'~$c.stash.complex.service_name~'/'~$c.stash.complex.section_name) :>" class="btn">キャンセル</a>
+<button type="button" class="btn danger hxr_confirm_button" data-confirm="「<: $c.stash.complex.graph_name :>」を削除しますか？" data-uri="<: $c.req.uri_for('/delete_complex/'~$c.stash.complex.id) :>">削除</button>
 </div>
 
 </form>
-: }
-
-: around javascript_load -> {
-$('.table-order-up').click(table_order_up);
-$('.table-order-down').click(table_order_down);
-$('.table-order-remove').click(table_order_remove);
-$('#add-new-row').click(add_new_row);
-$('#complex-form').submit(submit_complex);
-$('#complex-form select[name="sumup"]').change(function(){
-  setTimeout(function(){ preview_complex_graph($('#complex-form')) },10);
-});
-$('#complex-form select[name$="-1"]').change(function(){
-  setTimeout(function(){ preview_complex_graph($('#complex-form')) },10);
-});
-preview_complex_graph($('#complex-form'));
 : }
 

@@ -84,89 +84,93 @@ section > .row {
 <script type="text/javascript" src="<: $c.req.uri_for('/js/jquery-1.5.2.min.js') :>"></script>
 <script type="text/javascript" src="<: $c.req.uri_for('/js/bootstrap-modal.js') :>"></script>
 <script type="text/javascript" src="<: $c.req.uri_for('/js/bootstrap-alerts.js') :>"></script>
+<script type="text/javascript" src="<: $c.req.uri_for('/js/html5jp/cpick.js') :>"></script>
 <script type="text/javascript">
 $(function(){
-: block javascript_load -> { }
+  $('form.hxrpost').each(setHxrpost);
+  $('button.hxr_confirm_button').each(setHxrConfirmBtn);
+  $('#add-new-row').click(add_new_row);
+  $('form#complex-form').each(setTablePreview);
 });
 
-function submit_pref_form() {
-  pref_form = this;
-  $.ajax({
-    type: 'POST',
-    url: pref_form.action,
-    data: $(pref_form).serialize(),
-    success: function(data) {
-      $(pref_form).find('.alert-message').hide();
-      if ( data.error == 0 ) {
-          location.reload();
-      }
-      else {
-          $(pref_form).find('.validator-message').text('');
-          $(pref_form).find('div.clearfix').removeClass('error');
-          $.each(data.messages, function (param,message) {
-             $(pref_form).find('#'+pref_form.id +'-'+ param).text(message);
-             $(pref_form).find('#'+pref_form.id +'-'+ param).parents('div.clearfix').first().addClass('error');
-          });
-      }
-    },
-    error: function() {
-      $(pref_form).find('.alert-message').show();
-    },
-    dataType: 'json'
-  });
-  return false;
-};
 
-function submit_remove_form() {
-  remove_form = this;
-  $.ajax({
-    type: 'POST',
-    url: remove_form.action,
-    data: $(remove_form).serialize(),
-    success: function(data) {
-      $(remove_form).find('.alert-message').hide();
-      if ( data.error == 0 ) {
-        location.href = data.location;
-      }
-      else {
-        $(remove_form).find('.alert-message').show();
-      }
-    },
-    error: function() {
-      $(remove_form).find('.alert-message').show();
-    },
-    dataType: 'json'
-  });
-  return false;
-};
-
-function submit_complex() {
+function setHxrpost() {
   var myform = this;
-  $.ajax({
-    type: 'POST',
-    url: myform.action,
-    data: $(myform).serialize(),
-    success: function(data) {
-      $(myform).find('.alert-message').hide();
-      if ( data.error == 0 ) {
-          location.href = data.location;
+  $(myform).first().prepend('<div class="alert-message error hide">System Error!</div>');
+  $(myform).submit(function(){
+    $(myform).find('.alert-message').hide();
+    $(myform).find('.validator-message').detach();
+    $(myform).find('.clearfix').removeClass('error');
+    $.ajax({
+      type: 'POST',
+      url: myform.action,
+      data: $(myform).serialize(),
+      success: function(data) {
+        $(myform).find('.alert-message').hide();
+        if ( data.error == 0 ) {
+            location.href = data.location;
+        }
+        else {
+            $.each(data.messages, function (param,message) {
+              var helpblock = $('<span class="validator-message help-block"></span>');
+              helpblock.text(message);
+              $(myform).find('[name="'+param+'"]').parents('div.input').first().append(helpblock);
+              $(myform).find('[name="'+param+'"]').parents('div.clearfix').first().addClass('error');
+              if ( param.match(/-2$/) ) {
+                $(myform).find('[name="path-add"]').parents('div.input').first().append(helpblock);
+                $(myform).find('[name="path-add"]').parents('div.clearfix').first().addClass('error');
+              }
+            });
+        }
+      },
+      error: function() {
+        $(myform).find('.alert-message').show();
       }
-      else {
-          $(myform).find('.validator-message').text('');
-          $(myform).find('div.clearfix').removeClass('error');
-          $.each(data.messages, function (param,message) {
-             $(myform).find('#'+myform.id +'-'+ param).text(message);
-             $(myform).find('#'+myform.id +'-'+ param).parents('div.clearfix').first().addClass('error');
-          });
-      }
-    },
-    error: function() {
-      $(myform).find('.alert-message').show();
-    },
-    dataType: 'json'
+    });
+    return false;
   });
-  return false;
 };
+
+function setHxrConfirmBtn() {
+  var mybtn = this;
+  var modal = $('<div class="modal fade">'+
+'<form method="post" action="#">'+
+'<div class="modal-header"><h3>confirm</h3></div>'+
+'<div class="modal-body"><div class="alert-message error hide">System Error!</div><p>confirm</p></div>'+
+'<div class="modal-footer"><input type="submit" class="btn danger" value="confirm" /></div>'+
+'</form></div>');
+  modal.find('h3').text($(mybtn).text());
+  modal.find('input[type=submit]').attr('value',$(mybtn).text());
+  modal.find('.modal-body > p').text( $(mybtn).data('confirm') );
+  modal.find('form').submit(function(){
+    $.ajax({
+      type: 'POST',
+      url: $(mybtn).data('uri'),
+      data: modal.find('form').serialize(),
+      success: function(data) {
+        modal.find('.alert-message').hide();
+        if ( data.error == 0 ) {
+          location.href = data.location;
+        }
+      },
+      error: function() {
+        modal.find('.alert-message').show();
+      }
+    });
+    return false;
+  });
+  $(mybtn).click(function(){
+    modal.modal({
+      show: true,
+      backdrop: true,
+      keyboard: true,
+    });
+    return false;
+  });
+};
+
+
+
 
 function add_new_row() {
   var path = $('#path-add').val();
@@ -243,6 +247,20 @@ function preview_complex_graph(myform) {
   $('#preview-graph').children('img').detach();
   img.appendTo($('#preview-graph'));
 };
+
+function setTablePreview() {
+  $('.table-order-up').click(table_order_up);
+  $('.table-order-down').click(table_order_down);
+  $('.table-order-remove').click(table_order_remove);
+  $('#complex-form select[name="sumup"]').change(function(){
+    setTimeout(function(){ preview_complex_graph($('#complex-form')) },10);
+  });
+  $('#complex-form select[name$="-1"]').change(function(){
+    setTimeout(function(){ preview_complex_graph($('#complex-form')) },10);
+  });
+  preview_complex_graph($('#complex-form'));
+}
+
 </script>
 </body>
 </html>

@@ -90,7 +90,7 @@ get '/edit_complex/:complex_id' => [qw/get_complex/] => sub {
     $c->render('edit_complex.tx',{ graphs => $graphs });
 };
 
-post '/remove_complex/:complex_id' => [qw/get_complex/] => sub {
+post '/delete_complex/:complex_id' => [qw/get_complex/] => sub {
     my ( $self, $c )  = @_;
     $self->data->remove_complex($c->stash->{complex}->{id});
     $c->render_json({
@@ -590,7 +590,12 @@ get '/{method:(?:xport|graph|summary)}/:service_name/:section_name/:graph_name' 
     return $c->res;
 };
 
-post '/graph/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
+get '/edit/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
+    my ( $self, $c )  = @_;
+    $c->render('edit.tx',{graph=>$c->stash->{graph}});
+};
+
+post '/edit/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
     my ( $self, $c )  = @_;
     my $check_uniq = sub {
         my ($req,$val) = @_;
@@ -716,10 +721,11 @@ post '/graph/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub 
 
     $c->render_json({
         error => 0,
+        location => $c->req->uri_for( sprintf '/list/%s/%s', $result->valid('service_name'), $result->valid('section_name') )->as_string
     });
 };
 
-post '/graph/:service_name/:section_name/:graph_name/delete' => [qw/get_graph/] => sub {
+post '/delete/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
     my ( $self, $c )  = @_;
 
     $self->data->remove($c->stash->{graph}->{id});
