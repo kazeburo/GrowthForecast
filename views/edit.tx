@@ -87,7 +87,7 @@
 <div class="clearfix">
 <label for="">グラフの色</label>
 <div class="input">
-<input name="color" id="form-<: $index :>-color" class="small html5jp-cpick" />
+<input name="color" id="form-<: $index :>-color" class="small color_pallet" />
 <span class="help-block">#000000-#FFFFFFの範囲</span>
 </div>
 </div>

@@ -84,13 +84,13 @@ section > .row {
 <script type="text/javascript" src="<: $c.req.uri_for('/js/jquery-1.5.2.min.js') :>"></script>
 <script type="text/javascript" src="<: $c.req.uri_for('/js/bootstrap-modal.js') :>"></script>
 <script type="text/javascript" src="<: $c.req.uri_for('/js/bootstrap-alerts.js') :>"></script>
-<script type="text/javascript" src="<: $c.req.uri_for('/js/html5jp/cpick.js') :>"></script>
 <script type="text/javascript">
 $(function(){
   $('form.hxrpost').each(setHxrpost);
   $('button.hxr_confirm_button').each(setHxrConfirmBtn);
   $('#add-new-row').click(add_new_row);
   $('form#complex-form').each(setTablePreview);
+  $('input.color_pallet').each(setColorPallets);
 });
 
 
@@ -259,6 +259,41 @@ function setTablePreview() {
     setTimeout(function(){ preview_complex_graph($('#complex-form')) },10);
   });
   preview_complex_graph($('#complex-form'));
+}
+
+function setColorPallets() {
+  var input = $(this);
+  var preview = $('<input type="text" style="width:20px" readonly="readonly" />');
+  input.before(preview);
+  preview.css('background-color',input.val());
+  input.change(function(){
+      preview.css('background-color',input.val());
+  });
+  var colors = ["#cccccc","#cccc77","#cccc11","#cc77cc","#cc7777","#cc7711","#cc11cc","#cc1177","#cc1111","#77cccc","#77cc77","#77cc11","#7777cc","#777777","#777711","#7711cc","#771177","#771111","#11cccc","#11cc77","#11cc11","#1177cc","#117777","#117711","#1111cc","#111177","#111111"];
+  var pallet = $('<div class="hide" style="border:solid 1px #000;width:154px;padding:1px;background-color:#222;position:absolute"></div>');
+  pallet.append('<div style="margin:1px;display:inline-block;width:20px;height:20px;cursor:pointer;color:#eee;text-align:center;">✖</div>');
+  pallet.children().first().click(function(){
+    pallet.toggle();
+  });
+  $.map(colors, function (code,idx) {
+      var piece = $('<div style="margin:1px;display:inline-block;'
+                    + 'width:20px;height:20px;cursor:pointer">&nbsp;</div>');
+      piece.css('background-color',code);
+      piece.click(function(){
+         input.val(code);
+         input.change();
+         pallet.toggle();
+      });
+      pallet.append(piece);
+  });
+  input.after(pallet);
+  input.click(function(){
+    var pos = $(this).position();
+    var width = $(this).outerWidth(true);
+    pallet.css('top',pos.top);
+    pallet.css('left',pos.left+width);
+    pallet.toggle();
+  });
 }
 
 </script>
