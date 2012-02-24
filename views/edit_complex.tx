@@ -15,7 +15,7 @@
 <label for="">パス</label>
 <div class="input">
 <div class="inline-inputs">
-<input class="small" name="service_name" /> / <input class="small" name="section_name" /> / <input class="small" name="graph_name" />
+/ <input class="small" name="service_name" /> / <input class="small" name="section_name" /> / <input class="small" name="graph_name" />
 </div>
 <span class="help-block">グラフを表示するURI(サービス名/セクション名/グラフ名)</span>
 </div>
@@ -94,7 +94,7 @@
 </select></td>
 <td><select name="path-1" class="span10">
 : for $graphs -> $graph {
-<option value="<: $graph.id :>">/graph/<: $graph.service_name :>/<: $graph.section_name :>/<: $graph.graph_name :></option>
+<option value="<: $graph.id :>">/<: $graph.service_name :>/<: $graph.section_name :>/<: $graph.graph_name :></option>
 : }
 </select></td>
 <td style="text-align: center"><select name="gmode-1" class="span2">
@@ -131,7 +131,7 @@
 </select></t>
 <td><select name="path-add" id="path-add" class="span6">
 : for $graphs -> $graph {
-<option value="<: $graph.id :>">/graph/<: $graph.service_name :>/<: $graph.section_name :>/<: $graph.graph_name :></option>
+<option value="<: $graph.id :>">/<: $graph.service_name :>/<: $graph.section_name :>/<: $graph.graph_name :></option>
 : }
 </select></td>
 <td style="text-align: center"><select name="gmode-add" id="gmode-add" class="span2">
@@ -153,7 +153,7 @@
 <tr class="can-table-order">
 <td><span class="table-order-pointer table-order-up">⬆</span><span class="table-order-pointer table-order-down">⬇</span></td>
 <td><: $type_hash[$row.type] :><input type="hidden" name="type-2" value="<: $row.type :>"/></td>
-<td>/graph/<: $row.graph.service_name :>/<: $row.graph.section_name :>/<: $row.graph.graph_name :><input type="hidden" name="path-2" value="<: $row.path :>"/></td>
+<td>/<: $row.graph.service_name :>/<: $row.graph.section_name :>/<: $row.graph.graph_name :><input type="hidden" name="path-2" value="<: $row.path :>"/></td>
 <td style="text-align:center"><: $gmode_hash[$row.gmode] :><input type="hidden" name="gmode-2" value="<: $row.gmode :>" /></td>
 <td style="text-align:center"><: $stack_hash[$row.stack] :><input type="hidden" name="stack-2" value="<: $row.stack :>" /></td>
 <td style="text-align:center"><span class="table-order-remove">✖</span></td>
