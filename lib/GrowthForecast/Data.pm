@@ -338,7 +338,7 @@ sub get_all_graph_id {
 sub get_all_graph_name {
    my $self = shift;
    $self->dbh->select_all(
-       'SELECT id,service_name,section_name,graph_name FROM graphs ORDER BY service_name, section_name, sort DESC',
+       'SELECT id,service_name,section_name,graph_name FROM graphs ORDER BY service_name, section_name, graph_name DESC',
    );
 }
 
