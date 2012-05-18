@@ -21,6 +21,9 @@ sub new {
 
 my $_on_connect = sub {
     my $dbh = shift;
+
+    $dbh->do('PRAGMA journal_mode = WAL');
+
     $dbh->do(<<EOF);
 CREATE TABLE IF NOT EXISTS graphs (
     id           INTEGER NOT NULL PRIMARY KEY,
@@ -101,7 +104,7 @@ sub dbh {
         sqlite_use_immediate_transaction => 1,
         Callbacks => {
             connected => $_on_connect,
-        },        
+        },
     });
     $self->{dbh};
 }
