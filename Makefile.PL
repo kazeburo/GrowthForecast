@@ -15,6 +15,9 @@ WriteMakefile(
         'Starlet' => '0.14',
         'Parallel::Scoreboard' => '0.03',
         'Plack::Builder::Conditionals' => '0.03',
+        'Scope::Container' => '0.04',
+        'Plack::Middleware::Scope::Container' => '0.02',
+        'Scope::Container::DBI' => '0.05'
     },
     MIN_PERL_VERSION => '5.008001',
 );

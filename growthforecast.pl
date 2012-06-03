@@ -27,12 +27,32 @@ GetOptions(
     'front-proxy=s' => \@front_proxy,
     'allow-from=s' => \@allow_from,
     'disable-1min-metrics' => \my $disable_short,
+    'with-mysql=s' => \my $mysql,
     "h|help" => \my $help,
 );
 
 if ( $help ) {
-    print "usage: $0 --port 5005 --host 127.0.0.1 --front-proxy 127.0.0.1 --allow-from 127.0.0.1 --disable-1min-metrics\n";
+    print <<EOF;
+usage: $0 --port 5005 --host 127.0.0.1 --front-proxy 127.0.0.1 
+          --allow-from 127.0.0.1 --disable-1min-metrics
+          --with-mysql dbi:mysql:[dbname];hostname=[localhost]
+
+If you want to use MySQL instead of SQLite, set with-mysql opt with your DSN.
+MYSQL_USER,MYSQL_PASSWORD environment values are used as username and password 
+for connecting to MySQL.
+
+eg:
+
+  \% MYSQL_USER=www MYSQL_PASSWORD=foobar perl $0 \\
+      --with-mysql dbi:mysql:growthforecast;hostname=localhost
+
+EOF
     exit(1);
+}
+
+if ( $mysql ) {
+    eval { require  GrowthForecast::Data::MySQL };
+    die "Cannot load MySQL: $@" if $@;
 }
 
 my $enable_short = $disable_short ? 0 : 1;
@@ -61,6 +81,7 @@ while ($pm->signal_received ne 'TERM' ) {
             $scoreboard->update('web');
             my $web = GrowthForecast::Web->new($root_dir);
             $web->short($enable_short);
+            $web->mysql($mysql);
             my $app = builder {
                 enable 'Lint';
                 enable 'StackTrace';
@@ -75,6 +96,7 @@ while ($pm->signal_received ne 'TERM' ) {
                 enable 'Static',
                     path => qr!^/(?:(?:css|js|images)/|favicon\.ico$)!,
                     root => $root_dir . '/public';
+                enable 'Scope::Container';
                 $web->psgi;
             };
              my $loader = Plack::Loader->load(
@@ -89,12 +111,14 @@ while ($pm->signal_received ne 'TERM' ) {
             local $0 = "$0 (GrowthForecast::Worker 1min)";
             $scoreboard->update('short_worker');
             my $worker = GrowthForecast::Worker->new($root_dir);
+            $worker->mysql($mysql);
             $worker->run('short');
         }            
         else {
             local $0 = "$0 (GrowthForecast::Worker)";
             $scoreboard->update('worker');
             my $worker = GrowthForecast::Worker->new($root_dir);
+            $worker->mysql($mysql);
             $worker->run;
         }
     });

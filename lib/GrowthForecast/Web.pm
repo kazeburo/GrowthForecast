@@ -8,11 +8,14 @@ use Time::Piece;
 use GrowthForecast::Data;
 use GrowthForecast::RRD;
 use Log::Minimal;
-use Class::Accessor::Lite ( rw => [qw/short/] );
+use Class::Accessor::Lite ( rw => [qw/short mysql/] );
 
 sub data {
     my $self = shift;
-    $self->{__data} ||= GrowthForecast::Data->new($self->root_dir);
+    $self->{__data} ||= 
+        $self->mysql 
+            ? GrowthForecast::Data::MySQL->new($self->mysql)
+            : GrowthForecast::Data->new($self->root_dir);
     $self->{__data};
 }
 
@@ -775,10 +778,18 @@ post '/api/:service_name/:section_name/:graph_name' => sub {
         return $res;
     }
 
-    my $row = $self->data->update(
-        $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
-        $result->valid('number'), $result->valid('mode'), $result->valid('color')
-    );
+    my $row;
+    eval {
+        $row = $self->data->update(
+            $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
+            $result->valid('number'), $result->valid('mode'), $result->valid('color')
+        );
+    };
+    if ( $@ ) {
+        die sprintf "%s/%s/%s => %s,%s,%s", 
+            $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
+                $result->valid('number'), $result->valid('mode'), $result->valid('color');
+    }
     $c->render_json({ error => 0, data => $row });
 };
 

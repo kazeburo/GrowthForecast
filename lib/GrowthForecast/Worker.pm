@@ -8,6 +8,8 @@ use GrowthForecast::Data;
 use GrowthForecast::RRD;
 use Log::Minimal;
 use POSIX ":sys_wait_h";
+use Class::Accessor::Lite ( rw => [qw/mysql/] );
+use Scope::Container;
 
 sub new {
     my $class = shift;
@@ -17,7 +19,10 @@ sub new {
 
 sub data {
     my $self = shift;
-    $self->{__data} ||= GrowthForecast::Data->new($self->{root_dir});
+    $self->{__data} ||= 
+        $self->mysql 
+            ? GrowthForecast::Data::MySQL->new($self->mysql)
+            : GrowthForecast::Data->new($self->root_dir);
     $self->{__data};
 }
 
@@ -81,6 +86,7 @@ sub run {
             next if $pid; #main process
 
             #child process
+            my $container = start_scope_container();
             my $all_rows = $self->data->get_all_graph_id;
             for my $row ( @$all_rows ) {
                 debugf( "[%s] update %s", $method, $row);
@@ -93,6 +99,7 @@ sub run {
                     $self->rrd->update_short($data);
                 }
             }
+            undef $container;
             exit 0;
         }
     }
