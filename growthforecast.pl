@@ -42,9 +42,14 @@ MYSQL_USER,MYSQL_PASSWORD environment values are used as username and password
 for connecting to MySQL.
 
 eg:
-
   \% MYSQL_USER=www MYSQL_PASSWORD=foobar perl $0 \\
       --with-mysql dbi:mysql:growthforecast;hostname=localhost
+
+GrowthForecast needs CREATE, ALTER, DELETE, INSERT, UPDATE and SELECT privileges
+
+eg:
+  mysql> GRANT  CREATE, ALTER, DELETE, INSERT, UPDATE, SELECT \\
+         ON growthforecast.* TO 'www'@'localhost' IDENTIFIED BY foobar;
 
 EOF
     exit(1);
