@@ -786,8 +786,8 @@ post '/api/:service_name/:section_name/:graph_name' => sub {
         );
     };
     if ( $@ ) {
-        die sprintf "%s/%s/%s => %s,%s,%s", 
-            $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
+        die sprintf "Error:%s %s/%s/%s => %s,%s,%s", 
+            $@, $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
                 $result->valid('number'), $result->valid('mode'), $result->valid('color');
     }
     $c->render_json({ error => 0, data => $row });

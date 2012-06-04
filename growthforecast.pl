@@ -49,7 +49,7 @@ GrowthForecast needs CREATE, ALTER, DELETE, INSERT, UPDATE and SELECT privileges
 
 eg:
   mysql> GRANT  CREATE, ALTER, DELETE, INSERT, UPDATE, SELECT \\
-         ON growthforecast.* TO 'www'@'localhost' IDENTIFIED BY foobar;
+         ON growthforecast.* TO 'www'\@'localhost' IDENTIFIED BY foobar;
 
 EOF
     exit(1);

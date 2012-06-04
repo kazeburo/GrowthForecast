@@ -160,8 +160,9 @@ sub get_by_id_for_rrdupdate_short {
 
     $dbh->begin_work;
     my $subtract;
+    my $for_update = ( $dbh->connect_info->[0] =~ /^(?i:dbi):mysql:/ ) ? ' FOR UPDATE' : '';
     my $prev = $dbh->select_row(
-        'SELECT * FROM prev_short_graphs WHERE graph_id = ?',
+        'SELECT * FROM prev_short_graphs WHERE graph_id = ?'.$for_update,
         $data->{id}
     );
     if ( !$prev ) {
@@ -205,8 +206,9 @@ sub get_by_id_for_rrdupdate {
     $dbh->begin_work;
     my $subtract;
 
+    my $for_update = ( $dbh->connect_info->[0] =~ /^(?i:dbi):mysql:/ ) ? ' FOR UPDATE' : '';
     my $prev = $dbh->select_row(
-        'SELECT * FROM prev_graphs WHERE graph_id = ?',
+        'SELECT * FROM prev_graphs WHERE graph_id = ?' . $for_update,
         $data->{id}
     );
     
@@ -244,7 +246,12 @@ sub update {
     my $dbh = $self->dbh;
     $dbh->begin_work;
 
-    my $data = $self->get($service, $section, $graph);
+    my $for_update = ( $dbh->connect_info->[0] =~ /^(?i:dbi):mysql:/ ) ? ' FOR UPDATE' : '';
+    my $data = $self->dbh->select_row(
+        'SELECT * FROM graphs WHERE service_name = ? AND section_name = ? AND graph_name = ?' . $for_update,
+        $service, $section, $graph
+    );
+
     if ( defined $data ) {
         if ( $mode eq 'count' ) {
             $number += $data->{number};
@@ -266,10 +273,15 @@ sub update {
             $service, $section, $graph, $number, $mode, $color, -1000000000, -100000 ,time, time
         ); 
     }
-    my $row = $self->get($service, $section, $graph);
+
+    my $row = $self->dbh->select_row(
+        'SELECT * FROM graphs WHERE service_name = ? AND section_name = ? AND graph_name = ?',
+        $service, $section, $graph
+    );
+
     $dbh->commit;
 
-    $row;
+    $self->inflate_row($row);
 }
 
 sub update_graph {
