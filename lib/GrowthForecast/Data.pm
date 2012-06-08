@@ -25,6 +25,7 @@ sub on_connect {
         my $dbh = shift;
 
         $dbh->do('PRAGMA journal_mode = WAL');
+        $dbh->do('PRAGMA synchronous = NORMAL');
 
         $dbh->do(<<EOF);
 CREATE TABLE IF NOT EXISTS graphs (
