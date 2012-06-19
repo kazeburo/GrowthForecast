@@ -13,8 +13,8 @@ $Log::Minimal::AUTODUMP =1;
 
 sub new {
     my $class = shift;
-    my $data_dir = shift;
-    bless { data_dir => $data_dir }, $class;
+    my %args = @_;
+    bless \%args, $class;
 }
 
 sub path {
@@ -99,8 +99,6 @@ sub update_short {
     };
     die "udpate rrdfile failed: $@" if $@;
 }
-
-my @jp_fonts = grep { -f $_ } zglob("/usr/share/fonts/**/sazanami-gothic.ttf");
 
 sub calc_period {
     my $self = shift;
@@ -220,6 +218,7 @@ sub graph {
         '-s', $period,
         '-e', $end,
         '--slope-mode',
+        '--disable-rrdtool-tag',
         '--color', 'BACK#'.uc($args->{background_color}),
         '--color', 'CANVAS#'.uc($args->{canvas_color}),
         '--color', 'FONT#'.uc($args->{font_color}),
@@ -235,7 +234,7 @@ sub graph {
     push @opt, '--no-legend' if !$args->{legend};
     push @opt, '--only-graph' if $args->{graphonly};
     push @opt, '--logarithmic' if $args->{logarithmic};
-    push @opt, '--font', "DEFAULT:0:".$jp_fonts[0] if @jp_fonts;
+    push @opt, '--font', "DEFAULT:0:".$self->{root_dir}.'/sazanami-gothic.ttf';
     push @opt, '-u', $args->{upper_limit} if defined $args->{upper_limit};
     push @opt, '-l', $args->{lower_limit} if defined $args->{lower_limit};
     push @opt, '-r' if $args->{rigid};

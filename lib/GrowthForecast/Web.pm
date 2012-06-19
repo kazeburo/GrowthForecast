@@ -3,7 +3,7 @@ package GrowthForecast::Web;
 use strict;
 use warnings;
 use utf8;
-use Kossy;
+use Kossy 0.10;
 use Time::Piece;
 use GrowthForecast::Data;
 use GrowthForecast::RRD;
@@ -21,7 +21,10 @@ sub data {
 
 sub rrd {
     my $self = shift;
-    $self->{__rrd} ||= GrowthForecast::RRD->new($self->data_dir);
+    $self->{__rrd} ||= GrowthForecast::RRD->new(
+        data_dir => $self->data_dir,
+        root_dir => $self->root_dir,
+    );
     $self->{__rrd};
 }
 

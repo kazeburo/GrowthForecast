@@ -89,6 +89,7 @@ $proclet->service(
     code => sub {
         local $0 = "$0 (GrowthForecast::Worker 1min)";
         my $worker = GrowthForecast::Worker->new(
+            root_dir => $root_dir,
             data_dir => $data_dir,
             mysql => $mysql,
         );
@@ -100,6 +101,7 @@ $proclet->service(
     code => sub {
         local $0 = "$0 (GrowthForecast::Worker)";
         my $worker = GrowthForecast::Worker->new(
+            root_dir => $root_dir,
             data_dir => $data_dir,
             mysql => $mysql
         );
