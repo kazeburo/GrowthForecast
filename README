@@ -1,0 +1,16 @@
+NAME
+    GrowthForecast - Lightning Fast Graphing/Visualization
+
+SYNOPSIS
+      % growthforecast.pl -h
+
+DESCRIPTION
+    GrowthForecast is graphing/visualization web tool built on RRDTools
+
+AUTHOR
+    Masahiro Nagano <kazeburo {at} gmail.com>
+
+LICENSE
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+

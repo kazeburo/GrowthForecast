@@ -1,9 +1,10 @@
 use inc::Module::Install;
 name 'GrowthForecast';
 all_from 'lib/GrowthForecast.pm';
-license 'perl';
+perl_version '5.008001';
+readme_from_pod 'lib/GrowthForecast.pm';
 
-#requires 'Alien::RRDtool' => '0.03';
+requires 'Alien::RRDtool' => '0.03';
 requires 'Kossy' => '0.10';
 requires 'DBIx::Sunny' =>  '0.14';
 requires 'DBD::SQLite' => '1.33';
