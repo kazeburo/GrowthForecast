@@ -7,14 +7,12 @@ use lib "$FindBin::Bin/extlib/lib/perl5";
 use lib "$FindBin::Bin/lib";
 use File::Basename;
 use Getopt::Long;
-use File::Temp qw/tempdir/;
-use Parallel::Prefork;
-use Parallel::Scoreboard;
 use Plack::Loader;
 use Plack::Builder;
 use Plack::Builder::Conditionals;
 use GrowthForecast::Web;
 use GrowthForecast::Worker;
+use Proclet;
 
 my $port = 5125;
 my $host = 0;
@@ -60,73 +58,61 @@ if ( $mysql ) {
     die "Cannot load MySQL: $@" if $@;
 }
 
-my $enable_short = $disable_short ? 0 : 1;
 my $root_dir = File::Basename::dirname(__FILE__);
-my $sc_board_dir = tempdir( CLEANUP => 1 );
-my $scoreboard = Parallel::Scoreboard->new( base_dir => $sc_board_dir );
 
-my $pm = Parallel::Prefork->new({
-    max_workers => $enable_short ? 3 : 2,
-    spawn_interval  => 1,
-    trap_signals    => {
-        map { ($_ => 'TERM') } qw(TERM HUP)
+my $proclet = Proclet->new;
+
+$proclet->service(
+    code => sub {
+        local $0 = "$0 (GrowthForecast::Worker 1min)";
+        my $worker = GrowthForecast::Worker->new($root_dir);
+        $worker->mysql($mysql);
+        $worker->run('short');        
     }
-});
+) if !$disable_short;
 
-while ($pm->signal_received ne 'TERM' ) {
-    $pm->start(sub{
-        my $stats = $scoreboard->read_all;
-        my %running;
-        for my $pid ( keys %{$stats} ) {
-            my $val = $stats->{$pid};
-            $running{$val}++;
-        }
-        if ( $running{worker} && ($enable_short ? $running{short_worker} : 1)) {
-            local $0 = "$0 (GrowthForecast::Web)";
-            $scoreboard->update('web');
-            my $web = GrowthForecast::Web->new($root_dir);
-            $web->short($enable_short);
-            $web->mysql($mysql);
-            my $app = builder {
-                enable 'Lint';
-                enable 'StackTrace';
-                if ( @front_proxy ) {
-                    enable match_if addr(\@front_proxy), 'ReverseProxy';
-                }
-                if ( @allow_from ) {
-                    enable match_if addr('!',\@allow_from), sub {
-                        sub { [403,['Content-Type','text/plain'], ['Forbidden']] }
-                    };
-                }
-                enable 'Static',
-                    path => qr!^/(?:(?:css|js|images)/|favicon\.ico$)!,
-                    root => $root_dir . '/public';
-                enable 'Scope::Container';
-                $web->psgi;
-            };
-             my $loader = Plack::Loader->load(
-                 'Starlet',
-                 port => $port,
-                 host => $host || 0,
-                 max_workers => 4,
-             );
-             $loader->run($app);
-        }
-        elsif ( $enable_short && !$running{short_worker} ) {
-            local $0 = "$0 (GrowthForecast::Worker 1min)";
-            $scoreboard->update('short_worker');
-            my $worker = GrowthForecast::Worker->new($root_dir);
-            $worker->mysql($mysql);
-            $worker->run('short');
-        }            
-        else {
-            local $0 = "$0 (GrowthForecast::Worker)";
-            $scoreboard->update('worker');
-            my $worker = GrowthForecast::Worker->new($root_dir);
-            $worker->mysql($mysql);
-            $worker->run;
-        }
-    });
-}
+$proclet->service(
+    code => sub {
+        local $0 = "$0 (GrowthForecast::Worker)";
+        my $worker = GrowthForecast::Worker->new($root_dir);
+        $worker->mysql($mysql);
+        $worker->run;
+    }
+);
 
+$proclet->service(
+    code => sub {
+        local $0 = "$0 (GrowthForecast::Web)";
+        my $web = GrowthForecast::Web->new($root_dir);
+        $web->short(!$disable_short);
+        $web->mysql($mysql);
+        my $app = builder {
+            enable 'Lint';
+            enable 'StackTrace';
+            if ( @front_proxy ) {
+                enable match_if addr(\@front_proxy), 'ReverseProxy';
+            }
+            if ( @allow_from ) {
+                enable match_if addr('!',\@allow_from), sub {
+                    sub { [403,['Content-Type','text/plain'], ['Forbidden']] }
+                };
+            }
+            enable 'Static',
+                path => qr!^/(?:(?:css|js|images)/|favicon\.ico$)!,
+                root => $root_dir . '/public';
+            enable 'Scope::Container';
+            $web->psgi;
+        };
+        my $loader = Plack::Loader->load(
+            'Starlet',
+            port => $port,
+            host => $host || 0,
+            max_workers => 4,
+        );
+        $loader->run($app);
+    }
+);
+
+
+$proclet->run;
 

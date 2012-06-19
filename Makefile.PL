@@ -1,4 +1,4 @@
-use ExtUtils::MakeMaker;
+use  ExtUtils::MakeMaker;
 
 WriteMakefile(
     NAME          => 'GrowthForecast',
@@ -13,7 +13,7 @@ WriteMakefile(
         'Log::Minimal' => '0.09',
         'List::MoreUtils' => '0',
         'Starlet' => '0.14',
-        'Parallel::Scoreboard' => '0.03',
+        'Proclet' => '0.05',
         'Plack::Builder::Conditionals' => '0.03',
         'Scope::Container' => '0.04',
         'Plack::Middleware::Scope::Container' => '0.02',
