@@ -4,7 +4,7 @@ WriteMakefile(
     NAME          => 'GrowthForecast',
     VERSION_FROM  => 'lib/GrowthForecast.pm',
     PREREQ_PM     => {
-        'Kossy' => '0.01',
+        'Kossy' => '0.10',
         'DBIx::Sunny' =>  '0.14',
         'DBD::SQLite' => '1.33',
         'Time::Piece' => '1.15',

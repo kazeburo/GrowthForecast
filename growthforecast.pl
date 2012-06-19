@@ -13,6 +13,9 @@ use Plack::Builder::Conditionals;
 use GrowthForecast::Web;
 use GrowthForecast::Worker;
 use Proclet;
+use File::ShareDir qw/dist_dir/;
+use Cwd;
+use File::Path qw/mkpath/;
 
 my $port = 5125;
 my $host = 0;
@@ -26,13 +29,16 @@ GetOptions(
     'allow-from=s' => \@allow_from,
     'disable-1min-metrics' => \my $disable_short,
     'with-mysql=s' => \my $mysql,
+    'data-dir=s' => \my $data_dir,
     "h|help" => \my $help,
 );
 
 if ( $help ) {
     print <<EOF;
 usage: $0 --port 5005 --host 127.0.0.1 --front-proxy 127.0.0.1 
-          --allow-from 127.0.0.1 --disable-1min-metrics
+          --allow-from 127.0.0.1
+          --disable-1min-metrics
+          --data-dir dir
           --with-mysql dbi:mysql:[dbname];hostname=[localhost]
 
 If you want to use MySQL instead of SQLite, set with-mysql opt with your DSN.
@@ -59,14 +65,33 @@ if ( $mysql ) {
 }
 
 my $root_dir = File::Basename::dirname(__FILE__);
+if ( ! -f "$root_dir/lib/growthforecast.pm" ) {
+    $root_dir = dist_dir('GrowthForecast');
+}
+if ( !$data_dir ) {
+    $data_dir = $root_dir . '/data';
+}
+else {
+    $data_dir = Cwd::realpath($data_dir);
+}
+
+{
+    if ( ! -d $data_dir ) {
+        mkpath($data_dir) or die "cannot create data directory '$data_dir': $!";
+    }
+    open( my $fh, '>', "$data_dir/$$.tmp") or die 'cannot create file in data_dir: $!';
+    close($fh);
+    unlink("$data_dir/$$.tmp");
+}
 
 my $proclet = Proclet->new;
-
 $proclet->service(
     code => sub {
         local $0 = "$0 (GrowthForecast::Worker 1min)";
-        my $worker = GrowthForecast::Worker->new($root_dir);
-        $worker->mysql($mysql);
+        my $worker = GrowthForecast::Worker->new(
+            data_dir => $data_dir,
+            mysql => $mysql,
+        );
         $worker->run('short');        
     }
 ) if !$disable_short;
@@ -74,8 +99,10 @@ $proclet->service(
 $proclet->service(
     code => sub {
         local $0 = "$0 (GrowthForecast::Worker)";
-        my $worker = GrowthForecast::Worker->new($root_dir);
-        $worker->mysql($mysql);
+        my $worker = GrowthForecast::Worker->new(
+            data_dir => $data_dir,
+            mysql => $mysql
+        );
         $worker->run;
     }
 );
@@ -83,9 +110,12 @@ $proclet->service(
 $proclet->service(
     code => sub {
         local $0 = "$0 (GrowthForecast::Web)";
-        my $web = GrowthForecast::Web->new($root_dir);
-        $web->short(!$disable_short);
-        $web->mysql($mysql);
+        my $web = GrowthForecast::Web->new(
+            root_dir => $root_dir,
+            data_dir => $data_dir,
+            short => !$disable_short,
+            mysql => $mysql,
+        );
         my $app = builder {
             enable 'Lint';
             enable 'StackTrace';

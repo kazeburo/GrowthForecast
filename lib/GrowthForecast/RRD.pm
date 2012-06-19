@@ -13,14 +13,14 @@ $Log::Minimal::AUTODUMP =1;
 
 sub new {
     my $class = shift;
-    my $root_dir = shift;
-    bless { root_dir => $root_dir }, $class;
+    my $data_dir = shift;
+    bless { data_dir => $data_dir }, $class;
 }
 
 sub path {
     my $self = shift;
     my $data = shift;
-    my $file = $self->{root_dir} . '/data/' . $data->{md5} . '.rrd';
+    my $file = $self->{data_dir} . '/' . $data->{md5} . '.rrd';
     if ( ! -f $file ) {
         eval {
             RRDs::create(
@@ -48,7 +48,7 @@ sub path {
 sub path_short {
     my $self = shift;
     my $data = shift;
-    my $file = $self->{root_dir} . '/data/' . $data->{md5} . '_s.rrd';
+    my $file = $self->{data_dir} . '/' . $data->{md5} . '_s.rrd';
     if ( ! -f $file ) {
         eval {
             RRDs::create(
@@ -396,7 +396,7 @@ sub export {
 sub remove {
     my $self = shift;
     my $data = shift;
-    my $file = $self->{root_dir} . '/data/' . $data->{md5} . '.rrd';
+    my $file = $self->{data_dir} . '/' . $data->{md5} . '.rrd';
     File::Path::rmtree($file);
 }
 

@@ -15,8 +15,8 @@ use List::Util qw/first/;
 
 sub new {
     my $class = shift;
-    my $root_dir = shift;
-    bless { root_dir => $root_dir }, $class;
+    my $data_dir = shift;
+    bless { data_dir => $data_dir }, $class;
 }
 
 sub on_connect {
@@ -104,7 +104,7 @@ EOF
 
 sub dbh {
     my $self = shift;
-    $self->{dbh} ||= DBIx::Sunny->connect_cached('dbi:SQLite:dbname='.$self->{root_dir}.'/data/gforecast.db','','',{
+    $self->{dbh} ||= DBIx::Sunny->connect_cached('dbi:SQLite:dbname='.$self->{data_dir}.'/gforecast.db','','',{
         sqlite_use_immediate_transaction => 1,
         Callbacks => {
             connected => $self->on_connect,
