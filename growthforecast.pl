@@ -65,7 +65,7 @@ if ( $mysql ) {
 }
 
 my $root_dir = File::Basename::dirname(__FILE__);
-if ( ! -f "$root_dir/lib/growthforecast.pm" ) {
+if ( ! -f "$root_dir/lib/GrowthForecast.pm" ) {
     $root_dir = dist_dir('GrowthForecast');
 }
 if ( !$data_dir ) {
