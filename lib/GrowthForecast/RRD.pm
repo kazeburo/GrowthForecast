@@ -3,7 +3,7 @@ package GrowthForecast::RRD;
 use strict;
 use warnings;
 use utf8;
-use RRDs;
+use RRDs 1.4007;
 use HTTP::Date;
 use File::Temp;
 use File::Zglob;
@@ -234,7 +234,8 @@ sub graph {
     push @opt, '--no-legend' if !$args->{legend};
     push @opt, '--only-graph' if $args->{graphonly};
     push @opt, '--logarithmic' if $args->{logarithmic};
-    push @opt, '--font', "DEFAULT:0:".$self->{root_dir}.'/sazanami-gothic.ttf';
+    push @opt, '--font', "AXIS:8:";
+    push @opt, '--font', "LEGEND:8:";
     push @opt, '-u', $args->{upper_limit} if defined $args->{upper_limit};
     push @opt, '-l', $args->{lower_limit} if defined $args->{lower_limit};
     push @opt, '-r' if $args->{rigid};
