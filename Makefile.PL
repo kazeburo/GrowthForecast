@@ -34,7 +34,6 @@ views/index.tx
 views/list.tx
 views/view.tx
 views/view_graph.tx
-views/sazanami-gothic.ttf
 public/css/bootstrap.min.css
 public/js/bootstrap-alerts.js
 public/js/bootstrap-modal.js

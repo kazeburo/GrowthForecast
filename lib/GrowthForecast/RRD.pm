@@ -3,7 +3,7 @@ package GrowthForecast::RRD;
 use strict;
 use warnings;
 use utf8;
-use RRDs 1.4007;
+use RRDs 1.4004;
 use HTTP::Date;
 use File::Temp;
 use File::Zglob;
