@@ -20,7 +20,7 @@ GrowthForecast - Lightning Fast Graphing/Visualization
 
 =head1 DESCRIPTION
 
-GrowthForecast is graphing/visualization web tool built on RRDTools
+GrowthForecast is graphing/visualization web tool built on RRDtool
 
 =head1 AUTHOR
 
