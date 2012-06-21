@@ -24,7 +24,8 @@
 
   <body data-spy="scroll">
 
-    <div class="navbar navbar-fixed-top">
+
+    <div class="navbar navbar-fixed-top" id="top">
       <div class="navbar-inner">
         <div class="container">
           <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
@@ -35,10 +36,11 @@
           <a class="brand" href="#">GrowthForecast</a>
           <div class="nav-collapse">
             <ul class="nav">
-              <li class="active"><a href="#">Home</a></li>
+              <li class="active"><a href="#top">Home</a></li>
               <li><a href="#install">Install</a></li>
               <li><a href="#basic">Basic</a></li>
               <li><a href="#api">API</a></li>
+              <li><a href="https://github.com/kazeburo/GrowthForecast/">Source Code</a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div>
@@ -48,7 +50,7 @@
     <div class="container">
 
       <!-- Main hero unit for a primary marketing message or call to action -->
-      <div class="hero-unit">
+      <div class="hero-unit" style="background-repeat: no-repeat; background-position: 50% 50%;background-image:url(img/background.png)">
         <h1>GrowthForecast</h1>
         <p>GrowthForecastは様々な値をWebAPI経由でグラフ化できるWebツールです。シンプルなAPIでリアルタイムにグラフを作成、更新でき、Webインターフェイスからグラフの表示をカスタマイズしたり、複数のメトリクスを重ね合わせたグラフを作成できます</p>
       </div>
@@ -292,7 +294,9 @@ $ curl -F number=10 http://example.com/api/socialgame/member/register
 
 <p>グラフのURIに対していくつかパラメータを与えるとグラフの描画をカスタマイズすることができます</p>
 
-<pre class="prettyprint linenums">
+<h4>エンドポイント</h4>
+
+<pre class="prettyprint">
 グラフのURI     http://example.com/graph/:service_name/:section_name/:graph_name
 複合グラフのURI http://example.com/graph/:pattern
 </pre>
@@ -419,13 +423,61 @@ http://example.com/graph/service/section/graph?t=d&gmode=gauge&border=0&legend=0
 
 <p>グラフデータの凡例部分ををJSON形式でエクスポートできます</p>
 
-<pre class="prettyprint linenums">
-グラフのサマリーURI     http://gf.ops.dev.livedoor.net/summary/:service_name/:section_name/:graph_name
-複合グラフのサマリーURI  http://gf.ops.dev.livedoor.net/summary/:pattern
+<h4>エンドポイント</h4>
+
+<pre class="prettyprint">
+グラフのサマリーURI     http://example.com/summary/:service_name/:section_name/:graph_name
+複合グラフのサマリーURI  http://example.com/summary/:pattern
 </pre>
 
 <h3>グラフデータのエクスポート</h3>
 
+<div class="row">
+<div class="span3">
+
+<p>グラフデータをJSON形式でエクスポートできます</p>
+
+</div>
+<div class="span9">
+
+<h4>エンドポイント</h4>
+
+<pre class="prettyprint">
+グラフのURI http://example.com/xport/:service_name/:section_name/:graph_name
+複合グラフのURI  http://example.com/xport/:pattern
+</pre>
+
+<h4>パラメータ一覧</h4>
+
+<table class="table">
+<tr>
+<th>パラメータ</th>
+<th>説明</th>
+</tr>
+<tr>
+<td>t</td>
+<td>グラフの範囲。y(年間)、m(月間)、w(週間)、3d(3日間)、s3d(3日間・1分更新)、d(一日)、sd(一日・1分更新)、8h(8時間)、s8h(8時間・1分更新)、4h(4時間)、s4h(4時間・1分更新)、h(1時間)、sh(1時間・1分更新)、n(半日)、sn(半日・1分更新)、c(任意)、sc(任意・1分更新)</td>
+</tr>
+<tr>
+<td>from</td>
+<td>「t」が「c」または「sc」の場合、描画する開始日付。「2011/12/08 12:10:00」の形式で指定</td>
+</tr>
+<tr>
+<td>to</td>
+<td>「t」が「c」または「sc」の場合、描画する終了日付。「2011/12/08 12:10:00」の形式で指定</td>
+</tr>
+<tr>
+<td>gmode</td>
+<td>積算か差分グラフの選択、「gauge」または「subtract」。デフォルトは「gauge」</td>
+</tr>
+<tr>
+<td>width</td>
+<td>rowの最大個数</td>
+</tr>
+</table>
+
+</div>
+</div>
 
       </section>
 
