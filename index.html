@@ -93,7 +93,7 @@ $ sudo apt-get build-dep rrdtool
             <p>OSに最初から入っているperlではなく<a href="http://perlbrew.pl/">perlbrew</a>等で構築したperlを使う事をお勧めします</p>
             <p></p>
           </div>
-	  <div class="span8">
+          <div class="span8">
 <pre class="prettyprint linenums">
 $ cpanm -n https://github.com/downloads/kazeburo/GrowthForecast/GrowthForecast-$VERSION.tar.gz
 </pre>
@@ -107,7 +107,7 @@ $ cpanm -n https://github.com/downloads/kazeburo/GrowthForecast/GrowthForecast-$
           <div class="span4">
             <p>ここまでの手順でインストールは完了です。GrowthForecast の起動は「growthforecast.pl」を実行します</p>
             <p> data-dir オプションにグラフデータを保存するディレクトリを指定して起動すると、port 5125 でWebサーバが起動するので、ブラウザで確認できます</p>
-　　　　　　</div>
+          </div>
           <div class="span8">
 <h3>起動コマンド</h3>
 <pre class="prettyprint linenums">
@@ -179,20 +179,255 @@ $ MYSQL_USER=www MYSQL_PASSWORD=foobar growthforecast.pl \\
 
           </div>
         </div>
-        
       </section>
 
       <section id="basic">
         <div class="page-header">
           <h1>Basic <small>基本的な使い方</small></h1>
         </div>
+
+<h3>グラフの登録方法</h3>
+
+<p>グラフの作成・データ更新を行うには以下のURLに対してPOSTメソッドにてリクエストを行います</p>
+<pre class="prettyprint linenums">
+http://example.com/api/:service_name/:section_name/:graph_name
+</pre>
+
+<div class="row">
+<div class="span3">
+<p>POSTする際のURL中の各名前は右にまとめました</p>
+
+<p>各項目名にはUTF-8であればマルチバイト文字列が使えます</p>
+</div>
+<div class="span7">
+
+<table class="table">
+<tr>
+<th>例中の名前</th>
+<th>役割</th>
+<th>具体例を , 区切りで</th>
+</tr>
+<tr>
+<td>:service_name</td>
+<td>グラフを取りたいサービスの名前</td>
+<td>blog, photo, place, socialgame</td>
+</tr>
+<tr>
+<td>:section_name</td>
+<td>そのサービスの中での、グラフを取る対象が属してる機能やシステム名</td>
+<td>entry, user, spot, items</td>
+</tr>
+<tr>
+<td>:graph_name</td>
+<td>具体的に何のグラフか</td>
+<td>total_entry, kakin_user, muryo_user</td>
+</tr>
+</table>
+
+</div>
+</div>
+
+<p>もしソーシャルゲームの登録ユーザ数をグラフにするのであれば</p>
+
+<pre class="prettyprint linenums">
+http://example.com/api/socialgame/member/register
+</pre>
+
+<p>に対して POST します。</p>
+<p>また、 POST する時には以下のパラメータをつけます。</p>
+
+<table class="table">
+<tr>
+<th>パラメータ</th>
+<th>説明</th>
+<th>必須/オプション</th>
+</tr>
+<tr>
+<td>number</td>
+<td>グラフに与える数値</td>
+<td>必須</td>
+</tr>
+<tr>
+<td>mode</td>
+<td>数値のアップデート方法。count or modified or gauge。<br />
+count: 登録済みの数値を number の値で加算<br />
+modified: 前回と異なる数値の時だけ上書き更新<br />
+gauge: number の数値で常に上書き<br />
+デフォルトは gauge</td>
+<td>オプション</td>
+</tr>
+<tr>
+<td>color</td>
+<td>グラフの色。#FFFFFF 形式で指定</td>
+<td>オプション/新規グラフで指定なしの場合自動生成</td>
+</tr>
+</table>
+
+<h3>グラフ登録サンプル</h3>
+
+<p>PerlのLWPモジュールを利用したグラフの登録・更新サンプル</p>
+
+<pre class="prettyprint linenums">
+my $ua = LWP::UserAgent->new;
+$ua->post('http://example.com/api/socialgame/member/register',{
+    number      => 10,
+    color       => '#333399'
+});
+</pre>
+
+<p>curlを使った場合</p>
+
+<pre class="prettyprint linenums">
+$ curl -F number=10 http://example.com/api/socialgame/member/register
+</pre>
+
       </section>
 
       <section id="api">
         <div class="page-header">
-          <h1>API <small>API詳細</small></h1>
+          <h1>API <small>その他のAPI</small></h1>
         </div>
-      </section>      
+
+<h3>グラフの表示のカスタマイズ</h3>
+
+<p>グラフのURIに対していくつかパラメータを与えるとグラフの描画をカスタマイズすることができます</p>
+
+<pre class="prettyprint linenums">
+グラフのURI     http://example.com/graph/:service_name/:section_name/:graph_name
+複合グラフのURI http://example.com/graph/:pattern
+</pre>
+
+<div class="row">
+<div class="span3">
+<h4>サポートしているパラメータ一覧</h4>
+
+<p>パラメータを変更する事で↓こんなグラフも作れます</p>
+
+<p><img src="img/sample.png" /></p>
+
+<pre class="prettyprint">
+http://example.com/graph/service/section/graph?t=d&gmode=gauge&border=0&legend=0&width=200&background_color=333333&canvas_color=333333&font_color=CCCCCC&axis_color=666666
+</pre>
+
+</div>
+<div class="span9">
+<table class="table">
+<tr>
+<th>パラメータ</th>
+<th>説明</th>
+</tr>
+<tr>
+<td>t</td>
+<td>グラフの範囲。y(年間)、m(月間)、w(週間)、3d(3日間)、s3d(3日間・1分更新)、d(一日)、sd(一日・1分更新)、8h(8時間)、s8h(8時間・1分更新)、4h(4時間)、s4h(4時間・1分更新)、h(1時間)、sh(1時間・1分更新)、n(半日)、sn(半日・1分更新)、c(任意)、sc(任意・1分更新)</td>
+</tr>
+<tr>
+<td>from</td>
+<td>「t」が「c」または「sc」の場合、描画する開始日付。「2011/12/08 12:10:00」の形式で指定</td>
+</tr>
+<tr>
+<td>to</td>
+<td>「t」が「c」または「sc」の場合、描画する終了日付。「2011/12/08 12:10:00」の形式で指定</td>
+</tr>
+<tr>
+<td>gmode</td>
+<td>積算か差分グラフの選択、「gauge」または「subtract」。デフォルトは「gauge」</td>
+</tr>
+<tr>
+<td>width</td>
+<td>横幅。実際には凡例などを含むので指定したサイズより大きくなる</td>
+</tr>
+<tr>
+<td>height</td>
+<td>縦幅。実際には凡例などを含むので指定したサイズより大きくなる</td>
+</tr>
+
+<tr>
+<td>graphonly</td>
+<td>グラフ部分しか描画しないモード。デフォルト「0」</td>
+</tr>
+
+<tr>
+<td>logarithmic</td>
+<td>対数グラフ。デフォルト「0」</td>
+</tr>
+
+<tr>
+<td>xgrid</td>
+<td>X軸の設定。フォーマットは<a href="http://oss.oetiker.ch/rrdtool/doc/rrdgraph.en.html">rrdtool</a>のドキュメント参照のこと</td>
+</tr>
+
+<tr>
+<td>ygrid</td>
+<td>Y軸の設定。フォーマットは<a href="http://oss.oetiker.ch/rrdtool/doc/rrdgraph.en.html">rrdtool</a>のドキュメント参照のこと</td>
+</tr>
+
+<tr>
+<td>background_color</td>
+<td>背景色。FFFFFF または FFFFFF00 で指定。最後の2文字はアルファチャンネル</td>
+</tr>
+
+<tr>
+<td>canvas_color</td>
+<td>グラフ部分背景色。FFFFFF または FFFFFF00 で指定</td>
+</tr>
+
+<tr>
+<td>font_color</td>
+<td>文字色。FFFFFF または FFFFFF00 で指定</td>
+</tr>
+
+<tr>
+<td>frame_color</td>
+<td>凡例の色を囲っている部分。FFFFFF または FFFFFF00 で指定</td>
+</tr>
+
+<tr>
+<td>axis_color</td>
+<td>グラフ部分の枠線。FFFFFF または FFFFFF00 で指定</td>
+</tr>
+
+<tr>
+<td>shadea_color</td>
+<td>左上、上の枠線。FFFFFF または FFFFFF00 で指定</td>
+</tr>
+
+<tr>
+<td>shadeb_color</td>
+<td>右下、下の枠線。FFFFFF または FFFFFF00 で指定</td>
+</tr>
+
+<tr>
+<td>border</td>
+<td>枠線の太さ。「0」も可能。デフォルト「3」</td>
+</tr>
+
+<tr>
+<td>legend</td>
+<td>凡例の有無。デフォルト「1」</td>
+</tr>
+
+<tr>
+<td>sumup</td>
+<td>凡例に合計値を含むかどうか。デフォルト「0」</td>
+</tr>
+
+</table>
+</div>
+</div>
+
+<h3>グラフデータのサマリー</h3>
+
+<p>グラフデータの凡例部分ををJSON形式でエクスポートできます</p>
+
+<pre class="prettyprint linenums">
+グラフのサマリーURI     http://gf.ops.dev.livedoor.net/summary/:service_name/:section_name/:graph_name
+複合グラフのサマリーURI  http://gf.ops.dev.livedoor.net/summary/:pattern
+</pre>
+
+<h3>グラフデータのエクスポート</h3>
+
+
+      </section>
 
       <hr>
 
