@@ -55,6 +55,22 @@
         <p>GrowthForecastは様々な値をWebAPI経由でグラフ化できるWebツールです。シンプルなAPIでリアルタイムにグラフを作成、更新でき、Webインターフェイスからグラフの表示をカスタマイズしたり、複数のメトリクスを重ね合わせたグラフを作成できます</p>
       </div>
 
+      <section>
+        <div class="row">
+          <div class="span6">
+<h3>MySQLのデータを1行のコードでグラフ化できます</h3>
+<pre class="prettyprint linenums">
+$ crontab -l
+*/5 * * * * curl -F number=`mysql -BN -e 'select count(*) from member' game` http://example.com/api/socialgame/member/register 2>&1 | logger -t post_gf -p local0.info
+</pre>
+<p>グラフは設定なしで自動的に作られます</p>
+          </div>
+          <div class="span6"><img src="img/sample1.png" /></div>
+        </div>
+      </section>
+
+<hr>
+
       <section id="install">
         <div class="page-header">
           <h1>Install <small>インストールと起動方法</small></h1>
@@ -481,10 +497,12 @@ http://example.com/graph/service/section/graph?t=d&gmode=gauge&border=0&legend=0
 
       </section>
 
+
+
       <hr>
 
       <footer>
-        <p>&copy; Masahiro Nagano 2012 -</p>
+        <p>&copy; 2012- Masahiro Nagano</p>
       </footer>
 
     </div> <!-- /container -->
