@@ -63,7 +63,7 @@
 $ crontab -l
 */5 * * * * curl -F number=`mysql -BN -e 'select count(*) from member' game` http://example.com/api/socialgame/member/register 2>&1 | logger -t post_gf -p local0.info
 </pre>
-<p>グラフは設定なしで自動的に作られます</p>
+<p>cronで定期的にGrowthForecastにPOSTするだけで、設定なしでグラフが作れます</p>
           </div>
           <div class="span6"><img src="img/sample1.png" /></div>
         </div>
