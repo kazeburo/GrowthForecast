@@ -328,7 +328,7 @@ post '/edit_complex/:complex_id' => [qw/get_complex/] => sub {
 
     $c->render_json({
         error => 0,
-        location => $c->req->uri_for('/list/'.$result->valid('service_name').'/'.$result->valid('section_name'))->as_string,
+        location => $c->req->uri_for( sprintf '/view_complex/%s/%s/%s', $result->valid('service_name'), $result->valid('section_name'), $result->valid('graph_name') )->as_string,
     });
 };
 
@@ -727,7 +727,7 @@ post '/edit/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
 
     $c->render_json({
         error => 0,
-        location => $c->req->uri_for( sprintf '/list/%s/%s', $result->valid('service_name'), $result->valid('section_name') )->as_string
+        location => $c->req->uri_for( sprintf '/view_graph/%s/%s/%s', $result->valid('service_name'), $result->valid('section_name'), $result->valid('graph_name') )->as_string
     });
 };
 
