@@ -11,6 +11,8 @@ MANIFEST.bak
 *~
 data/*.rrd
 data/*.db
+data/*.db-wal
+data/*.db-shm
 .DS_Store
 MYMETA.*
 
