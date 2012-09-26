@@ -661,7 +661,7 @@ post '/edit/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
             default => '1',
             rule => [
                 ['NOT_NULL', '正しくありません'],
-                ['NATURAL', '1以上の数値にしてください'],
+                ['NATURAL', '1以上の自然数にしてください'],
             ],
         },
         'unit' => {
@@ -689,25 +689,25 @@ post '/edit/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
         'llimit' => {
             rule => [
                 ['NOT_NULL', '値がありません'],
-                ['INT', '値が正しくありません'],
+                ['INT', '整数値にしてください'],
             ],
         },
         'ulimit' => {
             rule => [
                 ['NOT_NULL', '値がありません'],
-                ['INT', '値が正しくありません'],
+                ['INT', '整数値にしてください'],
             ],
         },
         'sllimit' => {
             rule => [
                 ['NOT_NULL', '値がありません'],
-                ['INT', '値が正しくありません'],
+                ['INT', '整数値にしてください'],
             ],
         },
         'sulimit' => {
             rule => [
                 ['NOT_NULL', '値がありません'],
-                ['INT', '値が正しくありません'],
+                ['INT', '整数値にしてください'],
             ],
         },
     ]);
@@ -754,7 +754,7 @@ post '/api/:service_name/:section_name/:graph_name' => sub {
         'number' => {
             rule => [
                 ['NOT_NULL','number is null'],
-                ['INT','number is not null']
+                ['INT','number must be integer']
             ],
         },
         'mode' => {
