@@ -61,10 +61,11 @@
 </tr>
 <tr>
 <td>mode</td>
-<td>数値のアップデート方法。count or modified or gauge。<br />
+<td>数値のアップデート方法。count or modified or gauge or derive。<br />
 count: 登録済みの数値を number の値で加算<br />
 modified: 前回と異なる数値の時だけ上書き更新<br />
-gauge: number の数値で常に上書き<br />
+gauge: number の数値で常に上書き (RRDのdata source typeはGAUGE)<br />
+derive: number の数値で常に上書き (RRDのdata source typeはDERIVE)<br />
 デフォルトは gauge</td>
 <td>オプション</td>
 </tr>
