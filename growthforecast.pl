@@ -1,3 +1,4 @@
+
 #!/usr/bin/perl
 
 use strict;
@@ -10,6 +11,8 @@ use Getopt::Long;
 use Plack::Loader;
 use Plack::Builder;
 use Plack::Builder::Conditionals;
+use Plack::Util;
+use GrowthForecast;
 use GrowthForecast::Web;
 use GrowthForecast::Worker;
 use Proclet;
@@ -129,6 +132,18 @@ $proclet->service(
                     sub { [403,['Content-Type','text/plain'], ['Forbidden']] }
                 };
             }
+            enable sub {
+                my $app = shift;
+                sub {
+                    my $env = shift;
+                    my $res = $app->($env);
+                    Plack::Util::response_cb($res, sub {
+                                                 my $res = shift;
+                                                 Plack::Util::header_set($res->[1], 'X-Powered-By', 
+                                                                         'GrowthForecast/'.$GrowthForecast::VERSION);
+                                             });
+                }
+            };
             enable 'Static',
                 path => qr!^/(?:(?:css|js|images)/|favicon\.ico$)!,
                 root => $root_dir . '/public';
