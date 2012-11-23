@@ -1,9 +1,9 @@
 : my $term_arg = $c.req.param('t') ? [ 't', $c.req.param('t') ] : [];
 <h2>
 : if $graph.complex_graph {
-<a href="<: $c.req.uri_for('/view_complex/'~$graph.service_name~'/'~$graph.section_name~'/'~$graph.graph_name, $term_arg) :>"><: $graph.graph_name :></a>
+<a href="<: $c.req.uri_for('/view_complex/'~$graph.service_name~'/'~$graph.section_name~'/'~$graph.graph_name, $term_arg) :>" data-id="<: $graph.id :>"><: $graph.graph_name :></a>
 : } else {
-<a href="<: $c.req.uri_for('/view_graph/'~$graph.service_name~'/'~$graph.section_name~'/'~$graph.graph_name, $term_arg) :>"><: $graph.graph_name :></a>
+<a href="<: $c.req.uri_for('/view_graph/'~$graph.service_name~'/'~$graph.section_name~'/'~$graph.graph_name, $term_arg) :>" data-id="<: $graph.id :>"><: $graph.graph_name :></a>
 : }
 <small><: $graph.description :></small></h2>
 <p>
