@@ -61,12 +61,24 @@
 </tr>
 <tr>
 <td>mode</td>
-<td>数値のアップデート方法。count or modified or gauge or derive。<br />
-count: 登録済みの数値を number の値で加算<br />
-modified: 前回と異なる数値の時だけ上書き更新<br />
-gauge: number の数値で常に上書き (RRDのdata source typeはGAUGE)<br />
-derive: number の数値で常に上書き (RRDのdata source typeはDERIVE)<br />
-デフォルトは gauge</td>
+<td>
+  数値のアップデート方法。count or modified or gauge or derive。
+  <dl>
+    <dt>count
+    <dd>登録済みの数値を number の値で加算
+
+    <dt>modified
+    <dd>前回と異なる数値の時だけ上書き更新
+
+    <dt>gauge
+    <dd>number の数値で常に上書き。CPU使用率や温度などそのままの値を表示したいとき用に。
+
+    <dt>derive
+    <dd>number の数値で常に上書き。総トラフィック量やコマンドの実行回数など単純増加の積算値を秒間いくらで表示したいとき用に。
+  </dl>
+  デフォルトは gauge<br />
+  <strong>⚠</strong>最初にPOSTしたときにgaugeかderiveかでRRDのdata source typeが決まり(GAUGEかDERIVE)あとでの変更はできません。
+</td>
 <td>オプション</td>
 </tr>
 <tr>
