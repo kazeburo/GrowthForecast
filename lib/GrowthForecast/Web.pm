@@ -760,7 +760,7 @@ post '/api/:service_name/:section_name/:graph_name' => sub {
         'mode' => {
             default => 'gauge',
             rule => [
-                [['CHOICE',qw/count gauge modified/],'count or gauge or modified']
+                [['CHOICE',qw/count gauge modified derive/],'count or gauge or modified or derive']
             ],
         },
         'color' => {

@@ -20,14 +20,17 @@ sub new {
 sub path {
     my $self = shift;
     my $data = shift;
+
+    my $dst = $data->{mode} eq 'derive' ? 'DERIVE' : 'GAUGE';
+
     my $file = $self->{data_dir} . '/' . $data->{md5} . '.rrd';
     if ( ! -f $file ) {
         eval {
             RRDs::create(
                 $file,
                 '--step', '300',
-                'DS:num:GAUGE:600:U:U',
-                'DS:sub:GAUGE:600:U:U', 
+                "DS:num:${dst}:600:U:U",
+                "DS:sub:${dst}:600:U:U", 
                 'RRA:AVERAGE:0.5:1:1440',  #5分, 5日
                 'RRA:AVERAGE:0.5:6:1008', #30分, 21日
                 'RRA:AVERAGE:0.5:24:1344', #2時間, 112日 
@@ -48,15 +51,19 @@ sub path {
 sub path_short {
     my $self = shift;
     my $data = shift;
+
+    my $dst = $data->{mode} eq 'derive' ? 'DERIVE' : 'GAUGE';
+
     my $file = $self->{data_dir} . '/' . $data->{md5} . '_s.rrd';
     if ( ! -f $file ) {
         eval {
             RRDs::create(
                 $file,
                 '--step', '60',
-                'DS:num:GAUGE:120:U:U',
-                'DS:sub:GAUGE:120:U:U', 
+                "DS:num:${dst}:120:U:U",
+                "DS:sub:${dst}:120:U:U", 
                 'RRA:AVERAGE:0.5:1:4800',  #1分, 3日(80時間)
+                'RRA:MAX:0.5:1:4800',  #1分, 3日(80時間)
             );
             my $ERR=RRDs::error;
             die $ERR if $ERR;
