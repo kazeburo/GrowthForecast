@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use utf8;
 use Kossy 0.10;
+use JSON;
 use Time::Piece;
 use GrowthForecast::Data;
 use GrowthForecast::RRD;
@@ -794,6 +795,198 @@ post '/api/:service_name/:section_name/:graph_name' => sub {
                 $result->valid('number'), $result->valid('mode'), $result->valid('color');
     }
     $c->render_json({ error => 0, data => $row });
+};
+
+# from internal hashref (inflated) expression to JSON friendly expression
+sub graph4json {
+    my ( $self, $internal ) = @_;
+
+    my $json = +{%$internal};
+
+    delete $json->{meta};
+    delete $json->{md5}; # only in basic graph
+
+    my $is_complex = delete $json->{complex_graph};
+
+    unless ($is_complex) {
+        $json->{complex} = JSON::false;
+        return $json;
+    }
+
+    # complex graph
+    $json->{complex} = JSON::true;
+
+    delete $json->{data_rows};
+
+    my @data_rows = ();
+    push @data_rows, +{
+        graph_id => (delete $json->{'path-1'}),
+        type => (delete $json->{'type-1'}),
+        gmode => (delete $json->{'gmode-1'}),
+        stack => JSON::false,
+    };
+    for (my $i = 0 ; $i < scalar(@{$json->{'path-2'}}) ; $i++) {
+        push @data_rows, +{
+            graph_id => $json->{'path-2'}->[$i],
+            type => $json->{'type-2'}->[$i],
+            gmode => $json->{'gmode-2'}->[$i],
+            stack => ($json->{'stack-2'}->[$i] ? JSON::true : JSON::false),
+        };
+    }
+    delete $json->{'path-2'};
+    delete $json->{'type-2'};
+    delete $json->{'gmode-2'};
+    delete $json->{'stack-2'};
+
+    $json->{sumup} = ($json->{sumup} ? JSON::true : JSON::false);
+
+    $json->{data} = \@data_rows;
+
+    $json;
+}
+
+# from JSON API expression to update(update_complex) parameter expression
+sub graph4internal {
+    my ( $self, $json ) = @_;
+
+    my $internal = +{%$json};
+
+    my $is_complex = delete $internal->{complex};
+
+    delete $internal->{id};
+    delete $internal->{created_at};
+    delete $internal->{updated_at};
+
+    return $internal unless $is_complex;
+
+    delete $internal->{number};
+    $internal->{sumup} = ($internal->{sumup} ? '1' : '0');
+
+    my $data_rows = delete $internal->{data};
+    my $first = shift @$data_rows;
+    $internal->{'path-1'} = $first->{graph_id};
+    $internal->{'type-1'} = $first->{type};
+    $internal->{'gmode-1'} = $first->{gmode};
+    # stack is ignored for first data
+
+    $internal->{'path-2'} = [];
+    $internal->{'type-2'} = [];
+    $internal->{'gmode-2'} = [];
+    $internal->{'stack-2'} = [];
+    foreach my $graph (@$data_rows) {
+        push @{ $internal->{'path-2'} }, $graph->{graph_id};
+        push @{ $internal->{'type-2'} }, $graph->{type};
+        push @{ $internal->{'gmode-2'} }, $graph->{gmode};
+        push @{ $internal->{'stack-2'} }, ($graph->{stack} ? '1' : '0');
+    }
+
+    $internal;
+}
+
+get '/json/graph/:id' => sub {
+    my ( $self, $c ) = @_;
+    $c->render_json( $self->graph4json( $self->data->get_by_id( $c->args->{id} ) ) );
+};
+
+get '/json/complex/:id' => sub {
+    my ( $self, $c ) = @_;
+    $c->render_json( $self->graph4json( $self->data->get_complex_by_id( $c->args->{id} ) ) );
+};
+
+get '/json/list/graph' => sub {
+    my ( $self, $c ) = @_;
+    $c->render_json( $self->data->get_all_graph_name() );
+};
+
+get '/json/list/complex' => sub {
+    my ( $self, $c ) = @_;
+    $c->render_json( $self->data->get_all_complex_graph_name() );
+};
+
+get '/json/list/all' => sub {
+    my ( $self, $c ) = @_;
+    my @list = map { $self->graph4json($_) } @{ $self->data->get_all_graph_all() }, @{ $self->data->get_all_complex_graph_all() };
+    $c->render_json( \@list );
+};
+
+# TODO in create/edit, validations about json object properties, sub graph id existense, ....
+
+post '/json/create/complex' => sub {
+    my ( $self, $c ) = @_;
+
+    my $spec = decode_json($c->req->content || '{}');
+
+    if ( $self->data->get($spec->{service_name}, $spec->{section_name}, $spec->{graph_name})
+             or $self->data->get_complex($spec->{service_name}, $spec->{section_name}, $spec->{graph_name}) ) {
+        my $res = $c->res;
+        $res->status(409);
+        $res->body("Invalid target: graph path already exists: $spec->{service_name}/$spec->{section_name}/$spec->{graph_path}");
+        return $res;
+    }
+
+    unless ( defined $spec->{data} and scalar(@{$spec->{data}}) >= 2 ) {
+        my $res = $c->res;
+        $res->status(400);
+        $res->body('Invalid argument: data (sub graph list (size >= 2)) required');
+        return $res;
+    }
+
+    $spec->{complex} = 1;
+
+    $spec->{description} = '' unless defined $spec->{description};
+    $spec->{sumup} = 0 unless defined $spec->{sumup};
+    $spec->{sort} = 19 unless defined $spec->{sort};
+
+    foreach my $d (@{$spec->{data}}) {
+        $d->{type} = 'AREA' unless defined $d->{type};
+        $d->{gmode} = 'gauge' unless defined $d->{gmode};
+        $d->{stack} = '1' unless defined $d->{stack};
+    }
+
+    my $internal = $self->graph4internal( $spec );
+    $self->data->create_complex(
+        $spec->{service_name}, $spec->{section_name}, $spec->{graph_name},
+        $internal
+    );
+    $c->render_json({
+        error => 0,
+        location => $c->req->uri_for('/list/'.$spec->{service_name}.'/'.$spec->{section_name})->as_string,
+    });
+};
+
+post '/json/edit/{type:(?:graph|complex)}/:id' => sub {
+    my ( $self, $c ) = @_;
+
+    my $graph;
+    if ( $c->args->{type} eq 'graph' ) {
+        $graph = $self->data->get_by_id( $c->args->{id} );
+    } else { # complex
+        $graph = $self->data->get_complex_by_id( $c->args->{id} );
+    }
+    unless ( $graph ) {
+        my $res = $c->res;
+        $res->status(404);
+        return $res;
+    }
+
+    my $spec = decode_json($c->req->content || '{}');
+    my $id = delete $spec->{id};
+    unless ( $id ) { $id = $graph->{id}; }
+
+    foreach my $d (@{$spec->{data}}) {
+        $d->{type} = 'AREA' unless defined $d->{type};
+        $d->{gmode} = 'gauge' unless defined $d->{gmode};
+
+        $d->{stack} = '1' unless defined $d->{stack};
+    }
+
+    my $internal = $self->graph4internal( $spec );
+    if ( $c->args->{type} eq 'graph' ) {
+        $self->data->update_graph( $id, $internal );
+    } else {
+        $self->data->update_complex( $id, $internal );
+    }
+    $c->render_json({ error => 0 });
 };
 
 1;
