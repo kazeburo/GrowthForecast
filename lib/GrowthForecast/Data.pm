@@ -361,6 +361,15 @@ sub get_all_graph_name {
    );
 }
 
+sub get_all_graph_all {
+    my $self = shift;
+    my $list = $self->dbh->select_all(
+        'SELECT * FROM graphs ORDER BY service_name, section_name, graph_name DESC',
+    );
+    return [] unless $list;
+    my @ret = map { $self->inflate_row($_) } @$list;
+    \@ret;
+}
 
 sub remove {
     my ($self, $id ) = @_;
@@ -465,6 +474,30 @@ sub remove_complex {
         'DELETE FROM complex_graphs WHERE id = ?',
         $id
     );
+}
+
+sub get_all_complex_graph_id {
+   my $self = shift;
+   $self->dbh->select_all(
+       'SELECT id FROM complex_graphs',
+   );
+}
+
+sub get_all_complex_graph_name {
+   my $self = shift;
+   $self->dbh->select_all(
+       'SELECT id,service_name,section_name,graph_name FROM complex_graphs ORDER BY service_name, section_name, graph_name DESC',
+   );
+}
+
+sub get_all_complex_graph_all {
+    my $self = shift;
+    my $list = $self->dbh->select_all(
+        'SELECT * FROM complex_graphs ORDER BY service_name, section_name, graph_name DESC',
+    );
+    return [] unless $list;
+    my @ret = map { $self->inflate_complex_row($_) } @$list;
+    \@ret;
 }
 
 1;
