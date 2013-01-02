@@ -885,12 +885,16 @@ sub graph4internal {
 
 get '/json/graph/:id' => sub {
     my ( $self, $c ) = @_;
-    $c->render_json( $self->graph4json( $self->data->get_by_id( $c->args->{id} ) ) );
+    my $graph = $self->data->get_by_id( $c->args->{id} );
+    $c->halt(404) unless $graph;
+    $c->render_json( $self->graph4json( $graph ) );
 };
 
 get '/json/complex/:id' => sub {
     my ( $self, $c ) = @_;
-    $c->render_json( $self->graph4json( $self->data->get_complex_by_id( $c->args->{id} ) ) );
+    my $complex = $self->data->get_complex_by_id( $c->args->{id} );
+    $c->halt(404) unless $complex;
+    $c->render_json( $self->graph4json( $complex ) );
 };
 
 get '/json/list/graph' => sub {
