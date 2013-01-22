@@ -1,6 +1,6 @@
 : cascade base
 : around page_header -> {
-<h1>複合グラフの追加</h1>
+<h1>Add Complex Graph</h1>
 : }
 
 : around content -> {
@@ -12,17 +12,17 @@
 <fieldset>
 
 <div class="clearfix">
-<label for="">パス</label>
+<label for="">Path</label>
 <div class="input">
 <div class="inline-inputs">
 / <input class="small" name="service_name" /> / <input class="small" name="section_name" /> / <input class="small" name="graph_name" />
 </div>
-<span class="help-block">グラフを表示するURI(サービス名/セクション名/グラフ名)</span>
+<span class="help-block">Graph's URI(service name/section name/graph name)</span>
 </div>
 </div>
 
 <div class="clearfix">
-<label for="">説明</label>
+<label for="">Description</label>
 <div class="input">
 <input class="xlarge" name="description" />
 </div>
@@ -30,18 +30,18 @@
 
 
 <div class="clearfix">
-<label for="">合計値の表示</label>
+<label for="">Display sum up value</label>
 <div class="input">
 <select name="sumup" class="small">
-<option value="0">しない</option>
-<option value="1">する</option>
+<option value="0">enable</option>
+<option value="1">disable</option>
 </select>
 </div>
 </div>
 
 
 <div class="clearfix">
-<label for="">表示順</label>
+<label for="">Display order</label>
 <div class="input">
 <select name="sort" class="small">
 <option value="19">19</option>
@@ -65,32 +65,32 @@
 <option value="1">1</option>
 <option value="0">0</option>
 </select>
-<span class="help-block">数値が大きい方が先頭</span>
+<span class="help-block">19 is top</span>
 </div>
 </div>
 
 </fieldset>
 
 <fieldset>
-<legend>グラフのデータ</legend>
+<legend>Data</legend>
 
 <div class="clearfix">
-<label for="">系列1</label>
+<label for="">Series-1</label>
 <div class="input">
 
 <table class="bordered-table zebra-striped">
 <tr>
 <th class="span1">&nbsp;</th>
-<th class="span3">タイプ</th>
-<th class="span10">データパス</th>
-<th class="span2" style="text-align: center">モード</th>
+<th class="span3">Type</th>
+<th class="span10">Path</th>
+<th class="span2" style="text-align: center">Mode</th>
 </tr>
 <tr>
 <td>&nbsp;</td>
 <td><select name="type-1" class="span3">
-<option value="AREA">塗りつぶし</option>
-<option value="LINE1">線グラフ</option>
-<option value="LINE2">線グラフ(太)</option>
+<option value="AREA">AREA</option>
+<option value="LINE1">LINE</option>
+<option value="LINE2">LINE(Bold)</option>
 </select></td>
 <td><select name="path-1" class="span10">
 : for $graphs -> $graph {
@@ -98,8 +98,8 @@
 : }
 </select></td>
 <td style="text-align: center"><select name="gmode-1" class="span2">
-<option value="gauge">実績</option>
-<option value="subtract">差分</option>
+<option value="gauge">Gauge</option>
+<option value="subtract">Subtract</option>
 </select></td>
 </tr>
 </table>
@@ -107,25 +107,25 @@
 </div>
 
 <div class="clearfix">
-<label for="">2番目以降の系列</label>
+<label for="">Series-2 and more</label>
 <div class="input">
 
 <table class="bordered-table zebra-striped" id="add-data-tbl">
 <tr>
 <th class="span1">&nbsp;</th>
-<th class="span3">タイプ</th>
-<th class="span6">データパス</th>
-<th class="span2" style="text-align:center;">モード</th>
-<th class="span2" style="text-align:center;">スタック</th>
-<th class="span2" style="text-align:center;">削除</th>
+<th class="span3">Type</th>
+<th class="span6">Path</th>
+<th class="span2" style="text-align:center;">Mode</th>
+<th class="span2" style="text-align:center;">Stack</th>
+<th class="span2" style="text-align:center;">&nbsp;</th>
 </tr>
 
 <tr>
 <td>&nbsp;</td>
 <td><select name="type-add" id="type-add" class="span3">
-<option value="AREA">塗りつぶし</option>
-<option value="LINE1">線グラフ</option>
-<option value="LINE2">線グラフ(太)</option>
+<option value="AREA">AREA</option>
+<option value="LINE1">LINE</option>
+<option value="LINE2">LINE(Bold)</option>
 </select></t>
 <td><select name="path-add" id="path-add" class="span6">
 : for $graphs -> $graph {
@@ -133,15 +133,15 @@
 : }
 </select></td>
 <td style="text-align: center"><select name="gmode-add" id="gmode-add" class="span2">
-<option value="gauge">実績</option>
-<option value="subtract">差分</option>
+<option value="gauge">Gauge</option>
+<option value="subtract">Subtract</option>
 </select></td>
 <td style="text-align:center;"><select name="stack-add" id="stack-add" class="span2">
-<option value="1">する</option>
-<option value="0">しない</option>
+<option value="1">enable</option>
+<option value="0">disable</option>
 </select>
 </td>
-<td style="text-align:center;"><button id="add-new-row" class="btn" style="padding: 3px 14px 4px;">追加</button></td>
+<td style="text-align:center;"><button id="add-new-row" class="btn" style="padding: 3px 14px 4px;">Add</button></td>
 </tr>
 </table>
 </div>
@@ -150,7 +150,7 @@
 </fieldset>
 
 <fieldset>
-<legend>グラフのプレビュー</legend>
+<legend>Preview</legend>
 <div class="clearfix">
 <label for="">&nbsp;</label>
 <div class="input">
@@ -161,7 +161,7 @@
 </fieldset>
 
 <div class="actions">
-<input type="submit" class="btn primary" value="追加" />
+<input type="submit" class="btn primary" value="Add" />
 </div>
 
 </form>

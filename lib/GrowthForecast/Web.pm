@@ -133,18 +133,18 @@ post '/add_complex' => sub {
     my $result = $c->req->validator([
         'service_name' => {
             rule => [
-                ['NOT_NULL', 'サービス名がありません'],
+                ['NOT_NULL', '"server name" is missing'],
             ],
         },
         'section_name' => {
             rule => [
-                ['NOT_NULL', 'セクション名がありません'],
+                ['NOT_NULL', '"section name" is missing'],
             ],
         },
         'graph_name' => {
             rule => [
-                ['NOT_NULL', 'グラフ名がありません'],
-                [$self->check_uniq_complex,'同じ名前のグラフがあります'],
+                ['NOT_NULL', '"graph name" is missing'],
+                [$self->check_uniq_complex,'This graph name is already existing'],
             ],
         },
         'description' => {
@@ -153,60 +153,60 @@ post '/add_complex' => sub {
         },
         'sumup' => {
             rule => [
-                ['NOT_NULL', '値がありません'],
-                [['CHOICE',0,1], '値が正しくありません'],
+                ['NOT_NULL', 'missing'],
+                [['CHOICE',0,1], 'invalid value'],
             ],
         },
         'sort' => {
             rule => [
-                ['NOT_NULL', '値がありません'],
-                [['CHOICE',0..19], '値が正しくありません'],
+                ['NOT_NULL', 'missing'],
+                [['CHOICE',0..19], 'invalid value'],
             ],
         },
         'type-1' => {
             rule => [
-                ['NOT_NULL', 'データタイプがありません'],
-                [['CHOICE',qw/AREA LINE1 LINE2/], 'データタイプが正しくありません'],
+                ['NOT_NULL', 'missing'],
+                [['CHOICE',qw/AREA LINE1 LINE2/], 'invalid value'],
             ],
         },
         'path-1' => {
             rule => [
-                ['NOT_NULL', 'パスがありません'],
-                ['NATURAL', 'パスが正しくありません'],
+                ['NOT_NULL', 'missing'],
+                ['NATURAL', 'invalid value'],
             ],
         },
         'gmode-1' => {
             rule => [
-                ['NOT_NULL', 'モードがありません'],
-                [['CHOICE',qw/gauge subtract/], 'モードが正しくありません'],
+                ['NOT_NULL', 'missing'],
+                [['CHOICE',qw/gauge subtract/], 'invalid value'],
             ],
         },
         '@type-2' => {
             rule => [
-                [['@SELECTED_NUM',$type2_num,$type2_num], 'データが正しくありません(タイプ)'],
-                ['NOT_NULL','データが正しくありません(タイプ)'],
-                [['CHOICE',qw/AREA LINE1 LINE2/], 'データが正しくありません(タイプ)'],
+                [['@SELECTED_NUM',$type2_num,$type2_num], 'invalid type'],
+                ['NOT_NULL','invalid type'],
+                [['CHOICE',qw/AREA LINE1 LINE2/], 'invalid type'],
             ],
         },
         '@path-2' => {
             rule => [
-                [['@SELECTED_NUM',$type2_num,$type2_num], 'データが正しくありません(パス)'],
-                ['NOT_NULL','データが正しくありません(パス)'],
-                ['NATURAL', 'データが正しくありません(パス)'],
+                [['@SELECTED_NUM',$type2_num,$type2_num], 'invalid path'],
+                ['NOT_NULL','invalid path'],
+                ['NATURAL', 'invalid path'],
             ],
         },
         '@gmode-2' => {
             rule => [
-                [['@SELECTED_NUM',$type2_num,$type2_num], 'データが正しくありません(モード)'],
-                ['NOT_NULL', 'データが正しくありません(モード)'],
-                [['CHOICE',qw/gauge subtract/], 'データが正しくありません(モード)'],
+                [['@SELECTED_NUM',$type2_num,$type2_num], 'invalid mode'],
+                ['NOT_NULL', 'invalid mode'],
+                [['CHOICE',qw/gauge subtract/], 'invalid mode'],
             ],
         },
         '@stack-2' => {
             rule => [
-                [['@SELECTED_NUM',$type2_num,$type2_num], 'データが正しくありません(スタック)'],
-                ['NOT_NULL', 'データが正しくありません(スタック)'],
-                [['CHOICE',qw/0 1/], 'データが正しくありません(スタック)'],
+                [['@SELECTED_NUM',$type2_num,$type2_num], 'invalid stack flag'],
+                ['NOT_NULL', 'invalid stack flag'],
+                [['CHOICE',qw/0 1/], 'invalid stack flag'],
             ],
         },
     ]);
@@ -238,18 +238,18 @@ post '/edit_complex/:complex_id' => [qw/get_complex/] => sub {
     my $result = $c->req->validator([
         'service_name' => {
             rule => [
-                ['NOT_NULL', 'サービス名がありません'],
+                ['NOT_NULL', 'service_name is missing'],
             ],
         },
         'section_name' => {
             rule => [
-                ['NOT_NULL', 'セクション名がありません'],
+                ['NOT_NULL', 'section_name is missing'],
             ],
         },
         'graph_name' => {
             rule => [
-                ['NOT_NULL', 'グラフ名がありません'],
-                [$self->check_uniq_complex($c->stash->{complex}->{id}),'同じ名前のグラフがあります'],
+                ['NOT_NULL', 'graph_name is missing'],
+                [$self->check_uniq_complex($c->stash->{complex}->{id}),'this graph_name is already exists'],
             ],
         },
         'description' => {
@@ -258,60 +258,60 @@ post '/edit_complex/:complex_id' => [qw/get_complex/] => sub {
         },
         'sumup' => {
             rule => [
-                ['NOT_NULL', '値がありません'],
-                [['CHOICE',0,1], '値が正しくありません'],
+                ['NOT_NULL', 'missing'],
+                [['CHOICE',0,1], 'invalid value'],
             ],
         },
         'sort' => {
             rule => [
-                ['NOT_NULL', '値がありません'],
-                [['CHOICE',0..19], '値が正しくありません'],
+                ['NOT_NULL', 'missing'],
+                [['CHOICE',0..19], 'invalid value'],
             ],
         },
         'type-1' => {
             rule => [
-                ['NOT_NULL', 'データタイプがありません'],
-                [['CHOICE',qw/AREA LINE1 LINE2/], 'データタイプが正しくありません'],
+                ['NOT_NULL', 'type is missing'],
+                [['CHOICE',qw/AREA LINE1 LINE2/], 'invalid type'],
             ],
         },
         'path-1' => {
             rule => [
-                ['NOT_NULL', 'パスがありません'],
-                ['NATURAL', 'パスが正しくありません'],
+                ['NOT_NULL', 'path is missing'],
+                ['NATURAL', 'invalid path'],
             ],
         },
         'gmode-1' => {
             rule => [
-                ['NOT_NULL', 'モードがありません'],
-                [['CHOICE',qw/gauge subtract/], 'モードが正しくありません'],
+                ['NOT_NULL', 'mode is missing'],
+                [['CHOICE',qw/gauge subtract/], 'invalid mode'],
             ],
         },
         '@type-2' => {
             rule => [
-                [['@SELECTED_NUM',$type2_num,$type2_num], 'データが正しくありません(タイプ)'],
-                ['NOT_NULL','データが正しくありません(タイプ)'],
-                [['CHOICE',qw/AREA LINE1 LINE2/], 'データが正しくありません(タイプ)'],
+                [['@SELECTED_NUM',$type2_num,$type2_num], 'invalid type'],
+                ['NOT_NULL','invalid type'],
+                [['CHOICE',qw/AREA LINE1 LINE2/], 'invalid type'],
             ],
         },
         '@path-2' => {
             rule => [
-                [['@SELECTED_NUM',$type2_num,$type2_num], 'データが正しくありません(パス)'],
-                ['NOT_NULL','データが正しくありません(パス)'],
-                ['NATURAL', 'データが正しくありません(パス)'],
+                [['@SELECTED_NUM',$type2_num,$type2_num], 'invalid path'],
+                ['NOT_NULL','invalid path'],
+                ['NATURAL', 'invalid path'],
             ],
         },
         '@gmode-2' => {
             rule => [
-                [['@SELECTED_NUM',$type2_num,$type2_num], 'データが正しくありません(モード)'],
-                ['NOT_NULL', 'データが正しくありません(モード)'],
-                [['CHOICE',qw/gauge subtract/], 'データが正しくありません(モード)'],
+                [['@SELECTED_NUM',$type2_num,$type2_num], 'invalid mode'],
+                ['NOT_NULL', 'invalid mode'],
+                [['CHOICE',qw/gauge subtract/], 'invalid mode'],
             ],
         },
         '@stack-2' => {
             rule => [
-                [['@SELECTED_NUM',$type2_num,$type2_num], 'データが正しくありません(スタック)'],
-                ['NOT_NULL', 'データが正しくありません(スタック)'],
-                [['CHOICE',qw/0 1/], 'データが正しくありません(スタック)'],
+                [['@SELECTED_NUM',$type2_num,$type2_num], 'invalid stack flag'],
+                ['NOT_NULL', 'invalid stack flag'],
+                [['CHOICE',qw/0 1/], 'invalid stack flag'],
             ],
         },
     ]);
@@ -621,18 +621,18 @@ post '/edit/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
     my $result = $c->req->validator([
         'service_name' => {
             rule => [
-                ['NOT_NULL', 'サービス名がありません'],
+                ['NOT_NULL', 'service_name is missing'],
             ],
         },
         'section_name' => {
             rule => [
-                ['NOT_NULL', 'セクション名がありません'],
+                ['NOT_NULL', 'section_name is missing'],
             ],
         },
         'graph_name' => {
             rule => [
-                ['NOT_NULL', 'グラフ名がありません'],
-                [$check_uniq,'同じ名前のグラフがあります'],
+                ['NOT_NULL', 'graph_name is missing'],
+                [$check_uniq,'This graph_name is already existing'],
             ],
         },
         'description' => {
@@ -641,28 +641,28 @@ post '/edit/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
         },
         'sort' => {
             rule => [
-                ['NOT_NULL', '値がありません'],
-                [['CHOICE',0..19], '値が正しくありません'],
+                ['NOT_NULL', 'missing'],
+                [['CHOICE',0..19], 'invalid value'],
             ],
         },
         'gmode' => {
             rule => [
-                ['NOT_NULL', '値がありません'],
-                [['CHOICE',qw/gauge subtract both/], '値が正しくありません'],
+                ['NOT_NULL', 'missing'],
+                [['CHOICE',qw/gauge subtract both/], 'invalid value'],
             ],
         },
         'adjust' => {
             default => '*',
             rule => [
-                ['NOT_NULL', '値がありません'],
-                [['CHOICE','*','/'], '値が正しくありません'],
+                ['NOT_NULL', 'missing'],
+                [['CHOICE','*','/'], 'invalid value'],
             ]
         },
         'adjustval' => {
             default => '1',
             rule => [
-                ['NOT_NULL', '正しくありません'],
-                ['NATURAL', '1以上の自然数にしてください'],
+                ['NOT_NULL', 'missing'],
+                ['NATURAL', 'a integral number is required'],
             ],
         },
         'unit' => {
@@ -671,44 +671,44 @@ post '/edit/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
         },
         'color' => {
             rule => [
-                ['NOT_NULL', '正しくありません'],
-                [sub{ $_[1] =~ m!^#[0-9A-F]{6}$!i }, '#000000の形式で入力してください'],
+                ['NOT_NULL', 'missing'],
+                [sub{ $_[1] =~ m!^#[0-9A-F]{6}$!i }, 'color supports #000000 format'],
             ],
         },
         'type' => {
             rule => [
-                ['NOT_NULL', '値がありません'],
-                [['CHOICE',qw/AREA LINE1 LINE2/], '値が正しくありません'],
+                ['NOT_NULL', 'missing'],
+                [['CHOICE',qw/AREA LINE1 LINE2/], 'invalid value'],
             ],
         },
         'stype' => {
             rule => [
-                ['NOT_NULL', '値がありません'],
-                [['CHOICE',qw/AREA LINE1 LINE2/], '値が正しくありません'],
+                ['NOT_NULL', 'missing'],
+                [['CHOICE',qw/AREA LINE1 LINE2/], 'invalid value'],
             ],
         },
         'llimit' => {
             rule => [
-                ['NOT_NULL', '値がありません'],
-                ['INT', '整数値にしてください'],
+                ['NOT_NULL', 'missing'],
+                ['INT', 'a integral number is required'],
             ],
         },
         'ulimit' => {
             rule => [
-                ['NOT_NULL', '値がありません'],
-                ['INT', '整数値にしてください'],
+                ['NOT_NULL', 'missing'],
+                ['INT', 'a integral number is required'],
             ],
         },
         'sllimit' => {
             rule => [
-                ['NOT_NULL', '値がありません'],
-                ['INT', '整数値にしてください'],
+                ['NOT_NULL', 'missing'],
+                ['INT', 'a integral number is required'],
             ],
         },
         'sulimit' => {
             rule => [
-                ['NOT_NULL', '値がありません'],
-                ['INT', '整数値にしてください'],
+                ['NOT_NULL', 'missing'],
+                ['INT', 'a integral number is required'],
             ],
         },
     ]);
@@ -754,8 +754,8 @@ post '/api/:service_name/:section_name/:graph_name' => sub {
     my $result = $c->req->validator([
         'number' => {
             rule => [
-                ['NOT_NULL','number is null'],
-                ['INT','number must be integer']
+                ['NOT_NULL','number is missing'],
+                ['INT','a integral number is required for "number"']
             ],
         },
         'mode' => {
@@ -767,7 +767,7 @@ post '/api/:service_name/:section_name/:graph_name' => sub {
         'color' => {
             default => '',
             rule => [
-                [sub{ length($_[1]) == 0 || $_[1] =~ m!^#[0-9A-F]{6}$!i }, 'invalid color code'],
+                [sub{ length($_[1]) == 0 || $_[1] =~ m!^#[0-9A-F]{6}$!i }, 'invalid color format'],
             ],
         },
 

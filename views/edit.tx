@@ -1,6 +1,6 @@
 : cascade base
 : around page_header -> {
-<h1>グラフの編集</h1>
+<h1>Edit Graph</h1>
 : }
 
 : around content -> {
@@ -12,24 +12,24 @@
 <fieldset>
 
 <div class="clearfix">
-<label for="">パス</label>
+<label for="">Path</label>
 <div class="input">
 <div class="inline-inputs">
 / <input class="small" name="service_name" /> / <input class="small" name="section_name" /> / <input class="small" name="graph_name" />
 </div>
-<span class="help-block">グラフを表示するURI(サービス名/セクション名/グラフ名)</span>
+<span class="help-block">Graph's URI(service name/section name/graph name)</span>
 </div>
 </div>
 
 <div class="clearfix">
-<label for="">説明</label>
+<label for="">Description</label>
 <div class="input">
 <input class="xlarge" name="description" />
 </div>
 </div>
 
 <div class="clearfix">
-<label for="">表示順</label>
+<label for="">Display order</label>
 <div class="input">
 <select name="sort" class="small">
 <option value="19">19</option>
@@ -53,23 +53,23 @@
 <option value="1">1</option>
 <option value="0">0</option>
 </select>
-<span class="help-block">数値が大きい方が先頭</span>
+<span class="help-block">19 is top</span>
 </div>
 </div>
 
 <div class="clearfix">
-<label for="">グラフのタイプ</label>
+<label for="">Mode</label>
 <div class="input">
 <select name="gmode" class="medium">
-<option value="gauge">実績</option>
-<option value="subtract">差分</option>
-<option value="both">両方</option>
+<option value="gauge">Gauge</option>
+<option value="subtract"Subtract></option>
+<option value="both">Both</option>
 </select>
 </div>
 </div>
 
 <div class="clearfix">
-<label for="">データ調整</label>
+<label for="">Adjustment</label>
 <div class="input">
 <div class="inline-inputs">
 値
@@ -78,33 +78,33 @@
 <option value="/">÷</option>
 </select>
 <input class="small" name="adjustval" />
-単位
+unit
 <input class="small" name="unit" />
 </div>
 </div>
 </div>
 
 <div class="clearfix">
-<label for="">グラフの色</label>
+<label for="">Color</label>
 <div class="input">
 <input name="color" id="form-<: $index :>-color" class="small color_pallet" />
-<span class="help-block">#000000-#FFFFFFの範囲</span>
+<span class="help-block">#000000-#FFFFFF</span>
 </div>
 </div>
 
 <div class="clearfix">
-<label for="">グラフの表示</label>
+<label for="">Type</label>
 <div class="input">
 <select name="type" class="medium">
-<option value="AREA">塗りつぶし</option>
-<option value="LINE1">線グラフ</option>
-<option value="LINE2">線グラフ(太)</option>
+<option value="AREA">AREA</option>
+<option value="LINE1">LINE</option>
+<option value="LINE2">LINE(Bold)</option>
 </select>
 </div>
 </div>
 
 <div class="clearfix">
-<label for="">データ有効範囲</label>
+<label for="">Effective range</label>
 <div class="input">
 <div class="inline-inputs">
 <input class="medium" name="llimit" />
@@ -115,19 +115,19 @@
 </div>
 
 <div class="clearfix">
-<label for="">差分グラフの表示</label>
+<label for="">Mode of subtract Graph</label>
 <div class="input">
 <select name="stype" class="medium">
-<option value="AREA">塗りつぶし</option>
-<option value="LINE1">線グラフ</option>
-<option value="LINE2">線グラフ(太)</option>
+<option value="AREA">AREA</option>
+<option value="LINE1">LINE</option>
+<option value="LINE2">LINE(Bold)</option>
 </select>
 </div>
 </div>
 
 
 <div class="clearfix">
-<label for="">差分データ有効範囲</label>
+<label for="">Effective range of subtract Graph</label>
 <div class="input">
 <div class="inline-inputs">
 <input class="medium" name="sllimit" />
@@ -140,9 +140,9 @@
 </fieldset>
 
 <div class="actions">
-<input type="submit" class="btn primary" value="変更" />
-<a href="<: $c.req.uri_for('/list/'~$graph.service_name~'/'~$graph.section_name) :>" class="btn">キャンセル</a>
-<button type="button" class="btn danger hxr_confirm_button" data-confirm="「<: $graph.graph_name :>」を削除しますか？" data-uri="<: $c.req.uri_for('/delete/'~$graph.service_name~'/'~$graph.section_name~'/'~$graph.graph_name) :>">削除</button>
+<input type="submit" class="btn primary" value="Submit" />
+<a href="<: $c.req.uri_for('/list/'~$graph.service_name~'/'~$graph.section_name) :>" class="btn">Cancel</a>
+<button type="button" class="btn danger hxr_confirm_button" data-confirm="remove '<: $graph.graph_name :>'?" data-uri="<: $c.req.uri_for('/delete/'~$graph.service_name~'/'~$graph.section_name~'/'~$graph.graph_name) :>">remove</button>
 </div>
 
 </form>

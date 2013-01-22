@@ -145,8 +145,8 @@ sub calc_period {
         }
     }
     elsif ( $span eq 'h' || $span eq 'sh' ) {
-        $period_title = 'Hourly (5min avg)';
-        $period_title = 'Hourly (1min avg)' if $span eq 'sh';
+        $period_title = 'Hour (5min avg)';
+        $period_title = 'Hour (1min avg)' if $span eq 'sh';
         $period = -1 * 60 * 60 * 2;
         $xgrid = 'MINUTE:10:MINUTE:20:MINUTE:10:0:%M';
     }
@@ -157,17 +157,17 @@ sub calc_period {
         $xgrid = 'MINUTE:60:MINUTE:120:MINUTE:120:0:%H %M';
     }
     elsif ( $span eq 'w' ) {
-        $period_title = 'Weekly (30min avg)';
+        $period_title = 'Week (30min avg)';
         $period = -1 * 60 * 60 * 24 * 8;
         $xgrid = 'DAY:1:DAY:1:DAY:1:86400:%a'
     }
     elsif ( $span eq 'm' ) {
-        $period_title = 'Monthly (2hour avg)';
+        $period_title = 'Month (2hour avg)';
         $period = -1 * 60 * 60 * 24 * 35;
         $xgrid = 'DAY:1:WEEK:1:WEEK:1:604800:Week %W'
     }
     elsif ( $span eq 'y' ) {
-        $period_title = 'Yearly (1day avg)';
+        $period_title = 'Year (1day avg)';
         $period = -1 * 60 * 60 * 24 * 400;
         $xgrid = 'WEEK:1:MONTH:1:MONTH:1:2592000:%b'
     }
@@ -190,8 +190,8 @@ sub calc_period {
         $xgrid = 'MINUTE:30:HOUR:1:MINUTE:30:0:%H:%M';
     }
     else {
-        $period_title = 'Daily (5min avg)';
-        $period_title = 'Daily (1min avg)' if $span eq 'sd';
+        $period_title = 'Day (5min avg)';
+        $period_title = 'Day (1min avg)' if $span eq 'sd';
         $period = -1 * 60 * 60 * 33; # 33 hours
         $xgrid = 'HOUR:1:HOUR:2:HOUR:2:0:%H';
     }
