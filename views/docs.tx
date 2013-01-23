@@ -1,110 +1,114 @@
 : cascade base
 : around page_header -> {
-<h1>使い方</h1>
+<h1>Document and Usage</h1>
 : }
 
 : around content -> {
 
-<h4>グラフの登録方法</h4>
+<h4>How to adding new Graph</h4>
 
-<p>以下の URL を POST メソッドで叩いてください。</p>
+<p>Request to following URI with POST method</p>
 
 <pre>
 <: $c.req.uri_for('/') :>api/:service_name/:section_name/:graph_name
 </pre>
 
-<p>GrowthForecast では、多数のサービスで利用可能な共通 Web Graph API を目標として作られています。 URL 中の各名前に関しては下の表を参考にしてください。</p>
+<p>
+GrowthForecast is designed as a common Web-Graph-API that available from many services. Rrefer to the table below in relation to each item in the URI.</p>
 
 <table>
 <tr>
-<th>例中の名前</th>
-<th>役割</th>
-<th>具体例を , 区切りで</th>
+<th>Item</th>
+<th>Role</th>
+<th>Example</th>
 </tr>
 <tr>
 <td>:service_name</td>
-<td>グラフを取りたいサービスの名前</td>
-<td>hatenablog, ficia, loctouch, ninjyatoriai</td>
+<td>Service Name</td>
+<td>blogging_service, photosharing, socialgame, ninjya_taisen</td>
 </tr>
 <tr>
 <td>:section_name</td>
-<td>そのサービスの中での、グラフを取る対象が属してる機能やシステム名</td>
+<td>the Service's funtion or system name</td>
 <td>entry, user, spot, items</td>
 </tr>
 <tr>
 <td>:graph_name</td>
-<td>具体的に何のグラフか</td>
-<td>total_entry, kakin_user, muryo_user, syuriken_no_ureta_kazu</td>
+<td>Specific contents</td>
+<td>total_entry, kakin_user, muryo_user, sold_syuriken</td>
 </tr>
 </table>
 
-<p>もし、忍者取り合いっていうサービスのアイテムの中の手裏剣が売りたい数だったら</p>
+<p>For example, to graph the number of shuriken that was sold in the ninja game</p>
 
 <pre>
-<: $c.req.uri_for('/') :>api/ninjyatoriai/items/syuriken_no_ureta_kazu
+<: $c.req.uri_for('/') :>api/ninjya_taisen/items/sold_syuriken
 </pre>
 
-<p>に対して POST します。</p>
+<p>Request to avove URI</p>
 
-<p>また、 POST する時には以下のパラメータをつけます。</p>
+<p>POST Parameters</p>
 
 <table>
 <tr>
-<th>パラメータ</th>
-<th>説明</th>
-<th>必須/オプション</th>
+<th>Parameter</th>
+<th>Desc</th>
+<th>&nbsp;</th>
 </tr>
 <tr>
 <td>number</td>
-<td>グラフに与える数値</td>
-<td>必須</td>
+<td>Data that give to graph</td>
+<td>Required</td>
 </tr>
 <tr>
 <td>mode</td>
 <td>
-  数値のアップデート方法。count or modified or gauge or derive。
-  <dl>
-    <dt>count
-    <dd>登録済みの数値を number の値で加算
+How to update a number. count or modified or gauge or derive.
 
-    <dt>modified
-    <dd>前回と異なる数値の時だけ上書き更新
+<dl>
+<dt>count</dt>
+<dd>Add the number and update</dd>
 
-    <dt>gauge
-    <dd>number の数値で常に上書き。CPU使用率や温度などそのままの値を表示したいとき用に。
+<dt>modified</dt>
+<dd>Overwritten only when the numbers different from the previous</dd>
 
-    <dt>derive
-    <dd>number の数値で常に上書き。総トラフィック量やコマンドの実行回数など単純増加の積算値を秒間いくらで表示したいとき用に。
-  </dl>
-  デフォルトは gauge<br />
-  <strong>⚠</strong>最初にPOSTしたときにgaugeかderiveかでRRDのdata source typeが決まり(GAUGEかDERIVE)あとでの変更はできません。
+<dt>gauge</dt>
+<dd>Always overwritten by the number</dd>
+
+<dt>derive</dt>
+<dd>Always overwritten by the number. To Display figures in per seconds</dd>
+</dl>
+
+Default is "gauge"<br />
+<strong>⚠</strong>
+The data type is determined at first time. Can't change mode from DERIVE to other and other to DERIVE.
 </td>
-<td>オプション</td>
+<td>Option</td>
 </tr>
 <tr>
 <td>color</td>
-<td>グラフの色。#FFFFFF 形式で指定</td>
-<td>オプション/新規グラフで指定なしの場合自動生成</td>
+<td>Graph color, #FFFFFF format</td>
+<td>Option</td>
 </tr>
 </table>
 
-<p>LWP::UserAgent を使うと以下の用になります。</p>
+<p>Sample code (perl) </p>
 
 <pre>
 my $ua = LWP::UserAgent->new;
-$ua->post('<: $c.req.uri_for('/') :>api/ninjyatoriai/items/syuriken_no_ureta_kazu', {
+$ua->post('<: $c.req.uri_for('/') :>api/ninjya_taisen/items/sold_syuriken', {
     number      => 10,
     color       => '#333399'
 });
 </pre>
 
-<p>curl を使うと以下の用になります。</p>
+<p>Sample code (curl) </p>
 
 <pre>
-$ curl -F number=10 <: $c.req.uri_for('/') :>api/ninjyatoriai/items/syuriken_no_ureta_kazu
+$ curl -F number=10 <: $c.req.uri_for('/') :>api/ninja_taisen/items/sold_syuriken
 </pre>
 
-<p>グラフのデータの取り込みは5分また1分毎に1度行われます。POST後すぐに反映されないので注意してください</p>
+<p>Incorporation of the graphed data is done once every 5 minutes or 1 minute. Please note that do not take effect immediately after POST</p>
 
 <h4>グラフの表示オプション</h4>
 
