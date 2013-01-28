@@ -257,14 +257,16 @@ sub graph {
         my $ulimit = ( $gmode eq 'subtract' ) ? $data->{sulimit} : $data->{ulimit};
         my $stack = ( $data->{stack} && $i > 0 ) ? ':STACK' : '';
         my $file = $span =~ m!^s! ? $self->path_short($data) : $self->path($data);
+        my $unit = $data->{unit};
+        $unit =~ s!%!%%!;
         push @opt, 
             sprintf('DEF:%s%dt=%s:%s:AVERAGE', $gdata, $i, $file, $gdata),
             sprintf('CDEF:%s%d=%s%dt,%s,%s,LIMIT,%d,%s', $gdata, $i, $gdata, $i, $llimit, $ulimit, $data->{adjustval}, $data->{adjust}),
             sprintf('%s:%s%d%s:%s %s', $type, $gdata, $i, $data->{color}, $data->{graph_name},$stack),
-            sprintf('GPRINT:%s%d:LAST:Cur\: %%4.1lf%%s%s', $gdata, $i, $data->{unit}),
-            sprintf('GPRINT:%s%d:AVERAGE:Avg\: %%4.1lf%%s%s', $gdata, $i, $data->{unit}),
-            sprintf('GPRINT:%s%d:MAX:Max\: %%4.1lf%%s%s', $gdata, $i, $data->{unit}),
-            sprintf('GPRINT:%s%d:MIN:Min\: %%4.1lf%%s%s\l', $gdata, $i, $data->{unit}),
+            sprintf('GPRINT:%s%d:LAST:Cur\: %%4.1lf%%s%s', $gdata, $i, $unit),
+            sprintf('GPRINT:%s%d:AVERAGE:Avg\: %%4.1lf%%s%s', $gdata, $i, $unit),
+            sprintf('GPRINT:%s%d:MAX:Max\: %%4.1lf%%s%s', $gdata, $i, $unit),
+            sprintf('GPRINT:%s%d:MIN:Min\: %%4.1lf%%s%s\l', $gdata, $i, $unit),
             sprintf('VDEF:%s%dcur=%s%d,LAST', $gdata, $i, $gdata, $i),
             sprintf('PRINT:%s%dcur:%%.8lf',$gdata, $i),
             sprintf('VDEF:%s%davg=%s%d,AVERAGE', $gdata, $i, $gdata, $i),
@@ -278,14 +280,16 @@ sub graph {
     }
     if ( $args->{sumup} ) {
         my @sumup = (shift @defs);
+        my $unit = $datas[0]->{unit};
+        $unit =~ s!%!%%!;
         push @sumup, $_, '+' for @defs;
         push @opt, 
             sprintf('CDEF:sumup=%s',join(',',@sumup)),
             sprintf('LINE0:sumup#cccccc:total'),
-            sprintf('GPRINT:sumup:LAST:Cur\: %%4.1lf%%s%s', $datas[0]->{unit}),
-            sprintf('GPRINT:sumup:AVERAGE:Avg\: %%4.1lf%%s%s', $datas[0]->{unit}),
-            sprintf('GPRINT:sumup:MAX:Max\: %%4.1lf%%s%s', $datas[0]->{unit}),
-            sprintf('GPRINT:sumup:MIN:Min\: %%4.1lf%%s%s\l', $datas[0]->{unit}),
+            sprintf('GPRINT:sumup:LAST:Cur\: %%4.1lf%%s%s', $unit),
+            sprintf('GPRINT:sumup:AVERAGE:Avg\: %%4.1lf%%s%s', $unit),
+            sprintf('GPRINT:sumup:MAX:Max\: %%4.1lf%%s%s', $unit),
+            sprintf('GPRINT:sumup:MIN:Min\: %%4.1lf%%s%s\l', $unit),
             sprintf('VDEF:sumupcur=sumup,LAST'),
             sprintf('PRINT:sumupcur:%%.8lf'),
             sprintf('VDEF:sumupavg=sumup,AVERAGE'),
