@@ -8,10 +8,10 @@
 <small><: $graph.description :></small></h2>
 <p>
 : if $graph.complex_graph {
-<a class="label success" style="cursor: pointer" href="<: $c.req.uri_for('/edit_complex/'~$graph.id) :>">設定</a>
-<span class="label important">複合</span>
+<a class="label success" style="cursor: pointer" href="<: $c.req.uri_for('/edit_complex/'~$graph.id) :>">Setting</a>
+<span class="label important">Complex Graph</span>
 : } else {
-<a class="label success" style="cursor: pointer" href="<: $c.req.uri_for('/edit/'~$graph.service_name~'/'~$graph.section_name~'/'~$graph.graph_name) :>">設定</a>
+<a class="label success" style="cursor: pointer" href="<: $c.req.uri_for('/edit/'~$graph.service_name~'/'~$graph.section_name~'/'~$graph.graph_name) :>">Setting</a>
 <span class="label">current</span> <: $graph.number | format_number :>
 <span class="label">mode</span> <: $graph.mode :>
 : }
