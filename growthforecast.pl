@@ -18,6 +18,7 @@ use Proclet;
 use File::ShareDir qw/dist_dir/;
 use Cwd;
 use File::Path qw/mkpath/;
+use Log::Minimal;
 
 my $port = 5125;
 my $host = 0;
@@ -155,6 +156,7 @@ $proclet->service(
             host => $host || 0,
             max_workers => 4,
         );
+        infof( "GrowthForecast::Web starts listen on %s:%s", $host || 0, $port );
         $loader->run($app);
     }
 );
