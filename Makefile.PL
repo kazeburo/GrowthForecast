@@ -2,7 +2,7 @@ use inc::Module::Install;
 name 'GrowthForecast';
 all_from 'lib/GrowthForecast.pm';
 perl_version '5.008001';
-readme_from_pod 'lib/GrowthForecast.pm';
+#readme_from_pod 'lib/GrowthForecast.pm';
 
 requires 'Alien::RRDtool' => '0.03';
 requires 'Kossy' => '0.10';
