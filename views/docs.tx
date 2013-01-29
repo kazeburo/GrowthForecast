@@ -5,6 +5,8 @@
 
 : around content -> {
 
+<p style="text-align:right;font-size:1.2em;">Japanese document is <a href="http://kazeburo.github.com/GrowthForecast/">here</a>.</p>
+
 <h4>How to adding new Graph</h4>
 
 <p>Request to following URI with POST method</p>
@@ -110,162 +112,162 @@ $ curl -F number=10 <: $c.req.uri_for('/') :>api/ninja_taisen/items/sold_syurike
 
 <p>Incorporation of the graphed data is done once every 5 minutes or 1 minute. Please note that do not take effect immediately after POST</p>
 
-<h4>グラフの表示オプション</h4>
+<h4>Arguments for displaying graphs</h4>
 
-<p>グラフのURIに対していくつかオプションを与えるとグラフの描画をカスタマイズすることができます</p>
+<p>can customize graphs by giving some arguments for uri of a graph</p>
 
 <pre>
-グラフのURI <: $c.req.uri_for('/') :>graph/:service_name/:section_name/:graph_name
-複合グラフのURI  <: $c.req.uri_for('/') :>graph/:pattern
+URI of a graph <: $c.req.uri_for('/') :>graph/:service_name/:section_name/:graph_name
+URI of a comples graph  <: $c.req.uri_for('/') :>graph/:pattern
 </pre>
 
 <table>
 <tr>
-<th>パラメータ</th>
-<th>説明</th>
+<th>Parameter</th>
+<th>Description</th>
 </tr>
 <tr>
 <td>t</td>
-<td>グラフの範囲。y(年間)、m(月間)、w(週間)、3d(3日間)、s3d(3日間・1分更新)、d(一日)、sd(一日・1分更新)、8h(8時間)、s8h(8時間・1分更新)、4h(4時間)、s4h(4時間・1分更新)、h(1時間)、sh(1時間・1分更新)、n(半日)、sn(半日・1分更新)、c(任意)、sc(任意・1分更新)</td>
+<td>term. y(year), m(month), w(week), 3d(3days), s3d(3days・1min)、d(day)、sd(day・1min)、8h(8hours)、s8h(8hours・1min)、4h(4hours)、s4h(4hours・1min)、h(1hour)、sh(1hour・1min)、n(a half day)、sn(a half day・1min)、c(custom)、sc(custom・1min)</td>
 </tr>
 <tr>
 <td>from</td>
-<td>「t」が「c」または「sc」の場合、描画する開始日付。「2011/12/08 12:10:00」の形式で指定</td>
+<td>only when "term" is c or sc. datetime of start to display (for example: 2011/12/08 12:10:00)</td>
 </tr>
 <tr>
 <td>to</td>
-<td>「t」が「c」または「sc」の場合、描画する終了日付。「2011/12/08 12:10:00」の形式で指定</td>
+<td>only when "term" is c or sc. datetime of end to display (for example: 2011/12/08 12:10:00)</td>
 </tr>
 <tr>
 <td>gmode</td>
-<td>積算か差分グラフの選択、「gauge」または「subtract」。デフォルトは「gauge」</td>
+<td>graph mode. "gauge" or "subtract". default is "gauge"</td>
 </tr>
 <tr>
 <td>width</td>
-<td>横幅。実際には凡例などを含むので指定したサイズより大きくなる</td>
+<td>width of canvas.</td>
 </tr>
 <tr>
 <td>height</td>
-<td>縦幅。実際には凡例などを含むので指定したサイズより大きくなる</td>
+<td>height of canvas.</td>
 </tr>
 
 <tr>
 <td>graphonly</td>
-<td>グラフ部分しか描画しないモード。デフォルト「0」</td>
+<td>only drawing graph. default is "0" (disable) </td>
 </tr>
 
 <tr>
 <td>logarithmic</td>
-<td>対数グラフ。デフォルト「0」</td>
+<td>Drawing as logarithmic graph. default is "0" (disbale)</td>
 </tr>
 
 <tr>
 <td>xgrid</td>
-<td>X軸の設定。フォーマットはrrdtoolのドキュメント参照のこと</td>
+<td>x-axis label. see the document of rrdtool</td>
 </tr>
 
 <tr>
 <td>ygrid</td>
-<td>Y軸の設定。フォーマットはrrdtoolのドキュメント参照のこと</td>
+<td>y-axis grid. see the document of rrdtool</td>
 </tr>
 
 <tr>
 <td>background_color</td>
-<td>背景色。FFFFFF または FFFFFF00 で指定。最後の2文字はアルファチャンネル</td>
+<td>background color. for example FFFFFF or FFFFFF00. last two character is alpha channel</td>
 </tr>
 
 <tr>
 <td>canvas_color</td>
-<td>グラフ部分背景色。FFFFFF または FFFFFF00 で指定</td>
+<td>background color of canvas.</td>
 </tr>
 
 <tr>
 <td>font_color</td>
-<td>文字色。FFFFFF または FFFFFF00 で指定</td>
+<td>font color.</td>
 </tr>
 
 <tr>
 <td>frame_color</td>
-<td>凡例の色を囲っている部分。FFFFFF または FFFFFF00 で指定</td>
+<td>frame (around color spot) color</td>
 </tr>
 
 <tr>
 <td>axis_color</td>
-<td>グラフ部分の枠線。FFFFFF または FFFFFF00 で指定</td>
+<td>axis color</td>
 </tr>
 
 <tr>
 <td>shadea_color</td>
-<td>左上、上の枠線。FFFFFF または FFFFFF00 で指定</td>
+<td>color of left and top border</td>
 </tr>
 
 <tr>
 <td>shadeb_color</td>
-<td>右下、下の枠線。FFFFFF または FFFFFF00 で指定</td>
+<td>color of right and bottom</td>
 </tr>
 
 <tr>
 <td>border</td>
-<td>枠線の太さ。「0」も可能。デフォルト「3」</td>
+<td>Width in pixels for the 3d border</td>
 </tr>
 
 <tr>
 <td>legend</td>
-<td>凡例の有無。デフォルト「1」</td>
+<td>displaying legend. default is "1" (enable)</td>
 </tr>
 
 <tr>
 <td>sumup</td>
-<td>凡例に合計値を含むかどうか。デフォルト「0」</td>
+<td>displaying sumup figures in legend. default is "0" (disable)</td>
 </tr>
 
 
 </table>
 
-<h4>グラフデータのサマリー</h4>
+<h4>Exporting graph summary</h4>
 
-<p>グラフデータの凡例部分ををJSON形式でエクスポートできます</p>
+<p>can export data of legend as JSON format</p>
 
 <pre>
-グラフのURI <: $c.req.uri_for('/') :>summary/:service_name/:section_name/:graph_name
-複合グラフのURI  <: $c.req.uri_for('/') :>summary/:pattern
+Export URI <: $c.req.uri_for('/') :>summary/:service_name/:section_name/:graph_name
+Export URI of Complex graph <: $c.req.uri_for('/') :>summary/:pattern
 </pre>
 
-<p>パラメータはグラフを描画する時と同じです</p>
+<p>supports same argumets as drawing graph</p>
 
-<h4>グラフデータのエクスポート</h4>
+<h4>Exporting data of a graph</h4>
 
-<p>グラフデータをJSON形式でエクスポートできます</p>
+<p>can export data of graph</p>
 
 <pre>
-グラフのURI <: $c.req.uri_for('/') :>xport/:service_name/:section_name/:graph_name
-複合グラフのURI  <: $c.req.uri_for('/') :>xport/:pattern
+Export URI <: $c.req.uri_for('/') :>xport/:service_name/:section_name/:graph_name
+Export URI of Complex graph <: $c.req.uri_for('/') :>xport/:pattern
 </pre>
 
 <table>
 <tr>
-<th>パラメータ</th>
-<th>説明</th>
+<th>Parameter</th>
+<th>Description</th>
 </tr>
 <tr>
 <td>t</td>
-<td>グラフの範囲。y(年間)、m(月間)、w(週間)、3d(3日間)、s3d(3日間・1分更新)、d(一日)、sd(一日・1分更新)、8h(8時間)、s8h(8時間・1分更新)、4h(4時間)、s4h(4時間・1分更新)、h(1時間)、sh(1時間・1分更新)、n(半日)、sn(半日・1分更新)、c(任意)、sc(任意・1分更新)</td>
+<td>term. y(year), m(month), w(week), 3d(3days), s3d(3days・1min)、d(day)、sd(day・1min)、8h(8hours)、s8h(8hours・1min)、4h(4hours)、s4h(4hours・1min)、h(1hour)、sh(1hour・1min)、n(a half day)、sn(a half day・1min)、c(custom)、sc(custom・1min)</td>
 </tr>
 <tr>
 <td>from</td>
-<td>「t」が「c」または「sc」の場合、描画する開始日付。「2011/12/08 12:10:00」の形式で指定</td>
+<td>only when "term" is c or sc. datetime of start to exporting (for example: 2011/12/08 12:10:00)</td>
 </tr>
 <tr>
 <td>to</td>
-<td>「t」が「c」または「sc」の場合、描画する終了日付。「2011/12/08 12:10:00」の形式で指定</td>
+<td>only when "term" is c or sc. datetime of end to exporting (for example: 2011/12/08 12:10:00)</td>
 </tr>
 <tr>
 <td>gmode</td>
-<td>積算か差分グラフの選択、「gauge」または「subtract」。デフォルトは「gauge」</td>
+<td>graph mode. "gauge" or "subtract". default is "gauge"</td>
 </tr>
 <tr>
 <td>width</td>
-<td>rowの最大個数</td>
+<td>max number of rows</td>
 </tr>
 </table>
 
