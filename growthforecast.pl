@@ -213,7 +213,7 @@ IP addresses or CIDR of reverse proxy
 =item --allow-from
 
 IP addresses or CIDR to allow access from.
-Default is null (access from any remote ip address)
+Default is empty (allow access from any remote ip address)
 
 =item --disable-1min-metrics
 

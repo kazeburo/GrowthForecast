@@ -43,8 +43,8 @@ OPTIONS
         IP addresses or CIDR of reverse proxy
 
     --allow-from
-        IP addresses or CIDR to allow access from. Default is null (access
-        from any remote ip address)
+        IP addresses or CIDR to allow access from. Default is empty (allow
+        access from any remote ip address)
 
     --disable-1min-metrics
         don't generate 1min rrddata and graph Default is "1" (enabled)
