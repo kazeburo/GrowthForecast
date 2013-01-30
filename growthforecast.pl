@@ -38,7 +38,7 @@ GetOptions(
 );
 
 if ( $help ) {
-    pod2usage(1);
+    pod2usage(-verbose=>2,-exitval=>0);
 }
 
 if ( $mysql ) {
