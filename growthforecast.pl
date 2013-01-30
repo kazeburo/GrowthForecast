@@ -19,6 +19,7 @@ use File::ShareDir qw/dist_dir/;
 use Cwd;
 use File::Path qw/mkpath/;
 use Log::Minimal;
+use Pod::Usage;
 
 my $port = 5125;
 my $host = 0;
@@ -37,29 +38,7 @@ GetOptions(
 );
 
 if ( $help ) {
-    print <<EOF;
-usage: $0 --port 5005 --host 127.0.0.1 --front-proxy 127.0.0.1 
-          --allow-from 127.0.0.1
-          --disable-1min-metrics
-          --data-dir dir
-          --with-mysql dbi:mysql:[dbname];hostname=[localhost]
-
-If you want to use MySQL instead of SQLite, set with-mysql opt with your DSN.
-MYSQL_USER,MYSQL_PASSWORD environment values are used as username and password 
-for connecting to MySQL.
-
-eg:
-  \% MYSQL_USER=www MYSQL_PASSWORD=foobar perl $0 \\
-      --with-mysql dbi:mysql:growthforecast;hostname=localhost
-
-GrowthForecast needs CREATE, ALTER, DELETE, INSERT, UPDATE and SELECT privileges
-
-eg:
-  mysql> GRANT  CREATE, ALTER, DELETE, INSERT, UPDATE, SELECT \\
-         ON growthforecast.* TO 'www'\@'localhost' IDENTIFIED BY foobar;
-
-EOF
-    exit(1);
+    pod2usage(1);
 }
 
 if ( $mysql ) {
@@ -163,4 +142,133 @@ $proclet->service(
 
 
 $proclet->run;
+
+__END__
+
+=head1 NAME
+
+growthforecast.pl - Lightning Fast Graphing/Visualization
+
+=head1 SYNOPSIS
+
+  % growthforecast.pl --data-dir=/path/to/dir
+
+=head1 DESCRIPTION
+
+GrowthForecast is graphing/visualization web tool built on RRDtool
+
+=head1 INSTALL
+
+=over 4
+
+=item Install dependicies 
+
+To install growthforecast, these libraries are needed.
+
+=over 4
+
+=item * glib
+
+=item * xml2
+
+=item * pango
+
+=item * cairo
+
+=back
+
+  (CentOS) $ sudo yum groupinstall "Development Tools"
+           $ sudo yum install pkgconfig glib2-devel gettext libxml2-devel pango-devel cairo-devel
+  
+  (Ubuntu) $ sudo apt-get build-dep rrdtool
+
+=item Install GrowthForecast
+
+  $ cpanm -n http://nomadscafe.jp/pub/GrowthForecast/GrowthForecast-$VERSION.tar.gz
+
+It's recommencd to using perlbrew 
+
+=back
+
+=head1 OPTIONS
+
+=over 4
+
+=item --data-dir
+
+A directory to store rrddata and metadata
+
+=item --port
+
+TCP port listen on. Default is 5125
+
+=item --host
+
+IP address to listn on
+
+=item --front-proxy
+
+IP addresses or CIDR of reverse proxy
+
+=item --allow-from
+
+IP addresses or CIDR to allow access from.
+Default is null (access from any remote ip address)
+
+=item --disable-1min-metrics
+
+don't generate 1min rrddata and graph
+Default is "1" (enabled) 
+
+=item --with-mysql
+
+DB connection setting to store  metadata. format like dbi:mysql:[dbname];hostname=[hostnaem]
+Default is no mysql setting. GrowthForecast save metadata to SQLite
+
+=item -h --help
+
+Display help
+
+=back
+
+=head1 MYSQL Setting
+
+GrowthForecast uses SQLite as metadata by default. And also supports MySQL
+
+GrowthForeacst needs thease MySQL privileges.
+
+=over 4
+
+=item * CREATE
+
+=item * ALTER
+
+=item * DELETE
+
+=item * INSERT
+
+=item * UPDATE
+
+=item * SELECT
+
+=back
+
+Sample GRANT statement
+
+  mysql> GRANT statement sample> GRANT  CREATE, ALTER, DELETE, INSERT, UPDATE, SELECT \\
+           ON growthforecast.* TO 'www'\@'localhost' IDENTIFIED BY foobar;
+
+Give USERNAME and PASSWORD to GrowthForecast by environment value
+
+  $ MYSQL_USER=www MYSQL_PASSWORD=foobar growthforecast.pl \\
+      --data-dir /home/user/growthforeacst \\
+      -with-mysql dbi:mysql:growthforecast;hostname=localhost 
+
+AUTHOR
+    Masahiro Nagano <kazeburo {at} gmail.com>
+
+LICENSE
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+
 

@@ -1,74 +1,93 @@
 NAME
-    GrowthForecast - Lightning Fast Graphing/Visualization
+    growthforecast.pl - Lightning Fast Graphing/Visualization
 
 SYNOPSIS
-      % growthforecast.pl -h
+      % growthforecast.pl --data-dir=/path/to/dir
 
 DESCRIPTION
     GrowthForecast is graphing/visualization web tool built on RRDtool
 
-HOW TO INSTALL
+INSTALL
+    Install dependicies
+        To install growthforecast, these libraries are needed.
 
-  (1) Install dependicies 
+        *   glib
 
-    To install growthforecast, these libraries are needed.
+        *   xml2
+
+        *   pango
+
+        *   cairo
+
+          (CentOS) $ sudo yum groupinstall "Development Tools"
+                   $ sudo yum install pkgconfig glib2-devel gettext libxml2-devel pango-devel cairo-devel
   
-    - glib
-    - xml2
-    - pango
-    - cairo
+          (Ubuntu) $ sudo apt-get build-dep rrdtool
 
-    (CentOS) $ sudo yum groupinstall "Development Tools"
-             $ sudo yum install pkgconfig glib2-devel gettext libxml2-devel pango-devel cairo-devel
+    Install GrowthForecast
+          $ cpanm -n http://nomadscafe.jp/pub/GrowthForecast/GrowthForecast-$VERSION.tar.gz
 
-    (Ubuntu) $ sudo apt-get build-dep rrdtool
+        It's recommencd to using perlbrew
 
-  (2) Install GrowthForecast
-  
-     $ cpanm -n http://nomadscafe.jp/pub/GrowthForecast/GrowthForecast-$VERSION.tar.gz
+OPTIONS
+    --data-dir
+        A directory to store rrddata and metadata
 
-     It's recommencd to using perlbrew 
+    --port
+        TCP port listen on. Default is 5125
 
-ARGUMENTS
+    --host
+        IP address to listn on
 
-  data-dir:    a Directory to store rrddata and metadata
-  port:        tcp port listen on. Default is 5125
-  host:        bind ip-address listen on.
-  front-proxy: IP addresses or CIDR of reverse proxy.
-  allow-from:  IP addresses or CIDR to allow access from.
-               Default is null (access from any remote ip address)
-  disable-1min-metrics: don't generate 1min rrddata and graph
-                        Default is "1" (enabled) 
-  with-mysql:  DB connection setting to store  metadata. format like dbi:mysql:[dbname];hostname=[hostnaem]
-               Default is no mysql setting. GrowthForecast save metadata to SQLite
-  h help:      Display help
-   
-MySQL Setting
+    --front-proxy
+        IP addresses or CIDR of reverse proxy
 
-  If you want to use MySQL as metadata store with GrowthForecast.
+    --allow-from
+        IP addresses or CIDR to allow access from. Default is null (access
+        from any remote ip address)
 
-  GrowthForeacst needs thease MySQL privileges.
+    --disable-1min-metrics
+        don't generate 1min rrddata and graph Default is "1" (enabled)
 
-    - CREATE
-    - ALTER
-    - DELETE
-    - INSERT
-    - UPDATE
-    - SELECT
+    --with-mysql
+        DB connection setting to store metadata. format like
+        dbi:mysql:[dbname];hostname=[hostnaem] Default is no mysql setting.
+        GrowthForecast save metadata to SQLite
 
-    GRANT statement sample> GRANT  CREATE, ALTER, DELETE, INSERT, UPDATE, SELECT \\
-                           ON growthforecast.* TO 'www'\@'localhost' IDENTIFIED BY foobar;
+    -h --help
+        Display help
 
-   Give USERNAME and PASSWORD to GrowthForecast by environment value.
+MYSQL Setting
+    GrowthForecast uses SQLite as metadata by default. And also supports
+    MySQL
 
-    $ MYSQL_USER=www MYSQL_PASSWORD=foobar growthforecast.pl \\
-        --data-dir /home/user/growthforeacst \\
-        -with-mysql dbi:mysql:growthforecast;hostname=localhost 
+    GrowthForeacst needs thease MySQL privileges.
 
-AUTHOR
-    Masahiro Nagano <kazeburo {at} gmail.com>
+    *   CREATE
 
-LICENSE
-    This library is free software; you can redistribute it and/or modify it
-    under the same terms as Perl itself.
+    *   ALTER
+
+    *   DELETE
+
+    *   INSERT
+
+    *   UPDATE
+
+    *   SELECT
+
+    Sample GRANT statement
+
+      mysql> GRANT statement sample> GRANT  CREATE, ALTER, DELETE, INSERT, UPDATE, SELECT \\
+               ON growthforecast.* TO 'www'\@'localhost' IDENTIFIED BY foobar;
+
+    Give USERNAME and PASSWORD to GrowthForecast by environment value
+
+      $ MYSQL_USER=www MYSQL_PASSWORD=foobar growthforecast.pl \\
+          --data-dir /home/user/growthforeacst \\
+          -with-mysql dbi:mysql:growthforecast;hostname=localhost
+
+    AUTHOR Masahiro Nagano <kazeburo {at} gmail.com>
+
+    LICENSE This library is free software; you can redistribute it and/or
+    modify it under the same terms as Perl itself.
 
