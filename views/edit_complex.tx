@@ -33,8 +33,8 @@
 <label for="">Display sum up value</label>
 <div class="input">
 <select name="sumup" class="small">
-<option value="0">しない</option>
-<option value="1">する</option>
+<option value="0">disable</option>
+<option value="1">enable</option>
 </select>
 </div>
 </div>
