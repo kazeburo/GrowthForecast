@@ -15,4 +15,4 @@ data/*.db-wal
 data/*.db-shm
 .DS_Store
 MYMETA.*
-
+GrowthForecast-0.*

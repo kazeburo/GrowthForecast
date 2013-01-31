@@ -25,7 +25,7 @@ INSTALL
           (Ubuntu) $ sudo apt-get build-dep rrdtool
 
     Install GrowthForecast
-          $ cpanm -n http://nomadscafe.jp/pub/GrowthForecast/GrowthForecast-$VERSION.tar.gz
+          $ cpanm GrowthForecast
 
         It's recommencd to using perlbrew
 

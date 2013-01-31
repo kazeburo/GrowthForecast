@@ -184,7 +184,7 @@ To install growthforecast, these libraries are needed.
 
 =item Install GrowthForecast
 
-  $ cpanm -n http://nomadscafe.jp/pub/GrowthForecast/GrowthForecast-$VERSION.tar.gz
+  $ cpanm GrowthForecast
 
 It's recommencd to using perlbrew 
 
