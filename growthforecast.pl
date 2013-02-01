@@ -161,7 +161,7 @@ GrowthForecast is graphing/visualization web tool built on RRDtool
 
 =over 4
 
-=item Install dependicies 
+=item Install dependencies
 
 To install growthforecast, these libraries are needed.
 
@@ -186,7 +186,7 @@ To install growthforecast, these libraries are needed.
 
   $ cpanm GrowthForecast
 
-It's recommencd to using perlbrew 
+It's recommended to using perlbrew
 
 =back
 
@@ -204,7 +204,7 @@ TCP port listen on. Default is 5125
 
 =item --host
 
-IP address to listn on
+IP address to listen on
 
 =item --front-proxy
 
@@ -235,7 +235,7 @@ Display help
 
 GrowthForecast uses SQLite as metadata by default. And also supports MySQL
 
-GrowthForeacst needs thease MySQL privileges.
+GrowthForecast needs these MySQL privileges.
 
 =over 4
 
