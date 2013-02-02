@@ -22,6 +22,7 @@ requires 'Scope::Container::DBI' => '0.05';
 
 tests 't/*.t t/*/*.t';
 test_requires 'Test::More';
+test_requires  'Test::Requires';
 install_script 'growthforecast.pl';
 
 my @files = qw!
