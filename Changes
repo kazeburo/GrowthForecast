@@ -1,3 +1,7 @@
+0.39    Sat Feb 2 23:09:06 2013
+        - fixed spelling (thanks syohex)
+        - added Test::Requires 'RRDs'
+
 0.38    Thu Jan 31 13:22:42 2013
         - fixed broken HTML
 
