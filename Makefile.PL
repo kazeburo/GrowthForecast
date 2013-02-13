@@ -1,3 +1,8 @@
+# requires Module::Install
+# requires Module::Install::ReadmeFromPod
+# requires Module::Install::Repository
+# requires Module::Install::ShareFile
+
 use inc::Module::Install;
 name 'GrowthForecast';
 all_from 'lib/GrowthForecast.pm';
