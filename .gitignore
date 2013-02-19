@@ -1,7 +1,9 @@
 cover_db
 META.yml
+META.json
 Makefile
 blib
+inc
 pm_to_blib
 MANIFEST
 Makefile.old
