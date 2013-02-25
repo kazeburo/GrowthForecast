@@ -1,3 +1,6 @@
+0.40    Mon Fev 25 15:22:25 2013
+        - supports cpanfile
+
 0.39    Sat Feb 2 23:09:06 2013
         - fixed spelling (thanks syohex)
         - added Test::Requires 'RRDs'
