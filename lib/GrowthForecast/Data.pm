@@ -298,6 +298,16 @@ sub update_graph {
     return 1;
 }
 
+sub update_graph_description {
+    my ($self, $id, $description) = @_;
+    my $dbh = $self->dbh;
+    $dbh->query(
+        'UPDATE graphs SET description=? WHERE id = ?',
+        $description, $id
+    );
+    return 1;    
+}
+
 sub get_services {
     my $self = shift;
     my $rows = $self->dbh->select_all(

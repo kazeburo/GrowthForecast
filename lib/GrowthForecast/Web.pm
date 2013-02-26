@@ -770,7 +770,6 @@ post '/api/:service_name/:section_name/:graph_name' => sub {
                 [sub{ length($_[1]) == 0 || $_[1] =~ m!^#[0-9A-F]{6}$!i }, 'invalid color format'],
             ],
         },
-
     ]);
 
     if ( $result->has_error ) {
@@ -786,7 +785,8 @@ post '/api/:service_name/:section_name/:graph_name' => sub {
     eval {
         $row = $self->data->update(
             $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
-            $result->valid('number'), $result->valid('mode'), $result->valid('color')
+            $result->valid('number'), $result->valid('mode'), $result->valid('color'),
+            $result->valid('description')
         );
     };
     if ( $@ ) {
@@ -794,6 +794,12 @@ post '/api/:service_name/:section_name/:graph_name' => sub {
             $@, $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
                 $result->valid('number'), $result->valid('mode'), $result->valid('color');
     }
+    
+    my @descriptions = $c->req->param('description');
+    if ( @descriptions ) {
+        $self->data->update_graph_description($row->{id}, $descriptions[-1]);
+    }
+
     $c->render_json({ error => 0, data => $row });
 };
 

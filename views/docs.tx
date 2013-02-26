@@ -92,6 +92,13 @@ The data type is determined at first time. Can't change mode from DERIVE to othe
 <td>Graph color, #FFFFFF format</td>
 <td>Option</td>
 </tr>
+
+<tr>
+<td>description</td>
+<td>short description of this Graph</td>
+<td>Option</td>
+</tr>
+
 </table>
 
 <p>Sample code (perl) </p>
