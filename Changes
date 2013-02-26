@@ -1,4 +1,7 @@
-0.40    Mon Fev 25 15:22:25 2013
+0.50    Tue Feb 26 14:12:42 2013
+        - added optional descriotion parameter to POST API
+
+0.40    Mon Feb 25 15:22:25 2013
         - supports cpanfile
 
 0.39    Sat Feb 2 23:09:06 2013
