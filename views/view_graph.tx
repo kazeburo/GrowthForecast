@@ -1,4 +1,7 @@
 : cascade base
+: around page_title -> {
+<: $c.args.service_name :> » <: $c.args.section_name :> » <: $c.args.graph_name :> | <: super :>
+: }
 : around page_header -> {
 : my $term_arg = $c.req.param('t') ? [ 't', $c.req.param('t') ] : [];
 <h1>

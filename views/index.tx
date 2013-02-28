@@ -1,4 +1,8 @@
 : cascade base
+: around page_title -> {
+<: if $c.args.service_name { :> <: $c.args.service_name :> | <: super :><: } :>
+: }
+
 : around page_header -> {
 <h1>
 <a href="<: $c.req.uri_for('/') :>">Home</a><: if $c.args.service_name { :> » <: $c.args.service_name :><: } :>

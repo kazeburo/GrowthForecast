@@ -1,4 +1,7 @@
 : cascade base
+: around page_title -> {
+<: $c.args.service_name :> » <: $c.args.section_name :> | <: super :>
+: }
 : around page_header -> {
 <h1>
 <span><a href="<: $c.req.uri_for('/') :>">Home</a> » <a href="<: $c.req.uri_for('/list/'~$c.args.service_name) :>"><: $c.args.service_name :></a> » <: $c.args.section_name :></span>

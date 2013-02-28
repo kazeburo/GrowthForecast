@@ -42,7 +42,11 @@ section > .row {
 }
 
 </style>
-<title>GrowthForecast</title>
+<title>
+: block page_title -> {
+GrowthForecast
+: }
+</title>
 </head>
 <body>
 
