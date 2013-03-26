@@ -19,7 +19,7 @@
 : for $service.sections -> $section {
 <tr>
 <td style="vertical-align: middle"><a href="<: $c.req.uri_for('/list/'~$service.name~'/'~$section) :>"><: $section :></a></td>
-<td style="text-align: right"><button type="button" class="btn danger hxr_confirm_button" style="padding: 1px 14px 1px;" data-confirm="セクション「<: $section :>」を削除しますか？" data-uri="<: $c.req.uri_for('/delete/'~$service.name~'/'~$section) :>">削除</button></td>
+<td style="text-align: right"><button type="button" class="btn danger hxr_confirm_button" style="padding: 1px 14px 1px;" data-confirm="remove all graphs in '<: $section :>' section?" data-uri="<: $c.req.uri_for('/delete/'~$service.name~'/'~$section) :>">remove</button></td>
 </tr>
 : }
 </table>
