@@ -732,6 +732,23 @@ post '/edit/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
     });
 };
 
+post '/delete/:service_name/:section_name' => [qw/set_enable_short/] => sub {
+    my ( $self, $c )  = @_;
+
+    my $graphs = $self->data->get_graphs(
+        $c->args->{service_name}, $c->args->{section_name}
+    );
+    for my $g (@$graphs) {
+        $self->data->remove($g->{id});
+        $self->rrd->remove($g);
+    }
+
+    $c->render_json({
+        error => 0,
+        location => "".$c->req->uri_for(sprintf('/list/%s', $c->args->{service_name}))
+    });
+};
+
 post '/delete/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
     my ( $self, $c )  = @_;
 
