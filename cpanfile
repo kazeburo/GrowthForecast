@@ -12,6 +12,7 @@ requires 'Proclet',        '0.05';
 requires 'Plack::Builder::Conditionals',        '0.03';
 requires 'Scope::Container',                    '0.04';
 requires 'Plack::Middleware::Scope::Container', '0.02';
+requires 'Plack::Middleware::AxsLog',           '0.10';
 requires 'Scope::Container::DBI',               '0.05';
 
 on 'test' => sub {
