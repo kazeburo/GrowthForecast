@@ -34,6 +34,7 @@ GetOptions(
     'disable-1min-metrics' => \my $disable_short,
     'with-mysql=s' => \my $mysql,
     'data-dir=s' => \my $data_dir,
+    'log-format=s' => \my $log_format,
     "h|help" => \my $help,
 );
 
@@ -127,6 +128,19 @@ $proclet->service(
                 path => qr!^/(?:(?:css|js|images)/|favicon\.ico$)!,
                 root => $root_dir . '/public';
             enable 'Scope::Container';
+            if ($log_format) {
+                my %args;
+                if ($log_format eq 'combined') {
+                    %args = (combined => 1);
+                }
+                elsif ($log_format eq 'ltsv') {
+                    %args = (ltsv => 1);
+                }
+                else {
+                    %args = (format => $log_format);
+                }
+                enable 'AxsLog', %args;
+            }
             $web->psgi;
         };
         my $loader = Plack::Loader->load(
