@@ -1,3 +1,10 @@
+0.60    Thu Apr 4 17:07:53 2013
+        - added section delete button (Thanks takus)
+        - added access_log option (Thanks kentaro)
+        - fixed mysql schema (Thanks oranie)
+        - fixed docs (Thanks sugyan)
+        - display service_name/section_name in <title>
+
 0.50    Tue Feb 26 14:12:42 2013
         - added optional descriotion parameter to POST API
 
