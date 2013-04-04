@@ -30,6 +30,11 @@
 : my $index = $~graph.index;
 : include "view.tx" { graph => $graph, index => $index };
 : } # for graphs
+
+<div class="pull-right">
+<button type="button" class="btn danger hxr_confirm_button" data-confirm="remove all graphs in '<: $c.args.section_name :>' section?" data-uri="<: $c.req.uri_for('/delete/'~$c.args.service_name~'/'~$c.args.section_name) :>">remove all graphs in this section</button>
+</div>
+
 : } # arround
 
 
