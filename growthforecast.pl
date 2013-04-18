@@ -62,7 +62,7 @@ else {
     if ( ! -d $data_dir ) {
         mkpath($data_dir) or die "cannot create data directory '$data_dir': $!";
     }
-    open( my $fh, '>', "$data_dir/$$.tmp") or die 'cannot create file in data_dir: $!';
+    open( my $fh, '>', "$data_dir/$$.tmp") or die "cannot create file in data_dir: $!";
     close($fh);
     unlink("$data_dir/$$.tmp");
 }
