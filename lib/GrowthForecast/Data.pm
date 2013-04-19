@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS graphs (
     sort         UNSIGNED INT NOT NULL DEFAULT 0,
     gmode        VARCHAR(255) NOT NULL DEFAULT 'gauge',
     color        VARCHAR(255) NOT NULL DEFAULT '#00CC00',
-    ulimit       INT NOT NULL DEFAULT 1000000000,
+    ulimit       INT NOT NULL DEFAULT 1000000000000000,
     llimit       INT NOT NULL DEFAULT 0,
     sulimit       INT NOT NULL DEFAULT 100000,
     sllimit       INT NOT NULL DEFAULT 0,
