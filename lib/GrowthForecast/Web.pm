@@ -739,8 +739,13 @@ post '/delete/:service_name/:section_name' => [qw/set_enable_short/] => sub {
         $c->args->{service_name}, $c->args->{section_name}
     );
     for my $g (@$graphs) {
-        $self->data->remove($g->{id});
-        $self->rrd->remove($g);
+        if ( exists $g->{complex_graph} ) {
+            $self->data->remove_complex($g->{id});
+        }
+        else {
+            $self->data->remove($g->{id});
+            $self->rrd->remove($g);
+        }
     }
 
     $c->render_json({
