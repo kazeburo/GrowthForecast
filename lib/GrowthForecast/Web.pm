@@ -65,6 +65,27 @@ filter 'get_complex' => sub {
     }
 };
 
+sub delete_graph {
+    my ( $self, $c ) = @_;
+    $self->data->remove($c->stash->{graph}->{id});
+    $self->rrd->remove($c->stash->{graph});
+
+    $c->render_json({
+        error => 0,
+        location => "".$c->req->uri_for(sprintf('/list/%s/%s', map { $c->stash->{graph}->{$_} } qw/service_name section_name/))
+    });
+};
+
+sub delete_complex {
+    my ( $self, $c ) = @_;
+    $self->data->remove_complex($c->stash->{complex}->{id});
+
+    $c->render_json({
+        error => 0,
+        location => "". $c->req->uri_for(sprintf('/list/%s/%s', map { $c->stash->{complex}->{$_} } qw/service_name section_name/))
+    });
+};
+
 get '/' => sub {
     my ( $self, $c )  = @_;
     my $services = $self->data->get_services();
@@ -99,11 +120,7 @@ get '/edit_complex/:complex_id' => [qw/get_complex/] => sub {
 
 post '/delete_complex/:complex_id' => [qw/get_complex/] => sub {
     my ( $self, $c )  = @_;
-    $self->data->remove_complex($c->stash->{complex}->{id});
-    $c->render_json({
-        error => 0,
-        location => "". $c->req->uri_for(sprintf('/list/%s/%s', map { $c->stash->{complex}->{$_} } qw/service_name section_name/))
-    });
+    $self->delete_complex( $c );
 };
 
 sub check_uniq_complex {
@@ -756,14 +773,7 @@ post '/delete/:service_name/:section_name' => [qw/set_enable_short/] => sub {
 
 post '/delete/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
     my ( $self, $c )  = @_;
-
-    $self->data->remove($c->stash->{graph}->{id});
-    $self->rrd->remove($c->stash->{graph});
-
-    $c->render_json({
-        error => 0,
-        location => "".$c->req->uri_for(sprintf('/list/%s/%s', map { $c->args->{$_} } qw/service_name section_name/))
-    });
+    $self->delete_graph( $c );
 };
 
 get '/api/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
@@ -910,6 +920,49 @@ sub graph4internal {
 
     $internal;
 }
+
+# alias to /api/:service_name/:section_name/:graph_name
+get '/json/graph/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
+    my ( $self, $c )  = @_;
+    $c->render_json($c->stash->{graph});
+};
+
+get '/json/complex/:service_name/:section_name/:graph_name' => sub {
+    my ( $self, $c ) = @_;
+    my $complex = $self->data->get_complex( $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name} );
+    $c->halt(404) unless $complex;
+    $c->render_json( $self->graph4json( $complex ) );
+};
+
+# alias to /delete/:service_name/:section_name/:graph_name
+post '/json/delete/graph/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
+    my ( $self, $c )  = @_;
+    $self->delete_graph( $c );
+};
+
+post '/json/delete/complex/:service_name/:section_name/:graph_name' => sub {
+    my ( $self, $c )  = @_;
+    my $complex = $self->data->get_complex( $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name} );
+    $c->halt(404) unless $complex;
+    $c->stash->{complex} = $complex;
+
+    $self->delete_complex( $c );
+};
+
+post '/json/delete/graph/:id' => sub {
+    my ( $self, $c ) = @_;
+    my $graph = $self->data->get_by_id( $c->args->{id} );
+    $c->halt(404) unless $graph;
+    $c->stash->{graph} = $graph;
+
+    $self->delete_graph( $c );
+};
+
+# alias to /delete_complex/:complex_id
+post '/json/delete/complex/:complex_id' => [qw/get_complex/] => sub {
+    my ( $self, $c ) = @_;
+    $self->delete_complex( $c );
+};
 
 get '/json/graph/:id' => sub {
     my ( $self, $c ) = @_;
