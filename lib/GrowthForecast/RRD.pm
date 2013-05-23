@@ -262,7 +262,7 @@ sub graph {
         push @opt, 
             sprintf('DEF:%s%dt=%s:%s:AVERAGE', $gdata, $i, $file, $gdata),
             sprintf('CDEF:%s%d=%s%dt,%s,%s,LIMIT,%d,%s', $gdata, $i, $gdata, $i, $llimit, $ulimit, $data->{adjustval}, $data->{adjust}),
-            sprintf('%s:%s%d%s:%s %s', $type, $gdata, $i, $data->{color}, $data->{graph_name},$stack),
+            sprintf('%s:%s%d%s:%s %s', $type, $gdata, $i, $data->{color}, $self->_escape($data->{graph_name}), $stack),
             sprintf('GPRINT:%s%d:LAST:Cur\: %%4.1lf%%s%s', $gdata, $i, $unit),
             sprintf('GPRINT:%s%d:AVERAGE:Avg\: %%4.1lf%%s%s', $gdata, $i, $unit),
             sprintf('GPRINT:%s%d:MAX:Max\: %%4.1lf%%s%s', $gdata, $i, $unit),
@@ -372,7 +372,7 @@ sub export {
         push @opt, 
             sprintf('DEF:%s%dt=%s:%s:AVERAGE', $gdata, $i, $file, $gdata),
             sprintf('CDEF:%s%d=%s%dt,%s,%s,LIMIT,%d,%s', $gdata, $i, $gdata, $i, $llimit, $ulimit, $data->{adjustval}, $data->{adjust}),
-            sprintf('XPORT:%s%d:%s', $gdata, $i ,$data->{graph_name});
+            sprintf('XPORT:%s%d:%s', $gdata, $i ,$self->_escape($data->{graph_name}));
         push @defs, sprintf('%s%d',$gdata,$i);
         $i++;
     }
@@ -409,6 +409,13 @@ sub remove {
     my $data = shift;
     my $file = $self->{data_dir} . '/' . $data->{md5} . '.rrd';
     File::Path::rmtree($file);
+}
+
+sub _escape {
+    my $self = shift;
+    my $data = shift;
+    $data =~ s{:}{\\:}g;
+    return $data;
 }
 
 1;
