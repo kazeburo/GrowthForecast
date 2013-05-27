@@ -10,6 +10,7 @@ use GrowthForecast::Data;
 use GrowthForecast::RRD;
 use Log::Minimal;
 use Class::Accessor::Lite ( rw => [qw/short mysql data_dir/] );
+use CGI;
 
 sub data {
     my $self = shift;
@@ -72,7 +73,7 @@ sub delete_graph {
 
     $c->render_json({
         error => 0,
-        location => "".$c->req->uri_for(sprintf('/list/%s/%s', map { $c->stash->{graph}->{$_} } qw/service_name section_name/))
+        location => "".$c->req->uri_for(sprintf('/list/%s/%s', map { CGI::escape($c->stash->{graph}->{$_}) } qw/service_name section_name/))
     });
 };
 
@@ -82,7 +83,7 @@ sub delete_complex {
 
     $c->render_json({
         error => 0,
-        location => "". $c->req->uri_for(sprintf('/list/%s/%s', map { $c->stash->{complex}->{$_} } qw/service_name section_name/))
+        location => "". $c->req->uri_for(sprintf('/list/%s/%s', map { CGI::escape($c->stash->{complex}->{$_}) } qw/service_name section_name/))
     });
 };
 
@@ -242,7 +243,7 @@ post '/add_complex' => sub {
 
     $c->render_json({
         error => 0,
-        location => $c->req->uri_for('/list/'.$result->valid('service_name').'/'.$result->valid('section_name'))->as_string,
+        location => $c->req->uri_for('/list/'.CGI::escape($result->valid('service_name')).'/'.CGI::escape($result->valid('section_name')))->as_string,
     });
 };
 
@@ -346,7 +347,7 @@ post '/edit_complex/:complex_id' => [qw/get_complex/] => sub {
 
     $c->render_json({
         error => 0,
-        location => $c->req->uri_for( sprintf '/view_complex/%s/%s/%s', $result->valid('service_name'), $result->valid('section_name'), $result->valid('graph_name') )->as_string,
+        location => $c->req->uri_for( sprintf '/view_complex/%s/%s/%s', CGI::escape($result->valid('service_name')), CGI::escape($result->valid('section_name')), CGI::escape($result->valid('graph_name')) )->as_string,
     });
 };
 
@@ -745,7 +746,7 @@ post '/edit/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
 
     $c->render_json({
         error => 0,
-        location => $c->req->uri_for( sprintf '/view_graph/%s/%s/%s', $result->valid('service_name'), $result->valid('section_name'), $result->valid('graph_name') )->as_string
+        location => $c->req->uri_for( sprintf '/view_graph/%s/%s/%s', CGI::escape($result->valid('service_name')), CGI::escape($result->valid('section_name')), CGI::escape($result->valid('graph_name')) )->as_string
     });
 };
 
@@ -767,7 +768,7 @@ post '/delete/:service_name/:section_name' => [qw/set_enable_short/] => sub {
 
     $c->render_json({
         error => 0,
-        location => "".$c->req->uri_for(sprintf('/list/%s', $c->args->{service_name}))
+        location => "".$c->req->uri_for(sprintf('/list/%s', CGI::escape($c->args->{service_name})))
     });
 };
 
@@ -1035,7 +1036,7 @@ post '/json/create/complex' => sub {
     );
     $c->render_json({
         error => 0,
-        location => $c->req->uri_for('/list/'.$spec->{service_name}.'/'.$spec->{section_name})->as_string,
+        location => $c->req->uri_for('/list/'.CGI::escape($spec->{service_name}).'/'.CGI::escape($spec->{section_name}))->as_string,
     });
 };
 
