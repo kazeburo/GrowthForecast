@@ -178,7 +178,7 @@
 
 <div class="actions">
 <input type="submit" class="btn primary" value="Submit" />
-<a href="<: $c.req.uri_for('/list/'~$c.stash.complex.service_name~'/'~$c.stash.complex.section_name) :>" class="btn">Cancel</a>
+<a href="<: $c.req.uri_for('/list/'~uri_escape($c.stash.complex.service_name)~'/'~uri_escape($c.stash.complex.section_name)) :>" class="btn">Cancel</a>
 <button type="button" class="btn danger hxr_confirm_button" data-confirm="Remove '<: $c.stash.complex.graph_name :>'?" data-uri="<: $c.req.uri_for('/delete_complex/'~$c.stash.complex.id) :>">Remove</button>
 </div>
 

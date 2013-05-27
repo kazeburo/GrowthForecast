@@ -1,9 +1,9 @@
 : my $term_arg = $c.req.param('t') ? [ 't', $c.req.param('t') ] : [];
 <h2>
 : if $graph.complex_graph {
-<a href="<: $c.req.uri_for('/view_complex/'~$graph.service_name~'/'~$graph.section_name~'/'~$graph.graph_name, $term_arg) :>" data-id="<: $graph.id :>"><: $graph.graph_name :></a>
+<a href="<: $c.req.uri_for('/view_complex/'~uri_escape($graph.service_name)~'/'~uri_escape($graph.section_name)~'/'~uri_escape($graph.graph_name), $term_arg) :>" data-id="<: $graph.id :>"><: $graph.graph_name :></a>
 : } else {
-<a href="<: $c.req.uri_for('/view_graph/'~$graph.service_name~'/'~$graph.section_name~'/'~$graph.graph_name, $term_arg) :>" data-id="<: $graph.id :>"><: $graph.graph_name :></a>
+<a href="<: $c.req.uri_for('/view_graph/'~uri_escape($graph.service_name)~'/'~uri_escape($graph.section_name)~'/'~uri_escape($graph.graph_name), $term_arg) :>" data-id="<: $graph.id :>"><: $graph.graph_name :></a>
 : }
 <small><: $graph.description :></small></h2>
 <p>
@@ -11,7 +11,7 @@
 <a class="label success" style="cursor: pointer" href="<: $c.req.uri_for('/edit_complex/'~$graph.id) :>">Setting</a>
 <span class="label important">Complex Graph</span>
 : } else {
-<a class="label success" style="cursor: pointer" href="<: $c.req.uri_for('/edit/'~$graph.service_name~'/'~$graph.section_name~'/'~$graph.graph_name) :>">Setting</a>
+<a class="label success" style="cursor: pointer" href="<: $c.req.uri_for('/edit/'~uri_escape($graph.service_name)~'/'~uri_escape($graph.section_name)~'/'~uri_escape($graph.graph_name)) :>">Setting</a>
 <span class="label">current</span> <: $graph.number | format_number :>
 <span class="label">mode</span> <: $graph.mode :>
 : }
@@ -25,7 +25,7 @@
   : for $gmodes -> $gmode {
     : my $terms = ( $c.req.param('t') == 'h' ) ? ['h','n'] :  ( $c.req.param('t') == 'm') ? ['m','y'] :  ( $c.req.param('t') == 'sh' ) ? ['sh','s8h'] :  ( $c.req.param('t') == 'sd') ? ['sd','s3d'] : ['d','w'];
     : for $terms -> $term {
-<img src="<: $c.req.uri_for('/graph/'~$graph.service_name~'/'~$graph.section_name~'/'~$graph.graph_name, [t=>$term,gmode=>$gmode]) :>" />
+<img src="<: $c.req.uri_for('/graph/'~uri_escape($graph.service_name)~'/'~uri_escape($graph.section_name)~'/'~uri_escape($graph.graph_name), [t=>$term,gmode=>$gmode]) :>" />
     : }
   : }
 : } else {

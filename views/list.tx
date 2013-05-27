@@ -4,7 +4,7 @@
 : }
 : around page_header -> {
 <h1>
-<span><a href="<: $c.req.uri_for('/') :>">Home</a> » <a href="<: $c.req.uri_for('/list/'~$c.args.service_name) :>"><: $c.args.service_name :></a> » <: $c.args.section_name :></span>
+<span><a href="<: $c.req.uri_for('/') :>">Home</a> » <a href="<: $c.req.uri_for('/list/'~uri_escape($c.args.service_name)) :>"><: $c.args.service_name :></a> » <: $c.args.section_name :></span>
 <span class="pull-right"><small style="font-size: 0.4em;vertical-align: text-middle;"><a href="<: $c.req.uri_for('/add_complex',[service_name=>$c.args.service_name,section_name=>$c.args.section_name]) :>">add complex graph</a></small></span>
 </h1>
 : }
@@ -15,12 +15,12 @@
 <div class="pull-right">
 <ul>
 : if ( $c.stash.enable_short ) {
-<li class="prev <: ( $c.req.param('t') == 'sh' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/list/'~$c.args.service_name~'/'~$c.args.section_name, [t=>'sh']) :>">hour・8hours(1min)</a></li>
-<li class="prev <: ( $c.req.param('t') == 'sd' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/list/'~$c.args.service_name~'/'~$c.args.section_name, [t=>'sd']) :>">day・3days(1min)</a></li>
+<li class="prev <: ( $c.req.param('t') == 'sh' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/list/'~uri_escape($c.args.service_name)~'/'~uri_escape($c.args.section_name), [t=>'sh']) :>">hour・8hours(1min)</a></li>
+<li class="prev <: ( $c.req.param('t') == 'sd' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/list/'~uri_escape($c.args.service_name)~'/'~uri_escape($c.args.section_name), [t=>'sd']) :>">day・3days(1min)</a></li>
 : }
-<li class="prev <: ( $c.req.param('t') == 'h' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/list/'~$c.args.service_name~'/'~$c.args.section_name, [t=>'h']) :>">hour・halfday</a></li>
-<li class="<: ( $c.req.param('t') != 'h' && $c.req.param('t') != 'm' && $c.req.param('t') != 'sh' && $c.req.param('t') != 'sd') ? "active" : "" :>"><a href="<: $c.req.uri_for('/list/'~$c.args.service_name~'/'~$c.args.section_name) :>">day・week</a></li>
-<li class="next <: ( $c.req.param('t') == 'm' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/list/'~$c.args.service_name~'/'~$c.args.section_name, [t=>'m']) :>">month・year</a></li>
+<li class="prev <: ( $c.req.param('t') == 'h' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/list/'~uri_escape($c.args.service_name)~'/'~uri_escape($c.args.section_name), [t=>'h']) :>">hour・halfday</a></li>
+<li class="<: ( $c.req.param('t') != 'h' && $c.req.param('t') != 'm' && $c.req.param('t') != 'sh' && $c.req.param('t') != 'sd') ? "active" : "" :>"><a href="<: $c.req.uri_for('/list/'~uri_escape($c.args.service_name)~'/'~uri_escape($c.args.section_name)) :>">day・week</a></li>
+<li class="next <: ( $c.req.param('t') == 'm' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/list/'~uri_escape($c.args.service_name)~'/'~uri_escape($c.args.section_name), [t=>'m']) :>">month・year</a></li>
 </ul>
 </div>
 </div>
@@ -32,7 +32,7 @@
 : } # for graphs
 
 <div class="pull-right">
-<button type="button" class="btn danger hxr_confirm_button" data-confirm="remove all graphs in '<: $c.args.section_name :>' section?" data-uri="<: $c.req.uri_for('/delete/'~$c.args.service_name~'/'~$c.args.section_name) :>">remove all graphs in this section</button>
+<button type="button" class="btn danger hxr_confirm_button" data-confirm="remove all graphs in '<: $c.args.section_name :>' section?" data-uri="<: $c.req.uri_for('/delete/'~uri_escape($c.args.service_name)~'/'~uri_escape($c.args.section_name)) :>">remove all graphs in this section</button>
 </div>
 
 : } # arround

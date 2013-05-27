@@ -7,7 +7,7 @@
 
 : block form |  fillinform( $graph ) -> {
 
-<form class="hxrpost" method="post" action="<: $c.req.uri_for('/edit/'~$graph.service_name~'/'~$graph.section_name~'/'~$graph.graph_name) :>">
+<form class="hxrpost" method="post" action="<: $c.req.uri_for('/edit/'~uri_escape($graph.service_name)~'/'~uri_escape($graph.section_name)~'/'~uri_escape($graph.graph_name)) :>">
 
 <fieldset>
 
@@ -141,8 +141,8 @@ unit
 
 <div class="actions">
 <input type="submit" class="btn primary" value="Submit" />
-<a href="<: $c.req.uri_for('/list/'~$graph.service_name~'/'~$graph.section_name) :>" class="btn">Cancel</a>
-<button type="button" class="btn danger hxr_confirm_button" data-confirm="remove '<: $graph.graph_name :>'?" data-uri="<: $c.req.uri_for('/delete/'~$graph.service_name~'/'~$graph.section_name~'/'~$graph.graph_name) :>">remove</button>
+<a href="<: $c.req.uri_for('/list/'~uri_escape($graph.service_name)~'/'~uri_escape($graph.section_name)) :>" class="btn">Cancel</a>
+<button type="button" class="btn danger hxr_confirm_button" data-confirm="remove '<: $graph.graph_name :>'?" data-uri="<: $c.req.uri_for('/delete/'~uri_escape($graph.service_name)~'/'~uri_escape($graph.section_name)~'/'~uri_escape($graph.graph_name)) :>">remove</button>
 </div>
 
 </form>
