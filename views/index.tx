@@ -12,13 +12,13 @@
 : around content -> {
 : for $services ->  $service {
 <h2>
-<span><a href="<: $c.req.uri_for('/list/'~$service.name)  :>"><: $service.name :></a></span>
+<span><a href="<: $c.req.uri_for('/list/'~uri_escape($service.name))  :>"><: $service.name :></a></span>
 <span class="pull-right"><small style="vertical-align: text-middle;font-size: 0.5em"><a href="<: $c.req.uri_for('/add_complex',[service_name=>$service.name]) :>">add complex graph</a></small></span>
 </h2>
 <table class="zebra-striped">
 : for $service.sections -> $section {
 <tr>
-<td style="vertical-align: middle"><a href="<: $c.req.uri_for('/list/'~$service.name~'/'~$section) :>"><: $section :></a></td>
+<td style="vertical-align: middle"><a href="<: $c.req.uri_for('/list/'~uri_escape($service.name)~'/'~uri_escape($section)) :>"><: $section :></a></td>
 </tr>
 : }
 </table>
