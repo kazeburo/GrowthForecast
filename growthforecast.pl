@@ -35,6 +35,7 @@ GetOptions(
     'with-mysql=s' => \my $mysql,
     'data-dir=s' => \my $data_dir,
     'log-format=s' => \my $log_format,
+    'web-max-workers=i' => \my $web_max_workers,
     "h|help" => \my $help,
 );
 
@@ -147,7 +148,7 @@ $proclet->service(
             'Starlet',
             port => $port,
             host => $host || 0,
-            max_workers => 4,
+            max_workers => $web_max_workers || 4,
         );
         infof( "GrowthForecast::Web starts listen on %s:%s", $host || 0, $port );
         $loader->run($app);
