@@ -54,6 +54,9 @@ OPTIONS
         dbi:mysql:[dbname];hostname=[hostnaem] Default is no mysql setting.
         GrowthForecast save metadata to SQLite
 
+    --web-max-workers
+        Number of web server processes. Default is 4
+
     -h --help
         Display help
 

@@ -240,6 +240,11 @@ Default is "1" (enabled)
 DB connection setting to store  metadata. format like dbi:mysql:[dbname];hostname=[hostnaem]
 Default is no mysql setting. GrowthForecast save metadata to SQLite
 
+=item --web-max-workers
+
+Number of web server processes. Default is 4
+
+
 =item -h --help
 
 Display help
