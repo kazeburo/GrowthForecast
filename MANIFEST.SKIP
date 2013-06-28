@@ -24,3 +24,5 @@ MYMETA.yml
 ^eg/
 \.DS_Store
 ^GrowthForecast
+carton.lock
+

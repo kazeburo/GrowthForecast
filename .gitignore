@@ -18,3 +18,4 @@ data/*.db-shm
 .DS_Store
 MYMETA.*
 GrowthForecast-0.*
+carton.lock

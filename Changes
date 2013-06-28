@@ -1,3 +1,8 @@
+0.62    Fri Jun 28 11:37:55 2013
+        - add more json api(Thanks sonots)
+        - escape uri (Thanks sonots and shibayu36)
+        - add web-max-workers command line option (Thanks niku4i)
+
 0.60    Thu Apr 4 17:07:53 2013
         - added section delete button (Thanks takus)
         - added access_log option (Thanks kentaro)
