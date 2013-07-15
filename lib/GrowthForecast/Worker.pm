@@ -8,7 +8,7 @@ use GrowthForecast::Data;
 use GrowthForecast::RRD;
 use Log::Minimal;
 use POSIX ":sys_wait_h";
-use Class::Accessor::Lite ( rw => [qw/root_dir data_dir mysql/] );
+use Class::Accessor::Lite ( rw => [qw/root_dir data_dir mysql float_number/] );
 use Scope::Container;
 
 sub new {
@@ -21,8 +21,8 @@ sub data {
     my $self = shift;
     $self->{__data} ||= 
         $self->mysql 
-            ? GrowthForecast::Data::MySQL->new($self->mysql)
-            : GrowthForecast::Data->new($self->data_dir);
+            ? GrowthForecast::Data::MySQL->new($self->mysql, $self->float_number)
+            : GrowthForecast::Data->new($self->data_dir, $self->float_number);
     $self->{__data};
 }
 

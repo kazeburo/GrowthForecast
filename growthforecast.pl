@@ -77,6 +77,7 @@ $proclet->service(
             root_dir => $root_dir,
             data_dir => $data_dir,
             mysql => $mysql,
+            float_number => $enable_float_number,
         );
         $worker->run('short');        
     }
@@ -88,7 +89,8 @@ $proclet->service(
         my $worker = GrowthForecast::Worker->new(
             root_dir => $root_dir,
             data_dir => $data_dir,
-            mysql => $mysql
+            mysql => $mysql,
+            float_number => $enable_float_number,
         );
         $worker->run;
     }
@@ -236,6 +238,11 @@ Default is empty (allow access from any remote ip address)
 
 don't generate 1min rrddata and graph
 Default is "1" (enabled) 
+
+=item --enable-float-number
+
+Store numbers of graph data as float rather than integer.
+Default is "0" (disabled)
 
 =item --with-mysql
 
