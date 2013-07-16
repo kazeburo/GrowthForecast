@@ -16,13 +16,20 @@ use List::Util qw/first/;
 sub new {
     my $class = shift;
     my $data_dir = shift;
-    bless { data_dir => $data_dir }, $class;
+    my $float_number = shift;
+    bless { data_dir => $data_dir, float_number => $float_number }, $class;
+}
+
+sub number_type {
+    my $self = shift;
+    return $self->{'float_number'} ? 'REAL' : 'INT';
 }
 
 sub on_connect {
     my $self = shift;
     return sub {
         my $dbh = shift;
+        my $number_type = $self->number_type;
 
         $dbh->do('PRAGMA journal_mode = WAL');
         $dbh->do('PRAGMA synchronous = NORMAL');
@@ -33,16 +40,16 @@ CREATE TABLE IF NOT EXISTS graphs (
     service_name VARCHAR(255) NOT NULL,
     section_name VARCHAR(255) NOT NULL,
     graph_name   VARCHAR(255) NOT NULL,
-    number       INT NOT NULL DEFAULT 0,
+    number       $number_type NOT NULL DEFAULT 0,
     mode         VARCHAR(255) NOT NULL DEFAULT 'gauge',
     description  VARCHAR(255) NOT NULL DEFAULT '',
     sort         UNSIGNED INT NOT NULL DEFAULT 0,
     gmode        VARCHAR(255) NOT NULL DEFAULT 'gauge',
     color        VARCHAR(255) NOT NULL DEFAULT '#00CC00',
-    ulimit       INT NOT NULL DEFAULT 1000000000000000,
-    llimit       INT NOT NULL DEFAULT 0,
-    sulimit       INT NOT NULL DEFAULT 100000,
-    sllimit       INT NOT NULL DEFAULT 0,
+    ulimit       $number_type NOT NULL DEFAULT 1000000000000000,
+    llimit       $number_type NOT NULL DEFAULT 0,
+    sulimit      $number_type NOT NULL DEFAULT 100000,
+    sllimit      $number_type NOT NULL DEFAULT 0,
     type         VARCHAR(255) NOT NULL DEFAULT 'AREA',
     stype         VARCHAR(255) NOT NULL DEFAULT 'AREA',
     meta         TEXT NOT NULL DEFAULT '',
@@ -66,8 +73,8 @@ EOF
         $dbh->do(<<EOF);
 CREATE TABLE IF NOT EXISTS prev_graphs (
     graph_id     INT NOT NULL,
-    number       INT NOT NULL DEFAULT 0,
-    subtract     INT,
+    number       $number_type NOT NULL DEFAULT 0,
+    subtract     $number_type,
     updated_at   UNSIGNED INT NOT NULL,
     PRIMARY KEY  (graph_id)
 )
@@ -76,8 +83,8 @@ EOF
         $dbh->do(<<EOF);
 CREATE TABLE IF NOT EXISTS prev_short_graphs (
     graph_id     INT NOT NULL,
-    number       INT NOT NULL DEFAULT 0,
-    subtract     INT,
+    number       $number_type NOT NULL DEFAULT 0,
+    subtract     $number_type,
     updated_at   UNSIGNED INT NOT NULL,
     PRIMARY KEY  (graph_id)
 )
@@ -89,7 +96,7 @@ CREATE TABLE IF NOT EXISTS complex_graphs (
     service_name VARCHAR(255) NOT NULL,
     section_name VARCHAR(255) NOT NULL,
     graph_name   VARCHAR(255) NOT NULL,
-    number       INT NOT NULL DEFAULT 0,
+    number       $number_type NOT NULL DEFAULT 0,
     description  VARCHAR(255) NOT NULL DEFAULT '',
     sort         UNSIGNED INT NOT NULL DEFAULT 0,
     meta         TEXT NOT NULL DEFAULT '',
