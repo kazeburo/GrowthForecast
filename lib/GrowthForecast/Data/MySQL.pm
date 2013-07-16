@@ -4,17 +4,31 @@ use strict;
 use warnings;
 use base qw/GrowthForecast::Data/;
 use Scope::Container::DBI;
+use Log::Minimal;
 
 sub new {
     my $class = shift;
     my $mysql = shift;
-    bless { mysql => $mysql }, $class;
+    my $float_number = shift;
+    bless { mysql => $mysql, float_number => $float_number }, $class;
+}
+
+sub number_type {
+    my $self = shift;
+    return $self->{'float_number'} ? 'DOUBLE' : 'BIGINT';
+}
+
+sub complex_number_type {
+    my $self = shift;
+    return $self->{'float_number'} ? 'FLOAT' : 'INT';
 }
 
 sub on_connect {
     my $self = shift;
     return sub {
         my $dbh = shift;
+        my $number_type = $self->number_type;
+        my $complex_number_type = $self->complex_number_type;
 
         $dbh->do(<<EOF);
 CREATE TABLE IF NOT EXISTS graphs (
@@ -22,16 +36,16 @@ CREATE TABLE IF NOT EXISTS graphs (
     service_name VARCHAR(255) NOT NULL COLLATE utf8_bin,
     section_name VARCHAR(255) NOT NULL COLLATE utf8_bin,
     graph_name   VARCHAR(255) NOT NULL COLLATE utf8_bin,
-    number       BIGINT NOT NULL DEFAULT 0,
+    number       $number_type NOT NULL DEFAULT 0,
     mode         VARCHAR(255) NOT NULL DEFAULT 'gauge',
     description  VARCHAR(255) NOT NULL DEFAULT '',
     sort         INT UNSIGNED NOT NULL DEFAULT 0,
     gmode        VARCHAR(255) NOT NULL DEFAULT 'gauge',
     color        VARCHAR(255) NOT NULL DEFAULT '#00CC00',
-    ulimit       BIGINT NOT NULL DEFAULT 1000000000000000,
-    llimit       BIGINT NOT NULL DEFAULT 0,
-    sulimit      BIGINT NOT NULL DEFAULT 100000,
-    sllimit      BIGINT NOT NULL DEFAULT 0,
+    ulimit       $number_type NOT NULL DEFAULT 1000000000000000,
+    llimit       $number_type NOT NULL DEFAULT 0,
+    sulimit      $number_type NOT NULL DEFAULT 100000,
+    sllimit      $number_type NOT NULL DEFAULT 0,
     type         VARCHAR(255) NOT NULL DEFAULT 'AREA',
     stype        VARCHAR(255) NOT NULL DEFAULT 'AREA',
     meta         TEXT NOT NULL,
@@ -45,8 +59,8 @@ EOF
         $dbh->do(<<EOF);
 CREATE TABLE IF NOT EXISTS prev_graphs (
     graph_id     INT UNSIGNED NOT NULL,
-    number       BIGINT NOT NULL DEFAULT 0,
-    subtract     BIGINT,
+    number       $number_type NOT NULL DEFAULT 0,
+    subtract     $number_type,
     updated_at   INT UNSIGNED NOT NULL,
     PRIMARY KEY  (graph_id)
 )  ENGINE=InnoDB DEFAULT CHARSET=utf8
@@ -55,8 +69,8 @@ EOF
         $dbh->do(<<EOF);
 CREATE TABLE IF NOT EXISTS prev_short_graphs (
     graph_id     INT UNSIGNED NOT NULL,
-    number       BIGINT NOT NULL DEFAULT 0,
-    subtract     BIGINT,
+    number       $number_type NOT NULL DEFAULT 0,
+    subtract     $number_type,
     updated_at   INT UNSIGNED NOT NULL,
     PRIMARY KEY  (graph_id)
 )  ENGINE=InnoDB DEFAULT CHARSET=utf8
@@ -69,7 +83,7 @@ CREATE TABLE IF NOT EXISTS complex_graphs (
     service_name VARCHAR(255) NOT NULL COLLATE utf8_bin,
     section_name VARCHAR(255) NOT NULL COLLATE utf8_bin,
     graph_name   VARCHAR(255) NOT NULL COLLATE utf8_bin,
-    number       INT UNSIGNED NOT NULL DEFAULT 0,
+    number       $complex_number_type UNSIGNED NOT NULL DEFAULT 0,
     description  VARCHAR(255) NOT NULL DEFAULT '',
     sort         INT UNSIGNED NOT NULL DEFAULT 0,
     meta         TEXT NOT NULL,

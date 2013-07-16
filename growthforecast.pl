@@ -32,6 +32,7 @@ GetOptions(
     'front-proxy=s' => \@front_proxy,
     'allow-from=s' => \@allow_from,
     'disable-1min-metrics' => \my $disable_short,
+    'enable-float-number' => \my $enable_float_number,
     'with-mysql=s' => \my $mysql,
     'data-dir=s' => \my $data_dir,
     'log-format=s' => \my $log_format,
@@ -76,6 +77,7 @@ $proclet->service(
             root_dir => $root_dir,
             data_dir => $data_dir,
             mysql => $mysql,
+            float_number => $enable_float_number,
         );
         $worker->run('short');        
     }
@@ -87,7 +89,8 @@ $proclet->service(
         my $worker = GrowthForecast::Worker->new(
             root_dir => $root_dir,
             data_dir => $data_dir,
-            mysql => $mysql
+            mysql => $mysql,
+            float_number => $enable_float_number,
         );
         $worker->run;
     }
@@ -101,6 +104,7 @@ $proclet->service(
             data_dir => $data_dir,
             short => !$disable_short,
             mysql => $mysql,
+            float_number => $enable_float_number,
         );
         my $app = builder {
             enable 'Lint';
@@ -234,6 +238,11 @@ Default is empty (allow access from any remote ip address)
 
 don't generate 1min rrddata and graph
 Default is "1" (enabled) 
+
+=item --enable-float-number
+
+Store numbers of graph data as float rather than integer.
+Default is "0" (disabled)
 
 =item --with-mysql
 
