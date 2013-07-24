@@ -21,6 +21,11 @@ sub data {
     $self->{__data};
 }
 
+sub number_type {
+    my $self = shift;
+    return $self->{'float_number'} ? 'REAL' : 'INT';
+}
+
 sub rrd {
     my $self = shift;
     $self->{__rrd} ||= GrowthForecast::RRD->new(
@@ -752,25 +757,25 @@ post '/edit/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
         'llimit' => {
             rule => [
                 ['NOT_NULL', 'missing'],
-                [$self->data->number_type, 'a ' . $self->data->number_type . ' number is required'],
+                [$self->number_type, 'a ' . $self->number_type . ' number is required'],
             ],
         },
         'ulimit' => {
             rule => [
                 ['NOT_NULL', 'missing'],
-                [$self->data->number_type, 'a ' . $self->data->number_type . ' number is required'],
+                [$self->number_type, 'a ' . $self->number_type . ' number is required'],
             ],
         },
         'sllimit' => {
             rule => [
                 ['NOT_NULL', 'missing'],
-                [$self->data->number_type, 'a ' . $self->data->number_type . ' number is required'],
+                [$self->number_type, 'a ' . $self->number_type . ' number is required'],
             ],
         },
         'sulimit' => {
             rule => [
                 ['NOT_NULL', 'missing'],
-                [$self->data->number_type, 'a ' . $self->data->number_type . ' number is required'],
+                [$self->number_type, 'a ' . $self->number_type . ' number is required'],
             ],
         },
     ]);
@@ -832,7 +837,7 @@ post '/api/:service_name/:section_name/:graph_name' => sub {
         'number' => {
             rule => [
                 ['NOT_NULL','number is missing'],
-                [$self->data->number_type, 'a ' . $self->data->number_type . ' number is required for "number"']
+                [$self->number_type, 'a ' . $self->number_type . ' number is required for "number"']
             ],
         },
         'mode' => {
