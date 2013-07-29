@@ -52,11 +52,7 @@ my $rrd = GrowthForecast::RRD->new(
 
 sub bench {
     my $data = {};
-
     $data->{mode} = 'GAUGE';
-    $data->{number} = 1;
-    $data->{subtract} = 0;
-    $data->{subtract_short} = 0;
 
     for (my $r = 0; $r < $repeat; $r++) {
         my $start_time = Time::HiRes::time;
@@ -75,10 +71,13 @@ sub bench {
         else {
             for (my $n = 0; $n < $number; $n++) {
                 $data->{md5}  = $n;
+                $data->{number} = int(rand($number));
                 if ($short) {
+                    $data->{subtract_short} = int(rand($number));
                     $rrd->update_short($data); # update and create only if not exist yet
                 }
                 else {
+                    $data->{subtract} = int(rand($number));
                     $rrd->update($data); # update and create only if not exist yet
                 }
             }
