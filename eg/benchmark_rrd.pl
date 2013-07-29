@@ -14,10 +14,19 @@ use Cwd;
 use File::Path qw/mkpath/;
 use Log::Minimal;
 use Pod::Usage;
+use Time::HiRes;
 
+my $repeat = 1;
+my $number = 1;
+my $parallel = 1;
 Getopt::Long::Configure ("no_ignore_case");
 GetOptions(
     'data-dir=s' => \my $data_dir,
+    'n|number=i' => \$number,
+    'r|repeat=i' => \$repeat,
+    'p|parallel=i' => \$parallel, # @todo
+    'c|create'   => \my $create,
+    's|short'    => \my $short,
     "h|help" => \my $help,
 );
 
@@ -41,13 +50,44 @@ my $rrd = GrowthForecast::RRD->new(
     root_dir => $root_dir,
 );
 
-my $data = {};
-$data->{mode} = 'GAUGE';
-$data->{md5}  = 'test';
-$data->{number} = 1;
-$data->{subtract} = 0;
-$rrd->path($data); # create
-$rrd->update($data);
+sub bench {
+    my $data = {};
+
+    $data->{mode} = 'GAUGE';
+    $data->{number} = 1;
+    $data->{subtract} = 0;
+    $data->{subtract_short} = 0;
+
+    for (my $r = 0; $r < $repeat; $r++) {
+        my $start_time = Time::HiRes::time;
+        if ($create) {
+            for (my $n = 0; $n < $number; $n++) {
+                $data->{md5}  = $n;
+                if ($short) {
+                    $rrd->path_short($data); # create short graph
+                }
+                else {
+                    $rrd->path($data); # create
+                }
+            }
+            printf("%0.3f to create %d short graphs.\n", Time::HiRes::time - $start_time, $number);
+        }
+        else {
+            for (my $n = 0; $n < $number; $n++) {
+                $data->{md5}  = $n;
+                if ($short) {
+                    $rrd->update_short($data); # update and create only if not exist yet
+                }
+                else {
+                    $rrd->update($data); # update and create only if not exist yet
+                }
+            }
+            printf("%0.3f to update %d graphs.\n", Time::HiRes::time - $start_time, $number);
+        }
+    }
+}
+
+bench();
 
 __END__
 
@@ -70,6 +110,26 @@ $ benchmark_rrd.pl
 =item --data-dir
 
  A directory where sqlite file is stored. Default is `data`.
+
+=item -n --number
+
+ The number of RRD file updated (and created if first time execution)
+
+=item -r --repeat
+
+ The number of repititions
+
+=item -p --parallel
+
+ The number of parallel forks. (not implemented yet)
+
+=item -c --create
+
+ Benchmark the creation of RRD files, wheres, default benchmark the updation (create RRD files unless already exist)
+
+=item -s --short
+
+ Benchmark the 1min rrd data
 
 =item -h --help
 
