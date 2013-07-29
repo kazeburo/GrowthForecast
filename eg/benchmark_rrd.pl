@@ -15,6 +15,7 @@ use File::Path qw/mkpath/;
 use Log::Minimal;
 use Pod::Usage;
 use Time::HiRes;
+use Data::Dumper;
 
 my $repeat = 1;
 my $number = 1;
@@ -50,39 +51,46 @@ my $rrd = GrowthForecast::RRD->new(
     root_dir => $root_dir,
 );
 
+# ==== benchmark codes =====
+
+my $bench_func;
+if ($short) {
+    if ($create) {
+        $bench_func = sub { $rrd->path_short(shift) } # create short graph
+    }
+    else {
+        $bench_func = sub {
+            my $data = shift;
+            $data->{subtract_short} = int(rand($number));
+            $rrd->update_short($data); # update short graph (and create if not exist)
+        }
+    }
+}
+else {
+    if ($create) {
+        $bench_func = sub { $rrd->path(shift) } # create graph
+    }
+    else {
+        $bench_func = sub {
+            my $data = shift;
+            $data->{subtract} = int(rand($number));
+            $rrd->update($data); # update graph (and create if not exist)
+        }
+    }
+}
+
 sub bench {
     my $data = {};
     $data->{mode} = 'GAUGE';
 
     for (my $r = 0; $r < $repeat; $r++) {
         my $start_time = Time::HiRes::time;
-        if ($create) {
-            for (my $n = 0; $n < $number; $n++) {
-                $data->{md5}  = $n;
-                if ($short) {
-                    $rrd->path_short($data); # create short graph
-                }
-                else {
-                    $rrd->path($data); # create
-                }
-            }
-            printf("%0.3f to create %d short graphs.\n", Time::HiRes::time - $start_time, $number);
+        for (my $n = 0; $n < $number; $n++) {
+            $data->{md5}    = $n;
+            $data->{number} = int(rand($number));
+            $bench_func->($data);
         }
-        else {
-            for (my $n = 0; $n < $number; $n++) {
-                $data->{md5}  = $n;
-                $data->{number} = int(rand($number));
-                if ($short) {
-                    $data->{subtract_short} = int(rand($number));
-                    $rrd->update_short($data); # update and create only if not exist yet
-                }
-                else {
-                    $data->{subtract} = int(rand($number));
-                    $rrd->update($data); # update and create only if not exist yet
-                }
-            }
-            printf("%0.3f to update %d graphs.\n", Time::HiRes::time - $start_time, $number);
-        }
+        printf("%0.3f to %s %d %sgraphs.\n", Time::HiRes::time - $start_time, $create ? 'create' : 'update' , $number, $short ? 'short ' : '');
     }
 }
 
