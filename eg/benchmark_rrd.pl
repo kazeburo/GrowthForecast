@@ -51,35 +51,8 @@ my $rrd = GrowthForecast::RRD->new(
     root_dir => $root_dir,
 );
 
-# ==== benchmark codes =====
-
-my $bench_func;
-if ($short) {
-    if ($create) {
-        $bench_func = sub { $rrd->path_short(shift) } # create short graph
-    }
-    else {
-        $bench_func = sub {
-            my $data = shift;
-            $data->{subtract_short} = int(rand($number));
-            $rrd->update_short($data); # update short graph (and create if not exist)
-        }
-    }
-}
-else {
-    if ($create) {
-        $bench_func = sub { $rrd->path(shift) } # create graph
-    }
-    else {
-        $bench_func = sub {
-            my $data = shift;
-            $data->{subtract} = int(rand($number));
-            $rrd->update($data); # update graph (and create if not exist)
-        }
-    }
-}
-
-sub bench {
+sub bench(&) {
+    my $code = shift;
     my $data = {};
     $data->{mode} = 'GAUGE';
 
@@ -88,13 +61,28 @@ sub bench {
         for (my $n = 0; $n < $number; $n++) {
             $data->{md5}    = $n;
             $data->{number} = int(rand($number));
-            $bench_func->($data);
+            $code->($data);
         }
         printf("%0.3f to %s %d %sgraphs.\n", Time::HiRes::time - $start_time, $create ? 'create' : 'update' , $number, $short ? 'short ' : '');
     }
 }
 
-bench();
+if ($short) {
+    if ($create) {
+        bench { $rrd->path_short(shift) }
+    }
+    else {
+        bench { my $data = shift; $data->{subtract_short} = int(rand($number)); $rrd->update_short($data) }
+    }
+}
+else {
+    if ($create) {
+        bench { $rrd->path(shift) }
+    }
+    else {
+        bench { my $data = shift; $data->{subtract} = int(rand($number)); $rrd->update($data) }
+    }
+}
 
 __END__
 
