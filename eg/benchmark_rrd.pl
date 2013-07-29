@@ -17,12 +17,14 @@ use Pod::Usage;
 use Time::HiRes;
 use Data::Dumper;
 
-my $repeat = 1;
+my $from = 0;
 my $number = 1;
+my $repeat = 1;
 my $parallel = 1;
 Getopt::Long::Configure ("no_ignore_case");
 GetOptions(
     'data-dir=s' => \my $data_dir,
+    'f|from=i'   => \$from,
     'n|number=i' => \$number,
     'r|repeat=i' => \$repeat,
     'p|parallel=i' => \$parallel, # @todo
@@ -58,7 +60,7 @@ sub bench(&) {
 
     for (my $r = 0; $r < $repeat; $r++) {
         my $start_time = Time::HiRes::time;
-        for (my $n = 0; $n < $number; $n++) {
+        for (my $n = $from; $n < $from + $number; $n++) {
             $data->{md5}    = $n;
             $data->{number} = int(rand($number));
             $code->($data);
@@ -109,6 +111,10 @@ $ benchmark_rrd.pl
 =item -n --number
 
  The number of RRD file updated (and created if first time execution)
+
+=item -f --from
+
+ The starting number of RRD file creation or updation. This option would be used to avoid disk cache by shifting the RRD file number. Default is 0.
 
 =item -r --repeat
 
