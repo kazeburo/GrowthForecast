@@ -2,6 +2,7 @@
 
 use strict;
 use warnings;
+use utf8;
 use FindBin;
 use lib "$FindBin::Bin/../extlib/lib/perl5";
 use lib "$FindBin::Bin/../lib";
@@ -16,21 +17,24 @@ use Log::Minimal;
 use Pod::Usage;
 use Time::HiRes;
 use Data::Dumper;
+use Digest::MD5 qw/md5_hex/;
+use Encode;
 
-my $from = 0;
+my $from = 1;
 my $number = 1;
 my $repeat = 1;
 my $parallel = 1;
 Getopt::Long::Configure ("no_ignore_case");
 GetOptions(
-    'data-dir=s' => \my $data_dir,
-    'f|from=i'   => \$from,
-    'n|number=i' => \$number,
-    'r|repeat=i' => \$repeat,
+    'data-dir=s'   => \my $data_dir,
+    'f|from=i'     => \$from,
+    'n|number=i'   => \$number,
+    'r|repeat=i'   => \$repeat,
     'p|parallel=i' => \$parallel, # @todo
-    'c|create'   => \my $create,
-    's|short'    => \my $short,
-    "h|help" => \my $help,
+    'c|create'     => \my $create,
+    's|short'      => \my $short,
+    'm|md5'        => \my $md5,
+    "h|help"       => \my $help,
 );
 
 if ( $help ) {
@@ -53,6 +57,14 @@ my $rrd = GrowthForecast::RRD->new(
     root_dir => $root_dir,
 );
 
+my $md5_func;
+if ( $md5 ) {
+    $md5_func = sub { md5_hex(Encode::encode_utf8(shift)) }
+}
+else {
+    $md5_func = sub { shift }
+}
+
 sub bench(&) {
     my $code = shift;
     my $data = {};
@@ -61,11 +73,12 @@ sub bench(&) {
     for (my $r = 0; $r < $repeat; $r++) {
         my $start_time = Time::HiRes::time;
         for (my $n = $from; $n < $from + $number; $n++) {
-            $data->{md5}    = $n;
+            $data->{md5}    = $md5_func->($n);
             $data->{number} = int(rand($number));
             $code->($data);
         }
-        printf("%0.3f to %s %d %sgraphs.\n", Time::HiRes::time - $start_time, $create ? 'create' : 'update' , $number, $short ? 'short ' : '');
+        printf("%0.3f to %s %d %sgraphs.\n", Time::HiRes::time - $start_time,
+            $create ? 'create' : 'update' , $number, $short ? 'short ' : '');
     }
 }
 
@@ -90,7 +103,7 @@ __END__
 
 =head1 NAME
 
-benchmark_rrd.pl - benchmark rrd
+benchmark_rrd.pl - Benchmark RRD
 
 =head1 SYNOPSIS
 
@@ -106,31 +119,35 @@ $ benchmark_rrd.pl
 
 =item --data-dir
 
- A directory where sqlite file is stored. Default is `data`.
+ A directory where sqlite file is stored. Default: `data`.
 
 =item -n --number
 
- The number of RRD file updated (and created if first time execution)
+ The number of RRD file updated (and created if first time execution). Default: 1.
 
 =item -f --from
 
- The starting number of RRD file creation or updation. This option would be used to avoid disk cache by shifting the RRD file number. Default is 0.
+ The starting number of RRD file creation or updating. Default: 1
 
 =item -r --repeat
 
- The number of repititions
+ The number of repititions. Default: 1
 
 =item -p --parallel
 
- The number of parallel forks. (not implemented yet)
+ The number of parallel forks. Default: 1 (not implemented yet)
 
 =item -c --create
 
- Benchmark the creation of RRD files, wheres, default benchmark the updation (create RRD files unless already exist)
+ Benchmark the creation of RRD files. Default: false, which means benchmark the updating (create RRD files unless already exist)
 
 =item -s --short
 
- Benchmark the 1min rrd data
+ Benchmark the 1min rrd data. Default: false, which means benchmark the normal rrd
+
+=item -m --md5
+
+ Create RRD files of md5ed names as GrowthForecast does. Default: false, which means integer names.
 
 =item -h --help
 
