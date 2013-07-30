@@ -79,11 +79,13 @@ sub update {
 
     my $file = $self->path($data);
     eval {
-        RRDs::update(
+        my @argv = (
             $file,
-            '-t', 'num:sub',
+            # '-t', 'num:sub',
+            '-d', 'unix:/tmp/rrdcached.sock',
             '--', join(':','N',$data->{number},$data->{subtract}),
         );
+        RRDs::update(@argv);
         my $ERR=RRDs::error;
         die $ERR if $ERR;
     };
@@ -96,11 +98,13 @@ sub update_short {
 
     my $file = $self->path_short($data);
     eval {
-        RRDs::update(
+        my @argv = (
             $file,
-            '-t', 'num:sub',
+            # '-t', 'num:sub',
+            '-d', 'unix:/tmp/rrdcached.sock',
             '--', join(':','N',$data->{number},$data->{subtract_short}),
         );
+        RRDs::update(@argv);
         my $ERR=RRDs::error;
         die $ERR if $ERR;
     };
