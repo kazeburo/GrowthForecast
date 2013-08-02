@@ -34,6 +34,7 @@ GetOptions(
     'c|create'     => \my $create,
     's|short'      => \my $short,
     'm|md5'        => \my $md5,
+    'd|daemon=s'   => \my $rrdcached,
     "h|help"       => \my $help,
 );
 
@@ -55,6 +56,7 @@ else {
 my $rrd = GrowthForecast::RRD->new(
     data_dir => $data_dir,
     root_dir => $root_dir,
+    rrdcached => $rrdcached,
 );
 
 my $md5_func;
@@ -77,8 +79,9 @@ sub bench(&) {
             $data->{number} = int(rand($number));
             $code->($data);
         }
-        printf("%0.3f to %s %d %sgraphs.\n", Time::HiRes::time - $start_time,
-            $create ? 'create' : 'update' , $number, $short ? 'short ' : '');
+        printf("%0.3f to %s %d %sgraphs%s.\n", Time::HiRes::time - $start_time,
+            $create ? 'create' : 'update' , $number, $short ? 'short ' : '',
+            $rrdcached ? ' with rrdcached' : '');
     }
 }
 
@@ -148,6 +151,10 @@ $ benchmark_rrd.pl
 =item -m --md5
 
  Create RRD files of md5ed names as GrowthForecast does. Default: false, which means integer names.
+
+=item -s --daemon
+
+ Specify the rrdcached address. Default: false, which means rrdcached is not used.
 
 =item -h --help
 

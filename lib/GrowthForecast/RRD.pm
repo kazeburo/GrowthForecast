@@ -81,10 +81,14 @@ sub update {
     eval {
         my @argv = (
             $file,
-            # '-t', 'num:sub',
-            '-d', 'unix:/tmp/rrdcached.sock',
+            '-t', 'num:sub',
             '--', join(':','N',$data->{number},$data->{subtract}),
         );
+        if ( $self->{rrdcached} ) {
+            # The caching daemon cannot be used together with templates (-t) yet.
+            splice(@argv, 1, 2); # delete -t option
+            unshift(@argv, '-d', $self->{rrdcached});
+        }
         RRDs::update(@argv);
         my $ERR=RRDs::error;
         die $ERR if $ERR;
@@ -100,10 +104,14 @@ sub update_short {
     eval {
         my @argv = (
             $file,
-            # '-t', 'num:sub',
-            '-d', 'unix:/tmp/rrdcached.sock',
+            '-t', 'num:sub',
             '--', join(':','N',$data->{number},$data->{subtract_short}),
         );
+        if ( $self->{rrdcached} ) {
+            # The caching daemon cannot be used together with templates (-t) yet.
+            splice(@argv, 1, 2); # delete -t option
+            unshift(@argv, '-d', $self->{rrdcached});
+        }
         RRDs::update(@argv);
         my $ERR=RRDs::error;
         die $ERR if $ERR;
