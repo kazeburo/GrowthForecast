@@ -9,7 +9,7 @@ use Time::Piece;
 use GrowthForecast::Data;
 use GrowthForecast::RRD;
 use Log::Minimal;
-use Class::Accessor::Lite ( rw => [qw/short mysql data_dir float_number/] );
+use Class::Accessor::Lite ( rw => [qw/short mysql data_dir float_number rrdcached/] );
 use CGI;
 
 sub data {
@@ -26,6 +26,7 @@ sub rrd {
     $self->{__rrd} ||= GrowthForecast::RRD->new(
         data_dir => $self->data_dir,
         root_dir => $self->root_dir,
+        rrdcached => $self->rrdcached,
     );
     $self->{__rrd};
 }
