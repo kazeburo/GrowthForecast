@@ -37,6 +37,7 @@ GetOptions(
     'data-dir=s' => \my $data_dir,
     'log-format=s' => \my $log_format,
     'web-max-workers=i' => \my $web_max_workers,
+    'rrdcached=s' => \my $rrdcached,
     "h|help" => \my $help,
 );
 
@@ -78,6 +79,7 @@ $proclet->service(
             data_dir => $data_dir,
             mysql => $mysql,
             float_number => $enable_float_number,
+            rrdcached => $rrdcached,
         );
         $worker->run('short');        
     }
@@ -91,6 +93,7 @@ $proclet->service(
             data_dir => $data_dir,
             mysql => $mysql,
             float_number => $enable_float_number,
+            rrdcached => $rrdcached,
         );
         $worker->run;
     }
@@ -105,6 +108,7 @@ $proclet->service(
             short => !$disable_short,
             mysql => $mysql,
             float_number => $enable_float_number,
+            rrdcached => $rrdcached,
         );
         my $app = builder {
             enable 'Lint';
@@ -253,6 +257,17 @@ Default is no mysql setting. GrowthForecast save metadata to SQLite
 
 Number of web server processes. Default is 4
 
+=item --rrdcached
+
+rrdcached address. format is like either of
+
+   unix:</path/to/unix.sock>
+   /<path/to/unix.sock>
+   <hostname-or-ip>
+   [<hostname-or-ip>]:<port>
+   <hostname-or-ipv4>:<port>
+
+See the manual of rrdcached for more details. Default does not use rrdcached.
 
 =item -h --help
 

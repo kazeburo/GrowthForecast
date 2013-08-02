@@ -79,11 +79,17 @@ sub update {
 
     my $file = $self->path($data);
     eval {
-        RRDs::update(
+        my @argv = (
             $file,
             '-t', 'num:sub',
             '--', join(':','N',$data->{number},$data->{subtract}),
         );
+        if ( $self->{rrdcached} ) {
+            # The caching daemon cannot be used together with templates (-t) yet.
+            splice(@argv, 1, 2); # delete -t option
+            unshift(@argv, '-d', $self->{rrdcached});
+        }
+        RRDs::update(@argv);
         my $ERR=RRDs::error;
         die $ERR if $ERR;
     };
@@ -96,11 +102,17 @@ sub update_short {
 
     my $file = $self->path_short($data);
     eval {
-        RRDs::update(
+        my @argv = (
             $file,
             '-t', 'num:sub',
             '--', join(':','N',$data->{number},$data->{subtract_short}),
         );
+        if ( $self->{rrdcached} ) {
+            # The caching daemon cannot be used together with templates (-t) yet.
+            splice(@argv, 1, 2); # delete -t option
+            unshift(@argv, '-d', $self->{rrdcached});
+        }
+        RRDs::update(@argv);
         my $ERR=RRDs::error;
         die $ERR if $ERR;
     };
