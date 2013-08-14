@@ -61,6 +61,18 @@ OPTIONS
     --web-max-workers
         Number of web server processes. Default is 4
 
+    --rrdcached
+        rrdcached address. format is like either of
+
+           unix:</path/to/unix.sock>
+           /<path/to/unix.sock>
+           <hostname-or-ip>
+           [<hostname-or-ip>]:<port>
+           <hostname-or-ipv4>:<port>
+
+        See the manual of rrdcached for more details. Default does not use
+        rrdcached.
+
     -h --help
         Display help
 
