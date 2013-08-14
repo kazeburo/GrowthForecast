@@ -1,3 +1,8 @@
+0.70    Wed Aug 14 10:06:34 2013
+        - support float number
+        - support rrdcached for improve performance
+          (Thank you sonots)
+
 0.62    Fri Jun 28 11:37:55 2013
         - add more json api(Thanks sonots)
         - escape uri (Thanks sonots and shibayu36)
