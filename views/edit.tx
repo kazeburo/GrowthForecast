@@ -7,31 +7,29 @@
 
 : block form |  fillinform( $graph ) -> {
 
-<form class="hxrpost" method="post" action="<: $c.req.uri_for('/edit/'~uri_escape($graph.service_name)~'/'~uri_escape($graph.section_name)~'/'~uri_escape($graph.graph_name)) :>">
+<form class="hxrpost form-horizontal" method="post" action="<: $c.req.uri_for('/edit/'~uri_escape($graph.service_name)~'/'~uri_escape($graph.section_name)~'/'~uri_escape($graph.graph_name)) :>">
 
 <fieldset>
 
-<div class="clearfix">
-<label for="">Path</label>
-<div class="input">
-<div class="inline-inputs">
-/ <input class="small" name="service_name" /> / <input class="small" name="section_name" /> / <input class="small" name="graph_name" />
+<div class="control-group">
+<label for="" class="control-label">Path</label>
+<div class="controls form-inline">
+/ <input type="text" class="input-small" name="service_name" /> / <input type="text" class="input-small" name="section_name" /> / <input type="text" class="input-small" name="graph_name" />
 </div>
 <span class="help-block">Graph's URI(service name/section name/graph name)</span>
 </div>
+
+<div class="control-group">
+<label for="" class="control-label">Description</label>
+<div class="controls">
+<input type="text" class="input-xlarge" name="description" />
+</div>
 </div>
 
-<div class="clearfix">
-<label for="">Description</label>
-<div class="input">
-<input class="xlarge" name="description" />
-</div>
-</div>
-
-<div class="clearfix">
-<label for="">Display order</label>
-<div class="input">
-<select name="sort" class="small">
+<div class="control-groups">
+<label for="" class="control-label">Display order</label>
+<div class="controls">
+<select name="sort" class="input-small">
 <option value="19">19</option>
 <option value="18">18</option>
 <option value="17">17</option>
@@ -57,10 +55,10 @@
 </div>
 </div>
 
-<div class="clearfix">
-<label for="">Mode</label>
-<div class="input">
-<select name="gmode" class="medium">
+<div class="control-group">
+<label for="" class="control-label">Mode</label>
+<div class="controls">
+<select name="gmode" class="input-medium">
 <option value="gauge">Gauge</option>
 <option value="subtract">Subtract</option>
 <option value="both">Both</option>
@@ -68,34 +66,32 @@
 </div>
 </div>
 
-<div class="clearfix">
-<label for="">Adjustment</label>
-<div class="input">
-<div class="inline-inputs">
+<div class="control-group">
+<label for="" class="control-label">Adjustment</label>
+<div class="controls form-inline">
 値
-<select name="adjust" class="small">
+<select name="adjust" class="input-small">
 <option value="*">×</option>
 <option value="/">÷</option>
 </select>
-<input class="small" name="adjustval" />
+<input type="text" class="input-small" name="adjustval" />
 unit
-<input class="small" name="unit" />
-</div>
+<input type="text" class="input-small" name="unit" />
 </div>
 </div>
 
-<div class="clearfix">
-<label for="">Color</label>
-<div class="input">
-<input name="color" id="form-<: $index :>-color" class="small color_pallet" />
+<div class="control-group">
+<label for="" class="control-label">Color</label>
+<div class="controls">
+<input type="text" name="color" id="form-<: $index :>-color" class="input-small color_pallet" />
 <span class="help-block">#000000-#FFFFFF</span>
 </div>
 </div>
 
-<div class="clearfix">
-<label for="">Type</label>
-<div class="input">
-<select name="type" class="medium">
+<div class="control-group">
+<label for="" class="control-label">Type</label>
+<div class="controls">
+<select name="type" class="input-medium">
 <option value="AREA">AREA</option>
 <option value="LINE1">LINE</option>
 <option value="LINE2">LINE(Bold)</option>
@@ -103,21 +99,19 @@ unit
 </div>
 </div>
 
-<div class="clearfix">
-<label for="">Effective range</label>
-<div class="input">
-<div class="inline-inputs">
-<input class="medium" name="llimit" />
+<div class="control-group">
+<label for="" class="control-label">Effective range</label>
+<div class="controls form-inline">
+<input type="text" class="input-medium" name="llimit" />
 〜
-<input class="medium" name="ulimit" />
-</div>
+<input type="text" class="input-medium" name="ulimit" />
 </div>
 </div>
 
-<div class="clearfix">
-<label for="">Mode of subtract Graph</label>
-<div class="input">
-<select name="stype" class="medium">
+<div class="control-group">
+<label for="" class="control-label">Mode of subtract Graph</label>
+<div class="controls">
+<select name="stype" class="input-medium">
 <option value="AREA">AREA</option>
 <option value="LINE1">LINE</option>
 <option value="LINE2">LINE(Bold)</option>
@@ -126,23 +120,21 @@ unit
 </div>
 
 
-<div class="clearfix">
-<label for="">Effective range of subtract Graph</label>
-<div class="input">
-<div class="inline-inputs">
-<input class="medium" name="sllimit" />
+<div class="control-group">
+<label for="" class="control-label">Effective range of subtract Graph</label>
+<div class="controls form-inline">
+<input type="text" class="input-medium" name="sllimit" />
 〜
-<input class="medium" name="sulimit" />
-</div>
+<input type="text" class="input-medium" name="sulimit" />
 </div>
 </div>
 
 </fieldset>
 
-<div class="actions">
-<input type="submit" class="btn primary" value="Submit" />
+<div class="form-actions">
+<input type="submit" class="btn btn-primary" value="Submit" />
 <a href="<: $c.req.uri_for('/list/'~uri_escape($graph.service_name)~'/'~uri_escape($graph.section_name)) :>" class="btn">Cancel</a>
-<button type="button" class="btn danger hxr_confirm_button" data-confirm="remove '<: $graph.graph_name :>'?" data-uri="<: $c.req.uri_for('/delete/'~uri_escape($graph.service_name)~'/'~uri_escape($graph.section_name)~'/'~uri_escape($graph.graph_name)) :>">remove</button>
+<button type="button" class="btn btn-danger hxr_confirm_button" data-confirm="remove '<: $graph.graph_name :>'?" data-uri="<: $c.req.uri_for('/delete/'~uri_escape($graph.service_name)~'/'~uri_escape($graph.section_name)~'/'~uri_escape($graph.graph_name)) :>">remove</button>
 </div>
 
 </form>
