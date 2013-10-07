@@ -8,6 +8,34 @@ body {
   background-color: #fff;
   position: relative;
 }
+
+/* compatibility for Twitter Bootstrap 1 */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+}
+h1 {
+  font-size: 30px;
+}
+h2 {
+  font-size: 24px;
+}
+.page-header {
+  margin: 0 0 17px;
+}
+.navbar .brand {
+  color: #fff;
+}
+.navbar .brand:hover {
+  color: #fff;
+  font-weight: 200;
+}
+.navbar .brand:hover {
+  background-color: #333;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+
 section {
   padding-top: 60px;
 }
@@ -50,8 +78,8 @@ GrowthForecast
 </head>
 <body>
 
-<div class="topbar">
-<div class="topbar-inner">
+<div class="navbar navbar-inverse navbar-fixed-top">
+<div class="navbar-inner">
 <div class="container">
 <a class="brand" href="<: $c.req.uri_for('/') :>">GrowthForecast</a>
 <ul class="nav">
@@ -70,7 +98,7 @@ GrowthForecast
 </div>
 
 <div class="row">
-<div class="span16">
+<div class="span12">
 : block content -> { }
 </div>
 </div>
@@ -84,9 +112,9 @@ GrowthForecast
 </div>
 </footer>
 
-<script type="text/javascript" src="<: $c.req.uri_for('/js/jquery-1.5.2.min.js') :>"></script>
+<script type="text/javascript" src="<: $c.req.uri_for('/js/jquery-1.10.2.min.js') :>"></script>
 <script type="text/javascript" src="<: $c.req.uri_for('/js/bootstrap-modal.js') :>"></script>
-<script type="text/javascript" src="<: $c.req.uri_for('/js/bootstrap-alerts.js') :>"></script>
+<script type="text/javascript" src="<: $c.req.uri_for('/js/bootstrap-alert.js') :>"></script>
 <script type="text/javascript">
 $(function(){
   $('form.hxrpost').each(setHxrpost);
@@ -98,18 +126,18 @@ $(function(){
 
 
 function setHxrpost() {
-  var myform = this;
-  $(myform).first().prepend('<div class="alert-message error hide">System Error!</div>');
-  $(myform).submit(function(){
-    $(myform).find('.alert-message').hide();
-    $(myform).find('.validator-message').detach();
-    $(myform).find('.clearfix').removeClass('error');
+  var myform = this, $myform = $(myform);
+  $myform.first().prepend('<div class="alert alert-error hide">System Error!</div>');
+  $myform.submit(function(){
+    $myform.find('.alert').hide();
+    $myform.find('.validator-message').detach();
+    $myform.find('.clearfix').removeClass('error');
     $.ajax({
       type: 'POST',
       url: myform.action,
-      data: $(myform).serialize(),
+      data: $myform.serialize(),
       success: function(data) {
-        $(myform).find('.alert-message').hide();
+        $myform.find('.alert').hide();
         if ( data.error == 0 ) {
             location.href = data.location;
         }
@@ -117,17 +145,17 @@ function setHxrpost() {
             $.each(data.messages, function (param,message) {
               var helpblock = $('<span class="validator-message help-block"></span>');
               helpblock.text(message);
-              $(myform).find('[name="'+param+'"]').parents('div.input').first().append(helpblock);
-              $(myform).find('[name="'+param+'"]').parents('div.clearfix').first().addClass('error');
+              $myform.find('[name="'+param+'"]').parents('div.controls').first().append(helpblock);
+              $myform.find('[name="'+param+'"]').parents('div.control-group').first().addClass('error');
               if ( param.match(/-2$/) ) {
-                $(myform).find('[name="path-add"]').parents('div.input').first().append(helpblock);
-                $(myform).find('[name="path-add"]').parents('div.clearfix').first().addClass('error');
+                $myform.find('[name="path-add"]').parents('div.controls').first().append(helpblock);
+                $myform.find('[name="path-add"]').parents('div.control-group').first().addClass('error');
               }
             });
         }
       },
       error: function() {
-        $(myform).find('.alert-message').show();
+        $myform.find('.alert').show();
       }
     });
     return false;
@@ -139,8 +167,8 @@ function setHxrConfirmBtn() {
   var modal = $('<div class="modal fade">'+
 '<form method="post" action="#">'+
 '<div class="modal-header"><h3>confirm</h3></div>'+
-'<div class="modal-body"><div class="alert-message error hide">System Error!</div><p>confirm</p></div>'+
-'<div class="modal-footer"><input type="submit" class="btn danger" value="confirm" /></div>'+
+'<div class="modal-body"><div class="alert alert-error hide">System Error!</div><p>confirm</p></div>'+
+'<div class="modal-footer"><input type="submit" class="btn btn-danger" value="confirm" /></div>'+
 '</form></div>');
   modal.find('h3').text($(mybtn).text());
   modal.find('input[type=submit]').attr('value',$(mybtn).text());
@@ -151,13 +179,13 @@ function setHxrConfirmBtn() {
       url: $(mybtn).data('uri'),
       data: modal.find('form').serialize(),
       success: function(data) {
-        modal.find('.alert-message').hide();
+        modal.find('.alert').hide();
         if ( data.error == 0 ) {
           location.href = data.location;
         }
       },
       error: function() {
-        modal.find('.alert-message').show();
+        modal.find('.alert').show();
       }
     });
     return false;
