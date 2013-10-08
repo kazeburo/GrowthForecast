@@ -18,7 +18,7 @@
 <p>
 GrowthForecast is designed as a common Web-Graph-API that available from many services. Refer to the table below in relation to each item in the URI.</p>
 
-<table>
+<table class="table">
 <tr>
 <th>Item</th>
 <th>Role</th>
@@ -51,7 +51,7 @@ GrowthForecast is designed as a common Web-Graph-API that available from many se
 
 <p>POST Parameters</p>
 
-<table>
+<table class="table">
 <tr>
 <th>Parameter</th>
 <th>Desc</th>
@@ -128,7 +128,7 @@ URI of a graph <: $c.req.uri_for('/') :>graph/:service_name/:section_name/:graph
 URI of a complex graph  <: $c.req.uri_for('/') :>graph/:pattern
 </pre>
 
-<table>
+<table class="table">
 <tr>
 <th>Parameter</th>
 <th>Description</th>
@@ -251,7 +251,7 @@ Export URI <: $c.req.uri_for('/') :>xport/:service_name/:section_name/:graph_nam
 Export URI of Complex graph <: $c.req.uri_for('/') :>xport/:pattern
 </pre>
 
-<table>
+<table class="table">
 <tr>
 <th>Parameter</th>
 <th>Description</th>
