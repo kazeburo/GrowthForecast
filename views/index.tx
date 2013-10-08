@@ -6,15 +6,22 @@
 : around page_header -> {
 <h1>
 <a href="<: $c.req.uri_for('/') :>">Home</a><: if $c.args.service_name { :> » <: $c.args.service_name :><: } :>
+<: if ! $c.args.service_name { :>
+<span class="pull-right"><small style="vertical-align: text-middle;font-size: 0.5em"><a id="link-fold-all" href="#">[fold all]</a> / <a id="link-expand-all" href="#">[expand all]</a></small></span>
+<: } :>
 </h1>
 : }
 
 : around content -> {
 : for $services ->  $service {
 <h2>
+<: if ! $c.args.service_name { :>
+<span><small style="vertical-align: text-middle;font-size: 0.5em"><a href="#service_<: $service.name :>" data-toggle="collapse">[+]</a></small></span>
+<: } :>
 <span><a href="<: $c.req.uri_for('/list/'~uri_escape($service.name))  :>"><: $service.name :></a></span>
 <span class="pull-right"><small style="vertical-align: text-middle;font-size: 0.5em"><a href="<: $c.req.uri_for('/add_complex',[service_name=>$service.name]) :>">add complex graph</a></small></span>
 </h2>
+<div id="service_<: $service.name :>" class="service_sections collapse in">
 <table class="table table-striped">
 : for $service.sections -> $section {
 <tr>
@@ -22,6 +29,7 @@
 </tr>
 : }
 </table>
+</div>
 : }
 
 : }
