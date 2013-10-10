@@ -1,5 +1,8 @@
 : my $term_arg = $c.req.param('t') ? [ 't', $c.req.param('t') ] : [];
 <h2>
+: if ! $c.args.graph_name {
+<span><small style="vertical-align: text-middle;font-size: 0.5em"><a href="#graph_<: $graph.graph_name :>" data-toggle="collapse">[+]</a></small></span>
+: }
 : if $graph.complex_graph {
 <a href="<: $c.req.uri_for('/view_complex/'~uri_escape($graph.service_name)~'/'~uri_escape($graph.section_name)~'/'~uri_escape($graph.graph_name), $term_arg) :>" data-id="<: $graph.id :>"><: $graph.graph_name :></a>
 : } else {
@@ -19,7 +22,7 @@
 <span class="label">updated_at</span> <: $graph.updated_at :>
 </p>
 
-<div style="margin-bottom: 13px; text-align: center">
+<div id="graph_<: $graph.graph_name :>" class="section_graphs collapse in" style="margin-bottom: 13px; text-align: center">
 : if ! $graph.complex_graph {
   : my $gmodes = ( $graph.gmode == 'both' ) ? ['gauge','subtract'] : ( $graph.gmode == 'gauge') ? ['gauge'] : ['subtract']
   : for $gmodes -> $gmode {
