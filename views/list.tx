@@ -5,7 +5,8 @@
 : around page_header -> {
 <h1>
 <span><a href="<: $c.req.uri_for('/') :>">Home</a> » <a href="<: $c.req.uri_for('/list/'~uri_escape($c.args.service_name)) :>"><: $c.args.service_name :></a> » <: $c.args.section_name :></span>
-<span class="pull-right"><small style="font-size: 0.4em;vertical-align: text-middle;"><a href="<: $c.req.uri_for('/add_complex',[service_name=>$c.args.service_name,section_name=>$c.args.section_name]) :>">add complex graph</a></small></span>
+<span class="pull-right"><small style="font-size: 0.4em;vertical-align: text-middle;"><a id="link-fold-all" href="#">[fold all]</a> / <a id="link-expand-all" href="#">[expand all]</a> / <a href="<: $c.req.uri_for('/add_complex',[service_name=>$c.args.service_name,section_name=>$c.args.section_name]) :>">add complex graph</a></small></span>
+
 </h1>
 : }
 

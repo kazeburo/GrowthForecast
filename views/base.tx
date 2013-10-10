@@ -124,8 +124,8 @@ $(function(){
   $('#add-new-row').click(add_new_row);
   $('form#complex-form').each(setTablePreview);
   $('input.color_pallet').each(setColorPallets);
-  $('#link-fold-all').click(fold_all_sections);
-  $('#link-expand-all').click(expand_all_sections);
+  $('#link-fold-all').click(fold_all);
+  $('#link-expand-all').click(expand_all);
 });
 
 
@@ -331,19 +331,21 @@ function setColorPallets() {
   });
 }
 
-function fold_all_sections(e) {
+function fold_all(e) {
   e.stopPropagation();
   e.preventDefault();
 
   $('.service_sections').collapse('hide');
+  $('.section_graphs').collapse('hide');
   return false;
 }
 
-function expand_all_sections(e) {
+function expand_all(e) {
   e.stopPropagation();
   e.preventDefault();
 
   $('.service_sections').collapse('show');
+  $('.section_graphs').collapse('show');
   return false;
 }
 
