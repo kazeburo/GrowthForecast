@@ -38,6 +38,7 @@ GetOptions(
     'log-format=s' => \my $log_format,
     'web-max-workers=i' => \my $web_max_workers,
     'rrdcached=s' => \my $rrdcached,
+    'mount=s' => \my $mount,
     "h|help" => \my $help,
 );
 
@@ -133,8 +134,9 @@ $proclet->service(
                                              });
                 }
             };
+            my $static_regexp = qr!^/(?:(?:css|js|images)/|favicon\.ico$)!;
             enable 'Static',
-                path => qr!^/(?:(?:css|js|images)/|favicon\.ico$)!,
+                path => $mount ? sub { s!^/$mount!!; $_ =~ $static_regexp } : $static_regexp,
                 root => $root_dir . '/public';
             enable 'Scope::Container';
             if ($log_format) {
@@ -150,7 +152,12 @@ $proclet->service(
                 }
                 enable 'AxsLog', %args;
             }
-            $web->psgi;
+            if ($mount) {
+                mount "/$mount" => $web->psgi;
+            }
+            else {
+                $web->psgi;
+            }
         };
         my $loader = Plack::Loader->load(
             'Starlet',
@@ -268,6 +275,11 @@ rrdcached address. format is like either of
    <hostname-or-ipv4>:<port>
 
 See the manual of rrdcached for more details. Default does not use rrdcached.
+
+=item --mount
+
+Provide GrowthForecast with specify url path.
+Default is empty ( provide GrowthForecast on root path )
 
 =item -h --help
 
