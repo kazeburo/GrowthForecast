@@ -25,10 +25,10 @@ views/list.tx
 views/view.tx
 views/view_graph.tx
 public/css/bootstrap.min.css
-public/js/bootstrap-alerts.js
+public/js/bootstrap-alert.js
 public/js/bootstrap-modal.js
 public/js/html5jp/cpick.js
-public/js/jquery-1.5.2.min.js
+public/js/jquery-1.10.2.min.js
 !;
 
 for my $file ( @files ) {

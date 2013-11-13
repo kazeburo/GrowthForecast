@@ -55,7 +55,7 @@ OPTIONS
 
     --with-mysql
         DB connection setting to store metadata. format like
-        dbi:mysql:[dbname];hostname=[hostname] Default is no mysql setting.
+        dbi:mysql:[dbname];hostname=[hostnaem] Default is no mysql setting.
         GrowthForecast save metadata to SQLite
 
     --web-max-workers
@@ -72,6 +72,10 @@ OPTIONS
 
         See the manual of rrdcached for more details. Default does not use
         rrdcached.
+
+    --mount
+        Provide GrowthForecast with specify url path. Default is empty (
+        provide GrowthForecast on root path )
 
     -h --help
         Display help
@@ -102,7 +106,7 @@ MYSQL Setting
     Give USERNAME and PASSWORD to GrowthForecast by environment value
 
       $ MYSQL_USER=www MYSQL_PASSWORD=foobar growthforecast.pl \\
-          --data-dir /home/user/growthforecast \\
+          --data-dir /home/user/growthforeacst \\
           -with-mysql dbi:mysql:growthforecast;hostname=localhost
 
     AUTHOR Masahiro Nagano <kazeburo {at} gmail.com>
