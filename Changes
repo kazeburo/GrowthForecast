@@ -1,3 +1,9 @@
+0.71   Wed Nov 13 11:01:41 2013
+        - update Web UI, update bootstrap and make collapsible  (Thank you dayfolwer)
+        - add --mount option (Thank you soh335)
+        - fix typos (Thank you karahiyo and sharl)
+
+
 0.70    Wed Aug 14 10:06:34 2013
         - support float number
         - support rrdcached for improve performance
