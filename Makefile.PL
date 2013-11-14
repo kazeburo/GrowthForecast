@@ -26,7 +26,9 @@ views/view.tx
 views/view_graph.tx
 public/css/bootstrap.min.css
 public/js/bootstrap-alert.js
+public/js/bootstrap-collapse.js
 public/js/bootstrap-modal.js
+public/js/bootstrap-transition.js
 public/js/html5jp/cpick.js
 public/js/jquery-1.10.2.min.js
 !;
