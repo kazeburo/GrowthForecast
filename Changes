@@ -1,3 +1,6 @@
+0.72   Thu Nov 14 13:51:28 2013
+        - fix js install issue (Thank you sharl)
+
 0.71   Wed Nov 13 11:01:41 2013
         - update Web UI, update bootstrap and make collapsible  (Thank you dayfolwer)
         - add --mount option (Thank you soh335)
