@@ -421,6 +421,8 @@ sub remove {
     my $data = shift;
     my $file = $self->{data_dir} . '/' . $data->{md5} . '.rrd';
     File::Path::rmtree($file);
+    my $file = $self->{data_dir} . '/' . $data->{md5} . '_s.rrd';
+    File::Path::rmtree($file);
 }
 
 sub _escape {
