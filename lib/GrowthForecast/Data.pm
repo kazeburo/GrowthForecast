@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS graphs (
     sllimit      $number_type NOT NULL DEFAULT 0,
     type         VARCHAR(255) NOT NULL DEFAULT 'AREA',
     stype         VARCHAR(255) NOT NULL DEFAULT 'AREA',
-    meta         TEXT NOT NULL,
+    meta         TEXT,
     created_at   UNSIGNED INT NOT NULL,
     updated_at   UNSIGNED INT NOT NULL,
     UNIQUE  (service_name, section_name, graph_name)
@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS complex_graphs (
     number       $number_type NOT NULL DEFAULT 0,
     description  VARCHAR(255) NOT NULL DEFAULT '',
     sort         UNSIGNED INT NOT NULL DEFAULT 0,
-    meta         TEXT NOT NULL DEFAULT '',
+    meta         TEXT,
     created_at   UNSIGNED INT NOT NULL,
     updated_at   UNSIGNED INT NOT NULL,
     UNIQUE  (service_name, section_name, graph_name)
