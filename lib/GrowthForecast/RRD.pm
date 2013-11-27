@@ -419,9 +419,10 @@ sub export {
 sub remove {
     my $self = shift;
     my $data = shift;
-    my $file = $self->{data_dir} . '/' . $data->{md5} . '.rrd';
+    my $file;
+    $file = $self->{data_dir} . '/' . $data->{md5} . '.rrd';
     File::Path::rmtree($file);
-    my $file = $self->{data_dir} . '/' . $data->{md5} . '_s.rrd';
+    $file = $self->{data_dir} . '/' . $data->{md5} . '_s.rrd';
     File::Path::rmtree($file);
 }
 
