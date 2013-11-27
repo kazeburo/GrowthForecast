@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS graphs (
     sllimit      $number_type NOT NULL DEFAULT 0,
     type         VARCHAR(255) NOT NULL DEFAULT 'AREA',
     stype         VARCHAR(255) NOT NULL DEFAULT 'AREA',
-    meta         TEXT NOT NULL DEFAULT '',
+    meta         TEXT NOT NULL,
     created_at   UNSIGNED INT NOT NULL,
     updated_at   UNSIGNED INT NOT NULL,
     UNIQUE  (service_name, section_name, graph_name)
