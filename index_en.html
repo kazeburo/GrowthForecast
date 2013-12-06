@@ -402,32 +402,32 @@ http://example.com/graph/service/section/graph?t=d&gmode=gauge&border=0&legend=0
 
 <tr>
 <td>axis_color</td>
-<td>グラフ部分の枠線。FFFFFF または FFFFFF00 で指定</td>
+<td>The border color of the graph. Specify using the FFFFFF or FFFFFF00 formats.</td>
 </tr>
 
 <tr>
 <td>shadea_color</td>
-<td>左上、上の枠線。FFFFFF または FFFFFF00 で指定</td>
+<td>The border colors for top left and top. Specify using the FFFFFF or FFFFFF00 formats.</td>
 </tr>
 
 <tr>
 <td>shadeb_color</td>
-<td>右下、下の枠線。FFFFFF または FFFFFF00 で指定</td>
+<td>The border colors for bottom right and bottom. Specify using the FFFFFF or FFFFFF00 formats.</td>
 </tr>
 
 <tr>
 <td>border</td>
-<td>枠線の太さ。「0」も可能。デフォルト「3」</td>
+<td>The thickness of the borders. `0` is a valid value. Default: 3.</td>
 </tr>
 
 <tr>
 <td>legend</td>
-<td>凡例の有無。デフォルト「1」</td>
+<td>Enable the Legend (including summary data of the graph). Default: 1</td>
 </tr>
 
 <tr>
 <td>sumup</td>
-<td>凡例に合計値を含むかどうか。デフォルト「0」</td>
+<td>Include the sum value in the Legend. Default: 0</td>
 </tr>
 
 </table>
@@ -436,13 +436,13 @@ http://example.com/graph/service/section/graph?t=d&gmode=gauge&border=0&legend=0
 
 <h3>Graph Data Summary</h3>
 
-<p>グラフデータの凡例部分をJSON形式でエクスポートできます</p>
+<p>You can export the Legend information (which includes the summary data of the graph) in JSON format.</p>
 
 <h4>Endpoint</h4>
 
 <pre class="prettyprint">
-グラフのサマリーURI     http://example.com/summary/:service_name/:section_name/:graph_name
-複合グラフのサマリーURI  http://example.com/summary/:pattern
+URI of the Graph Summary    http://example.com/summary/:service_name/:section_name/:graph_name
+URI of the Compound Graph Summary  http://example.com/summary/:pattern
 </pre>
 
 <h3>Exporting Graph Data</h3>
@@ -450,7 +450,7 @@ http://example.com/graph/service/section/graph?t=d&gmode=gauge&border=0&legend=0
 <div class="row">
 <div class="span3">
 
-<p>GrowthForecast let's you export your graph data in JSON format.</p>
+<p>You can export your graph data in JSON format.</p>
 
 </div>
 <div class="span9">
