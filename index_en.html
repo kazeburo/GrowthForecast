@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>GrowthForecast - Lightning fast Graphing / Visualization</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le styles -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/prettify.css" rel="stylesheet">
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+    </style>
+    <link href="css/bootstrap-responsive.min.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+
+  <body data-spy="scroll">
+
+
+    <div class="navbar navbar-fixed-top" id="top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="#">GrowthForecast</a>
+          <div class="nav-collapse">
+            <ul class="nav">
+              <li class="active"><a href="#top">Home</a></li>
+              <li><a href="#install">Install</a></li>
+              <li><a href="#basic">Basic</a></li>
+              <li><a href="#api">API</a></li>
+              <li><a href="https://github.com/kazeburo/GrowthForecast/">Source Code</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <!-- Main hero unit for a primary marketing message or call to action -->
+      <div class="hero-unit" style="background-repeat: no-repeat; background-position: 50% 50%;background-image:url(img/background.png)">
+        <h1>GrowthForecast</h1>
+        <p>GrowthForecast is a web tool that let's you graph all sorts of metrics via a WebAPI. Our simple API let's you create and update charts in real time, customize your charts through a Web interface, and create charts that combine multiple metrics.</p>
+      </div>
+
+      <section>
+        <div class="row">
+          <div class="span6">
+<h3>You can graph your MySQL data with 1 line of code</h3>
+<pre class="prettyprint linenums">
+$ crontab -l
+*/5 * * * * curl -F number=`mysql -BN -e 'select count(*) from member' game` http://example.com/api/socialgame/member/register 2>&1 | logger -t post_gf -p local0.info
+</pre>
+<p>By periodically POSTing to GrowthForecast with cron, you can make charts without having to deal with complex settings</p>
+          </div>
+          <div class="span6"><img src="img/sample1.png" /></div>
+        </div>
+      </section>
+
+<hr>
+
+      <section id="install">
+        <div class="page-header">
+          <h1>Installing and Booting</h1>
+        </div>
+
+        <h3>(1) Installing Package Dependencies</h3>
+
+        <div class="row">
+          <div class="span4">
+            <p>We'll first install the libraries that RRDTool depends on using package managers like yum, apt, homebrew, etc.</p>
+            <ul>
+              <li>glib</li>
+              <li>xml2</li>
+              <li>pango</li>
+              <li>cairo</li>
+            </ul>
+	    <p></p>
+
+          </div>
+          <div class="span8">
+            <h3>CentOS</h3>
+<pre class="prettyprint linenums">
+$ sudo yum groupinstall "Development Tools"
+$ sudo yum install pkgconfig glib2-devel gettext libxml2-devel pango-devel cairo-devel
+</pre>
+            <h3>Ubuntu</h3>
+<pre class="prettyprint linenums">
+$ sudo apt-get build-dep rrdtool
+</pre>
+          </div>
+      </div>
+
+      <h3>(2) Installing GrowthForecast</h3>
+
+        <div class="row">
+          <div class="span4">
+            <p>We'll use the <a href="https://metacpan.org/release/App-cpanminus">cpanm</a> command to install GrowthForecast together with its module dependencies.</p>
+            <p>We recommend that you use Perl built with <a href="http://perlbrew.pl/">perlbrew</a> (or others) rather than the default Perl that ships with your OS.</p>
+            <p></p>
+          </div>
+          <div class="span8">
+<pre class="prettyprint linenums">
+$ cpanm -n GrowthForecast
+</pre>
+<p>Please check for version information on <a href="https://metacpan.org/release/GrowthForecast">CPAN</a>. Installation will take a bit of time since there are a many module dependencies.</p>
+          </div>
+      </div>
+
+      <h3>(3) Starting GrowthForecast</h3>
+
+        <div class="row">
+          <div class="span4">
+            <p>You've now installed GrowthForecast! To start GrowthForecast, please execute "growthforecast.pl".</p>
+            <p>If you run it with the data-dir option (specifying the directory to store the graph data), the web server will start on port 5125. You can verify this in your browser.</p>
+          </div>
+          <div class="span8">
+<h3>Boot Command</h3>
+<pre class="prettyprint linenums">
+$ growthforecast.pl --data-dir /home/user/growthforecast
+</pre>
+
+<h3>Other Boot Options</h3>
+
+<table class="table">
+<tr>
+<th>Option Name</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>port</td><td>The TCP port to bind to. Default: port 5125.</td>
+</tr>
+<tr>
+<td>host</td><td>The IP address to bind to. Default: 0.0.0.0</td>
+</tr>
+<tr>
+<td>front-proxy</td><td>If using reverse proxy, uses the IP address of the reverse proxy or CIDR. Multiple IP addresses can be set</td>
+</tr>
+<tr>
+<td>allow-from</td><td>Specify the IP address from which the service can be accessed. If not set, the service can be accessed by all remote hosts.</td>
+</tr>
+<tr>
+<td>disable-1min-metrics</td><td>Stop the service from updating the graph every minute.</td>
+</tr>
+<tr>
+<td>with-mysql</td><td>Use MySQL instead of the default SQLite for the database holding the graph information. Specify using the form dbi:mysql:[dbname];hostname=[hostname].</td>
+</tr>
+<tr>
+<td>h (or) help</td><td>Display the help info./td>
+</tr>
+</table>
+
+</div>
+</div>
+
+<h3>If Using MySQL</h3>
+
+<div class="row">
+<div class="span4">
+<p>You will need the following permissions when using the --with-mysql option.</p>
+
+<ul>
+<li>CREATE</li>
+<li>ALTER</li>
+<li>DELETE</li>
+<li>INSERT</li>
+<li>UPDATE</li>
+<li>SELECT</li>
+</ul>
+</div>
+<div class="span8">
+<h4>Expamle of GRANT Command</h4>
+<pre class="prettyprint linenums">
+mysql> GRANT  CREATE, ALTER, DELETE, INSERT, UPDATE, SELECT \\
+         ON growthforecast.* TO 'www'\@'localhost' IDENTIFIED BY foobar;
+</pre>
+
+<p>Your username and password are set by system environment variables.</p>
+
+<pre class="prettyprint linenums">
+$ MYSQL_USER=www MYSQL_PASSWORD=foobar growthforecast.pl \\
+      --data-dir /home/user/growthforecast \\
+      --with-mysql dbi:mysql:growthforecast;hostname=localhost 
+</pre>
+
+          </div>
+        </div>
+      </section>
+
+      <section id="basic">
+        <div class="page-header">
+          <h1>Basic Usage</h1>
+        </div>
+
+<h3>How to Register Graphs</h3>
+
+<p>To create graphs or update data, make a request to the following URL via a POST method.</p>
+<pre class="prettyprint linenums">
+http://example.com/api/:service_name/:section_name/:graph_name
+</pre>
+
+<div class="row">
+<div class="span3">
+<p>The names of the items within the URL to POST to are shown in the table to the right.</p>
+
+<p>You can use multi-byte strings for each item name as long as it is UTF-8.</p>
+</div>
+<div class="span7">
+
+<table class="table">
+<tr>
+<th>The Name Used in the Example</th>
+<th>Purpose</th>
+<th>Actual Parameters</th>
+</tr>
+<tr>
+<td>:service_name</td>
+<td>The name of the service that you'd like to graph</td>
+<td>blog, photo, place, socialgame</td>
+</tr>
+<tr>
+<td>:section_name</td>
+<td>The name of the feature or system to graph, within said service.</td>
+<td>entry, user, spot, items</td>
+</tr>
+<tr>
+<td>:graph_name</td>
+<td>The actual name of the value being graphed</td>
+<td>total_entry, kakin_user, muryo_user</td>
+</tr>
+</table>
+
+</div>
+</div>
+
+<p>For example, if we are graphing the number of registered users in a social game, we would POST to the following URL:</p>
+
+<pre class="prettyprint linenums">
+http://example.com/api/socialgame/member/register
+</pre>
+
+<p>Also, we would use the following parametens when POSTing.</p>
+
+<table class="table">
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Required/Optional</th>
+</tr>
+<tr>
+<td>number</td>
+<td>The number to give the graph</td>
+<td>Required</td>
+</tr>
+<tr>
+<td>mode</td>
+<td>Update method for the number: count, modified, gauge。<br />
+count: Add the value of the number parameter to the pre-registered value.<br />
+modified: Overwrite if the value differs from last time.<br />
+gauge: Always overwrite with the value of number<br />
+Default: gauge mode</td>
+<td>Optional</td>
+</tr>
+<tr>
+<td>color</td>
+<td>The color of the grah. Specify with #FFFFFF format.</td>
+<td>Optional (auto-generated if unspecified in a new graph)</td>
+</tr>
+</table>
+
+<h3>Example: Creating a New Graph</h3>
+
+<p>The example below shows how to create a new graph or update an existing one, using Perl's LWP module.</p>
+
+<pre class="prettyprint linenums">
+my $ua = LWP::UserAgent->new;
+$ua->post('http://example.com/api/socialgame/member/register',{
+    number      => 10,
+    color       => '#333399'
+});
+</pre>
+
+<p>If using curl:</p>
+
+<pre class="prettyprint linenums">
+$ curl -F number=10 http://example.com/api/socialgame/member/register
+</pre>
+
+      </section>
+
+      <section id="api">
+        <div class="page-header">
+          <h1>Other API</h1>
+        </div>
+
+<h3>Customizing the Graph's Appearance</h3>
+
+<p>You can customize the graph's appearance by adding a few parameters to the graph's URI.</p>
+
+<h4>Endpoint</h4>
+
+<pre class="prettyprint">
+URI of a Graph     http://example.com/graph/:service_name/:section_name/:graph_name
+URI of a Compound Graph http://example.com/graph/:pattern
+</pre>
+
+<div class="row">
+<div class="span3">
+<h4>List of Supported Parameters</h4>
+
+<p>You can even make graphs like the one below just by changing the parameters!</p>
+
+<p><img src="img/sample.png" /></p>
+
+<pre class="prettyprint">
+http://example.com/graph/service/section/graph?t=d&gmode=gauge&border=0&legend=0&width=200&background_color=333333&canvas_color=333333&font_color=CCCCCC&axis_color=666666
+</pre>
+
+</div>
+<div class="span9">
+<table class="table">
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>t</td>
+<td>The range of the graph: y(1 year), m(1 month), w(1 week), 3d(3 days), s3d(3 days, refresh every minute), d(1 day), sd(1 day, refresh every minute), 8h(8 hours), s8h(8 hours, refresh every minute), 4h(4 hours), s4h(4 hours, refresh every minute), h(1 hour), sh(1 hour, refresh every minute), n(half a day), sn(half a day, refresh every minute), c(custom)、sc(custom, refresh every minute)</td>
+</tr>
+<tr>
+<td>from</td>
+<td>When `t` is set to `c` or `sc`, this value sets the start time of the graph. Uses the format: 2011/12/08 12:10:00</td>
+</tr>
+<tr>
+<td>to</td>
+<td>When `t` is set to `c` or `sc`, this value sets the end time of the graph. Uses the format: 2011/12/08 12:10:00</td>
+</tr>
+<tr>
+<td>gmode</td>
+<td>Chooses the type of graph: a cumulative sum (gauge) graph or a "difference between current and past value" (subtract) graph. Default: gauge</td>
+</tr>
+<tr>
+<td>width</td>
+<td>The width of the graph. (The actual width is a bit wider due to the Legend and other elements)</td>
+</tr>
+<tr>
+<td>height</td>
+<td>The height of the graph. (The actual height is a bit higher due to the Legend and other elements)</td>
+</tr>
+
+<tr>
+<td>graphonly</td>
+<td>This mode only plots the graph. No other elements are plotted. Default: 0</td>
+</tr>
+
+<tr>
+<td>logarithmic</td>
+<td>Graphs in logarithmic scale. Default: 0</td>
+</tr>
+
+<tr>
+<td>xgrid</td>
+<td>Setup for the X-axis. Details regarding the format can be found in the <a href="http://oss.oetiker.ch/rrdtool/doc/rrdgraph.en.html">rrdtool documentation</a>.</td>
+</tr>
+
+<tr>
+<td>ygrid</td>
+<td>Setup for the Y-axis. Details regarding the format can be found in the <a href="http://oss.oetiker.ch/rrdtool/doc/rrdgraph.en.html">rrdtool documentation</a>.</td>
+</tr>
+
+<tr>
+<td>background_color</td>
+<td>Background color. Specify using the FFFFFF or FFFFFF00 formats (last 2 characters are for the alpha channel).</td>
+</tr>
+
+<tr>
+<td>canvas_color</td>
+<td>The canvas (background) color of the graph. Specify using the FFFFFF or FFFFFF00 formats.</td>
+</tr>
+
+<tr>
+<td>font_color</td>
+<td>The font color. Specify using the FFFFFF or FFFFFF00 formats.</td>
+</tr>
+
+<tr>
+<td>frame_color</td>
+<td>The frame color of the Legend. Specify using the FFFFFF or FFFFFF00 formats.</td>
+</tr>
+
+<tr>
+<td>axis_color</td>
+<td>The border color of the graph. Specify using the FFFFFF or FFFFFF00 formats.</td>
+</tr>
+
+<tr>
+<td>shadea_color</td>
+<td>The border colors for top left and top. Specify using the FFFFFF or FFFFFF00 formats.</td>
+</tr>
+
+<tr>
+<td>shadeb_color</td>
+<td>The border colors for bottom right and bottom. Specify using the FFFFFF or FFFFFF00 formats.</td>
+</tr>
+
+<tr>
+<td>border</td>
+<td>The thickness of the borders. `0` is a valid value. Default: 3.</td>
+</tr>
+
+<tr>
+<td>legend</td>
+<td>Enable the Legend (including summary data of the graph). Default: 1</td>
+</tr>
+
+<tr>
+<td>sumup</td>
+<td>Include the sum value in the Legend. Default: 0</td>
+</tr>
+
+</table>
+</div>
+</div>
+
+<h3>Graph Data Summary</h3>
+
+<p>You can export the Legend information (which includes the summary data of the graph) in JSON format.</p>
+
+<h4>Endpoint</h4>
+
+<pre class="prettyprint">
+URI of the Graph Summary    http://example.com/summary/:service_name/:section_name/:graph_name
+URI of the Compound Graph Summary  http://example.com/summary/:pattern
+</pre>
+
+<h3>Exporting Graph Data</h3>
+
+<div class="row">
+<div class="span3">
+
+<p>You can export your graph data in JSON format.</p>
+
+</div>
+<div class="span9">
+
+<h4>Endpoint</h4>
+
+<pre class="prettyprint">
+URI of the Graph http://example.com/xport/:service_name/:section_name/:graph_name
+URI of the Compound Graph http://example.com/xport/:pattern
+</pre>
+
+<h4>List of Parameters</h4>
+
+<table class="table">
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>t</td>
+<td>The range of the graph: y(1 year), m(1 month), w(1 week), 3d(3 days), s3d(3 days, refresh every minute), d(1 day), sd(1 day, refresh every minute), 8h(8 hours), s8h(8 hours, refresh every minute), 4h(4 hours), s4h(4 hours, refresh every minute), h(1 hour), sh(1 hour, refresh every minute), n(half a day), sn(half a day, refresh every minute), c(custom)、sc(custom, refresh every minute)</td>
+</tr>
+<tr>
+<td>from</td>
+<td>When `t` is set to `c` or `sc`, this value sets the start time of the graph. Uses the format: 2011/12/08 12:10:00</td>
+</tr>
+<tr>
+<td>to</td>
+<td>When `t` is set to `c` or `sc`, this value sets the end time of the graph. Uses the format: 2011/12/08 12:10:00</td>
+</tr>
+<tr>
+<td>gmode</td>
+<td>Chooses the type of graph: stacked column (gauge) or a clustered column (subtract). Default: gauge</td>
+</tr>
+<tr>
+<td>width</td>
+<td>Maximum number of rows.</td>
+</tr>
+</table>
+
+</div>
+</div>
+
+      </section>
+
+
+
+      <hr>
+
+      <footer>
+        <p>&copy; 2012- Masahiro Nagano</p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/prettify.js"></script>
+    <script>
+    (function(){
+      $('#navbar').scrollspy();
+      prettyPrint();
+    })();
+    </script>
+  </body>
+</html>
+
+
