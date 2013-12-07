@@ -371,6 +371,8 @@ sub export {
         '-e', $end,
     );
 
+    push @opt, '--step', $args->{step} if $args->{step};
+
     my $i=0;
     my @defs;
     for my $data ( @datas ) {
