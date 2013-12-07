@@ -280,6 +280,10 @@ Export URI of Complex graph <: $c.req.uri_for('/') :>xport/:pattern
 <td>step</td>
 <td>step size</td>
 </tr>
+<tr>
+<td>cf</td>
+<td>consolidation function. "AVERAGE" or "MAX". default is "AVERAGE"</td>
+</tr>
 </table>
 
 

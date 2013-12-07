@@ -359,7 +359,7 @@ sub export {
     my $datas = shift;
     my @datas = ref($datas) eq 'ARRAY' ? @$datas : ($datas);
     my $args = shift;
-    my ($a_gmode, $span, $from, $to, $width) = map { $args->{$_} } qw/gmode t from to width/;
+    my ($a_gmode, $span, $from, $to, $width, $cf) = map { $args->{$_} } qw/gmode t from to width cf/;
     $span ||= 'd';
     $width ||= 390;
 
@@ -384,7 +384,7 @@ sub export {
         my $stack = ( $data->{stack} && $i > 0 ) ? ':STACK' : '';
         my $file = $span =~ m!^s! ? $self->path_short($data) : $self->path($data);
         push @opt, 
-            sprintf('DEF:%s%dt=%s:%s:AVERAGE', $gdata, $i, $file, $gdata),
+            sprintf('DEF:%s%dt=%s:%s:%s', $gdata, $i, $file, $gdata, $cf),
             sprintf('CDEF:%s%d=%s%dt,%s,%s,LIMIT,%d,%s', $gdata, $i, $gdata, $i, $llimit, $ulimit, $data->{adjustval}, $data->{adjust}),
             sprintf('XPORT:%s%d:%s', $gdata, $i ,$self->_escape($data->{graph_name}));
         push @defs, sprintf('%s%d',$gdata,$i);
