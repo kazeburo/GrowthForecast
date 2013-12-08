@@ -553,6 +553,18 @@ my $GRAPH_VALIDATOR = [
             [['CHOICE',qw/0 1/],'invalid sumup flag'],
         ],
     },
+    'step' => {
+        default => '',
+        rule => [
+            ['NATURAL', 'invalid step size'],
+        ],
+    },
+    'cf' => {
+        default => 'AVERAGE',
+        rule => [
+            [['CHOICE', qw/AVERAGE MAX/], 'invalid consolidation function'],
+        ],
+    },
 ];
 
 get '/complex/{method:(?:xport|graph|summary)}/:service_name/:section_name/:graph_name' => sub {
