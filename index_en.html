@@ -14,7 +14,6 @@
         padding-bottom: 40px;
       }
     </style>
-    <link href="css/bootstrap-responsive.min.css" rel="stylesheet">
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -24,18 +23,18 @@
 
   <body data-spy="scroll">
 
-
-    <div class="navbar navbar-fixed-top" id="top">
-      <div class="navbar-inner">
-        <div class="container">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation" id="top">
+      <div class="container">
+        <div class="navbar-inner">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
-          </a>
-          <a class="brand" href="#">GrowthForecast</a>
-          <div class="nav-collapse">
-            <ul class="nav">
+          </button>
+          <a class="navbar-brand" href="#">GrowthForecast</a>
+          <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
               <li class="active"><a href="#top">Home</a></li>
               <li><a href="#install">Install</a></li>
               <li><a href="#basic">Basic</a></li>
@@ -47,17 +46,18 @@
       </div>
     </div>
 
+
     <div class="container">
 
       <!-- Main hero unit for a primary marketing message or call to action -->
-      <div class="hero-unit" style="background-repeat: no-repeat; background-position: 50% 50%;background-image:url(img/background.png)">
+      <div class="jumbotron" style="background-repeat: no-repeat; background-position: 50% 50%;background-image:url(img/background.png)">
         <h1>GrowthForecast</h1>
         <p>GrowthForecast is a web tool that let's you graph all sorts of metrics via a WebAPI. Our simple API let's you create and update charts in real time, customize your charts through a Web interface, and create charts that combine multiple metrics.</p>
       </div>
 
       <section>
         <div class="row">
-          <div class="span6">
+          <div class="col-md-6">
 <h3>You can graph your MySQL data with 1 line of code</h3>
 <pre class="prettyprint linenums">
 $ crontab -l
@@ -65,7 +65,7 @@ $ crontab -l
 </pre>
 <p>By periodically POSTing to GrowthForecast with cron, you can make charts without having to deal with complex settings</p>
           </div>
-          <div class="span6"><img src="img/sample1.png" /></div>
+          <div class="col-md-6"><img src="img/sample1.png" class="img-responsive" /></div>
         </div>
       </section>
 
@@ -79,7 +79,7 @@ $ crontab -l
         <h3>(1) Installing Package Dependencies</h3>
 
         <div class="row">
-          <div class="span4">
+          <div class="col-md-4">
             <p>We'll first install the libraries that RRDTool depends on using package managers like yum, apt, homebrew, etc.</p>
             <ul>
               <li>glib</li>
@@ -90,7 +90,7 @@ $ crontab -l
 	    <p></p>
 
           </div>
-          <div class="span8">
+          <div class="col-md-8">
             <h3>CentOS</h3>
 <pre class="prettyprint linenums">
 $ sudo yum groupinstall "Development Tools"
@@ -106,12 +106,12 @@ $ sudo apt-get build-dep rrdtool
       <h3>(2) Installing GrowthForecast</h3>
 
         <div class="row">
-          <div class="span4">
+          <div class="col-md-4">
             <p>We'll use the <a href="https://metacpan.org/release/App-cpanminus">cpanm</a> command to install GrowthForecast together with its module dependencies.</p>
             <p>We recommend that you use Perl built with <a href="http://perlbrew.pl/">perlbrew</a> (or others) rather than the default Perl that ships with your OS.</p>
             <p></p>
           </div>
-          <div class="span8">
+          <div class="col-md-8">
 <pre class="prettyprint linenums">
 $ cpanm -n GrowthForecast
 </pre>
@@ -122,11 +122,11 @@ $ cpanm -n GrowthForecast
       <h3>(3) Starting GrowthForecast</h3>
 
         <div class="row">
-          <div class="span4">
+          <div class="col-md-4">
             <p>You've now installed GrowthForecast! To start GrowthForecast, please execute "growthforecast.pl".</p>
             <p>If you run it with the data-dir option (specifying the directory to store the graph data), the web server will start on port 5125. You can verify this in your browser.</p>
           </div>
-          <div class="span8">
+          <div class="col-md-8">
 <h3>Boot Command</h3>
 <pre class="prettyprint linenums">
 $ growthforecast.pl --data-dir /home/user/growthforecast
@@ -168,7 +168,7 @@ $ growthforecast.pl --data-dir /home/user/growthforecast
 <h3>If Using MySQL</h3>
 
 <div class="row">
-<div class="span4">
+<div class="col-md-4">
 <p>You will need the following permissions when using the --with-mysql option.</p>
 
 <ul>
@@ -180,7 +180,7 @@ $ growthforecast.pl --data-dir /home/user/growthforecast
 <li>SELECT</li>
 </ul>
 </div>
-<div class="span8">
+<div class="col-md-8">
 <h4>Expamle of GRANT Command</h4>
 <pre class="prettyprint linenums">
 mysql> GRANT  CREATE, ALTER, DELETE, INSERT, UPDATE, SELECT \\
@@ -212,12 +212,12 @@ http://example.com/api/:service_name/:section_name/:graph_name
 </pre>
 
 <div class="row">
-<div class="span3">
+<div class="col-md-3">
 <p>The names of the items within the URL to POST to are shown in the table to the right.</p>
 
 <p>You can use multi-byte strings for each item name as long as it is UTF-8.</p>
 </div>
-<div class="span7">
+<div class="col-md-7">
 
 <table class="table">
 <tr>
@@ -317,19 +317,19 @@ URI of a Compound Graph http://example.com/graph/:pattern
 </pre>
 
 <div class="row">
-<div class="span3">
+<div class="col-md-3">
 <h4>List of Supported Parameters</h4>
 
 <p>You can even make graphs like the one below just by changing the parameters!</p>
 
-<p><img src="img/sample.png" /></p>
+<p><img src="img/sample.png" class="img-responsive" /></p>
 
 <pre class="prettyprint">
 http://example.com/graph/service/section/graph?t=d&gmode=gauge&border=0&legend=0&width=200&background_color=333333&canvas_color=333333&font_color=CCCCCC&axis_color=666666
 </pre>
 
 </div>
-<div class="span9">
+<div class="col-md-9">
 <table class="table">
 <tr>
 <th>Parameter</th>
@@ -448,12 +448,12 @@ URI of the Compound Graph Summary  http://example.com/summary/:pattern
 <h3>Exporting Graph Data</h3>
 
 <div class="row">
-<div class="span3">
+<div class="col-md-3">
 
 <p>You can export your graph data in JSON format.</p>
 
 </div>
-<div class="span9">
+<div class="col-md-9">
 
 <h4>Endpoint</h4>
 
