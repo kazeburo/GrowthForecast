@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>GrowthForecast - Lightning fast Graphing / Visualization</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le styles -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/prettify.css" rel="stylesheet">
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+    </style>
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+
+  <body data-spy="scroll">
+
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation" id="top">
+      <div class="container">
+        <div class="navbar-inner">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">GrowthForecast</a>
+          <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+              <li class="active"><a href="#top">Home</a></li>
+              <li><a href="#install">Install</a></li>
+              <li><a href="#basic">Basic</a></li>
+              <li><a href="#api">API</a></li>
+              <li><a href="https://github.com/kazeburo/GrowthForecast/">Source Code</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-globe"></span> 日本語 <b class="caret"></b></a>
+                  <ul class="dropdown-menu">
+                    <li><a href="index.html">英語</a></li>
+                    <li class="active"><a href="index.ja.html">日本語</a></li>
+                  </ul>
+              </li>
+            </ul>
+           </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <!-- Main hero unit for a primary marketing message or call to action -->
+      <div class="jumbotron" style="background-repeat: no-repeat; background-position: 50% 50%;background-image:url(img/background.png)">
+        <h1>GrowthForecast</h1>
+        <p>GrowthForecastは様々な値をWebAPI経由でグラフ化できるWebツールです。シンプルなAPIでリアルタイムにグラフを作成、更新でき、Webインターフェイスからグラフの表示をカスタマイズしたり、複数のメトリクスを重ね合わせたグラフを作成できます</p>
+      </div>
+
+      <section>
+        <div class="row">
+          <div class="col-md-6">
+<h3>MySQLのデータを1行のコードでグラフ化できます</h3>
+<pre class="prettyprint linenums">
+$ crontab -l
+*/5 * * * * curl -F number=`mysql -BN -e 'select count(*) from member' game` http://example.com/api/socialgame/member/register 2>&1 | logger -t post_gf -p local0.info
+</pre>
+<p>cronで定期的にGrowthForecastにPOSTするだけで、設定なしでグラフが作れます</p>
+          </div>
+          <div class="col-md-6"><img src="img/sample1.png" class="img-responsive" /></div>
+        </div>
+      </section>
+
+<hr>
+
+      <section id="install">
+        <div class="page-header">
+          <h1>Install <small>インストールと起動方法</small></h1>
+        </div>
+
+        <h3>(1) 依存パッケージの導入</h3>
+
+        <div class="row">
+          <div class="col-md-4">
+            <p>RRDToolが依存するライブラリを導入します。以下のライブラリをyum、apt、homebrew等OSのパッケージマネージャを利用してインストールします</p>
+            <ul>
+              <li>glib</li>
+              <li>xml2</li>
+              <li>pango</li>
+              <li>cairo</li>
+            </ul>
+	    <p></p>
+
+          </div>
+          <div class="col-md-8">
+            <h3>CentOS</h3>
+<pre class="prettyprint linenums">
+$ sudo yum groupinstall "Development Tools"
+$ sudo yum install pkgconfig glib2-devel gettext libxml2-devel pango-devel cairo-devel
+</pre>
+            <h3>Ubuntu</h3>
+<pre class="prettyprint linenums">
+$ sudo apt-get build-dep rrdtool
+</pre>
+          </div>
+      </div>
+
+      <h3>(2) GrowthForecastのインストール</h3>
+
+        <div class="row">
+          <div class="col-md-4">
+            <p><a href="https://metacpan.org/release/App-cpanminus">cpanm</a>コマンドを利用して依存モジュールも一緒にインストールします。</p>
+            <p>OSに最初から入っているperlではなく<a href="http://perlbrew.pl/">perlbrew</a>等で構築したperlを使う事をお勧めします</p>
+            <p></p>
+          </div>
+          <div class="col-md-8">
+<pre class="prettyprint linenums">
+$ cpanm -n GrowthForecast
+</pre>
+<p>バージョンは<a href="https://metacpan.org/release/GrowthForecast">CPAN</a>にて確認してください。インストールは依存モジュールの数が多いので時間がかかります</p>
+          </div>
+      </div>
+
+      <h3>(3) GrowthForecastの起動</h3>
+
+        <div class="row">
+          <div class="col-md-4">
+            <p>ここまでの手順でインストールは完了です。GrowthForecast の起動は「growthforecast.pl」を実行します</p>
+            <p> data-dir オプションにグラフデータを保存するディレクトリを指定して起動すると、port 5125 でWebサーバが起動するので、ブラウザで確認できます</p>
+          </div>
+          <div class="col-md-8">
+<h3>起動コマンド</h3>
+<pre class="prettyprint linenums">
+$ growthforecast.pl --data-dir /home/user/growthforecast
+</pre>
+
+<h3>その他の起動オプション</h3>
+
+<table class="table">
+<tr>
+<th>オプション名</th>
+<th>説明</th>
+</tr>
+<tr>
+<td>port</td><td>バインドするTCPポート。デフォルトは5125</td>
+</tr>
+<tr>
+<td>host</td><td>バインドするIPアドレス。デフォルトは0.0.0.0</td>
+</tr>
+<tr>
+<td>front-proxy</td><td>リバースプロキシーを利用している場合、リバースプロキシーのIPアドレスもしくはCIDRで指定する。複数指定可</td>
+</tr>
+<tr>
+<td>allow-from</td><td>アクセス元IPアドレスの指定。指定しないと全てのリモートホストからアクセス可能</td>
+</tr>
+<tr>
+<td>disable-1min-metrics</td><td>1分毎にグラフを更新する機能の停止</td>
+</tr>
+<tr>
+<td>with-mysql</td><td>グラフ情報を保存するDBに標準のSQLiteではなくMySQLを使う。dbi:mysql:[dbname];hostname=[hostname] の形式で指定</td>
+</tr>
+<tr>
+<td>h または help</td><td>ヘルプの出力</td>
+</tr>
+</table>
+
+</div>
+</div>
+
+<h3>MySQLを使う場合</h3>
+
+<div class="row">
+<div class="col-md-4">
+<p>--with-mysql オプションを指定しMySQLを使う場合次の権限が必要となります。</p>
+
+<ul>
+<li>CREATE</li>
+<li>ALTER</li>
+<li>DELETE</li>
+<li>INSERT</li>
+<li>UPDATE</li>
+<li>SELECT</li>
+</ul>
+</div>
+<div class="col-md-8">
+<h4>GRANT文の例</h4>
+<pre class="prettyprint linenums">
+mysql> GRANT  CREATE, ALTER, DELETE, INSERT, UPDATE, SELECT \\
+         ON growthforecast.* TO 'www'\@'localhost' IDENTIFIED BY foobar;
+</pre>
+
+<p>ユーザ名とパスワードは環境変数で指定します</p>
+
+<pre class="prettyprint linenums">
+$ MYSQL_USER=www MYSQL_PASSWORD=foobar growthforecast.pl \\
+      --data-dir /home/user/growthforecast \\
+      --with-mysql dbi:mysql:growthforecast;hostname=localhost 
+</pre>
+
+          </div>
+        </div>
+      </section>
+
+      <section id="basic">
+        <div class="page-header">
+          <h1>Basic <small>基本的な使い方</small></h1>
+        </div>
+
+<h3>グラフの登録方法</h3>
+
+<p>グラフの作成・データ更新を行うには以下のURLに対してPOSTメソッドにてリクエストを行います</p>
+<pre class="prettyprint linenums">
+http://example.com/api/:service_name/:section_name/:graph_name
+</pre>
+
+<div class="row">
+<div class="col-md-3">
+<p>POSTする際のURL中の各名前は右にまとめました</p>
+
+<p>各項目名にはUTF-8であればマルチバイト文字列が使えます</p>
+</div>
+<div class="col-md-7">
+
+<table class="table">
+<tr>
+<th>例中の名前</th>
+<th>役割</th>
+<th>具体例を , 区切りで</th>
+</tr>
+<tr>
+<td>:service_name</td>
+<td>グラフを取りたいサービスの名前</td>
+<td>blog, photo, place, socialgame</td>
+</tr>
+<tr>
+<td>:section_name</td>
+<td>そのサービスの中での、グラフを取る対象が属してる機能やシステム名</td>
+<td>entry, user, spot, items</td>
+</tr>
+<tr>
+<td>:graph_name</td>
+<td>具体的に何のグラフか</td>
+<td>total_entry, kakin_user, muryo_user</td>
+</tr>
+</table>
+
+</div>
+</div>
+
+<p>もしソーシャルゲームの登録ユーザ数をグラフにするのであれば</p>
+
+<pre class="prettyprint linenums">
+http://example.com/api/socialgame/member/register
+</pre>
+
+<p>に対して POST します。</p>
+<p>また、 POST する時には以下のパラメータをつけます。</p>
+
+<table class="table">
+<tr>
+<th>パラメータ</th>
+<th>説明</th>
+<th>必須/オプション</th>
+</tr>
+<tr>
+<td>number</td>
+<td>グラフに与える数値</td>
+<td>必須</td>
+</tr>
+<tr>
+<td>mode</td>
+<td>数値のアップデート方法。count or modified or gauge。<br />
+count: 登録済みの数値を number の値で加算<br />
+modified: 前回と異なる数値の時だけ上書き更新<br />
+gauge: number の数値で常に上書き<br />
+デフォルトは gauge</td>
+<td>オプション</td>
+</tr>
+<tr>
+<td>color</td>
+<td>グラフの色。#FFFFFF 形式で指定</td>
+<td>オプション/新規グラフで指定なしの場合自動生成</td>
+</tr>
+</table>
+
+<h3>グラフ登録サンプル</h3>
+
+<p>PerlのLWPモジュールを利用したグラフの登録・更新サンプル</p>
+
+<pre class="prettyprint linenums">
+my $ua = LWP::UserAgent->new;
+$ua->post('http://example.com/api/socialgame/member/register',{
+    number      => 10,
+    color       => '#333399'
+});
+</pre>
+
+<p>curlを使った場合</p>
+
+<pre class="prettyprint linenums">
+$ curl -F number=10 http://example.com/api/socialgame/member/register
+</pre>
+
+      </section>
+
+      <section id="api">
+        <div class="page-header">
+          <h1>API <small>その他のAPI</small></h1>
+        </div>
+
+<h3>グラフの表示のカスタマイズ</h3>
+
+<p>グラフのURIに対していくつかパラメータを与えるとグラフの描画をカスタマイズすることができます</p>
+
+<h4>エンドポイント</h4>
+
+<pre class="prettyprint">
+グラフのURI     http://example.com/graph/:service_name/:section_name/:graph_name
+複合グラフのURI http://example.com/graph/:pattern
+</pre>
+
+<div class="row">
+<div class="col-md-3">
+<h4>サポートしているパラメータ一覧</h4>
+
+<p>パラメータを変更する事で↓こんなグラフも作れます</p>
+
+<p><img src="img/sample.png" class="img-responsive" /></p>
+
+<pre class="prettyprint">
+http://example.com/graph/service/section/graph?t=d&gmode=gauge&border=0&legend=0&width=200&background_color=333333&canvas_color=333333&font_color=CCCCCC&axis_color=666666
+</pre>
+
+</div>
+<div class="col-md-9">
+<table class="table">
+<tr>
+<th>パラメータ</th>
+<th>説明</th>
+</tr>
+<tr>
+<td>t</td>
+<td>グラフの範囲。y(年間)、m(月間)、w(週間)、3d(3日間)、s3d(3日間・1分更新)、d(一日)、sd(一日・1分更新)、8h(8時間)、s8h(8時間・1分更新)、4h(4時間)、s4h(4時間・1分更新)、h(1時間)、sh(1時間・1分更新)、n(半日)、sn(半日・1分更新)、c(任意)、sc(任意・1分更新)</td>
+</tr>
+<tr>
+<td>from</td>
+<td>「t」が「c」または「sc」の場合、描画する開始日付。「2011/12/08 12:10:00」の形式で指定</td>
+</tr>
+<tr>
+<td>to</td>
+<td>「t」が「c」または「sc」の場合、描画する終了日付。「2011/12/08 12:10:00」の形式で指定</td>
+</tr>
+<tr>
+<td>gmode</td>
+<td>積算か差分グラフの選択、「gauge」または「subtract」。デフォルトは「gauge」</td>
+</tr>
+<tr>
+<td>width</td>
+<td>横幅。実際には凡例などを含むので指定したサイズより大きくなる</td>
+</tr>
+<tr>
+<td>height</td>
+<td>縦幅。実際には凡例などを含むので指定したサイズより大きくなる</td>
+</tr>
+
+<tr>
+<td>graphonly</td>
+<td>グラフ部分しか描画しないモード。デフォルト「0」</td>
+</tr>
+
+<tr>
+<td>logarithmic</td>
+<td>対数グラフ。デフォルト「0」</td>
+</tr>
+
+<tr>
+<td>xgrid</td>
+<td>X軸の設定。フォーマットは<a href="http://oss.oetiker.ch/rrdtool/doc/rrdgraph.en.html">rrdtool</a>のドキュメント参照のこと</td>
+</tr>
+
+<tr>
+<td>ygrid</td>
+<td>Y軸の設定。フォーマットは<a href="http://oss.oetiker.ch/rrdtool/doc/rrdgraph.en.html">rrdtool</a>のドキュメント参照のこと</td>
+</tr>
+
+<tr>
+<td>background_color</td>
+<td>背景色。FFFFFF または FFFFFF00 で指定。最後の2文字はアルファチャンネル</td>
+</tr>
+
+<tr>
+<td>canvas_color</td>
+<td>グラフ部分背景色。FFFFFF または FFFFFF00 で指定</td>
+</tr>
+
+<tr>
+<td>font_color</td>
+<td>文字色。FFFFFF または FFFFFF00 で指定</td>
+</tr>
+
+<tr>
+<td>frame_color</td>
+<td>凡例の色を囲っている部分。FFFFFF または FFFFFF00 で指定</td>
+</tr>
+
+<tr>
+<td>axis_color</td>
+<td>グラフ部分の枠線。FFFFFF または FFFFFF00 で指定</td>
+</tr>
+
+<tr>
+<td>shadea_color</td>
+<td>左上、上の枠線。FFFFFF または FFFFFF00 で指定</td>
+</tr>
+
+<tr>
+<td>shadeb_color</td>
+<td>右下、下の枠線。FFFFFF または FFFFFF00 で指定</td>
+</tr>
+
+<tr>
+<td>border</td>
+<td>枠線の太さ。「0」も可能。デフォルト「3」</td>
+</tr>
+
+<tr>
+<td>legend</td>
+<td>凡例の有無。デフォルト「1」</td>
+</tr>
+
+<tr>
+<td>sumup</td>
+<td>凡例に合計値を含むかどうか。デフォルト「0」</td>
+</tr>
+
+</table>
+</div>
+</div>
+
+<h3>グラフデータのサマリー</h3>
+
+<p>グラフデータの凡例部分をJSON形式でエクスポートできます</p>
+
+<h4>エンドポイント</h4>
+
+<pre class="prettyprint">
+グラフのサマリーURI     http://example.com/summary/:service_name/:section_name/:graph_name
+複合グラフのサマリーURI  http://example.com/summary/:pattern
+</pre>
+
+<h3>グラフデータのエクスポート</h3>
+
+<div class="row">
+<div class="col-md-3">
+
+<p>グラフデータをJSON形式でエクスポートできます</p>
+
+</div>
+<div class="col-md-9">
+
+<h4>エンドポイント</h4>
+
+<pre class="prettyprint">
+グラフのURI http://example.com/xport/:service_name/:section_name/:graph_name
+複合グラフのURI  http://example.com/xport/:pattern
+</pre>
+
+<h4>パラメータ一覧</h4>
+
+<table class="table">
+<tr>
+<th>パラメータ</th>
+<th>説明</th>
+</tr>
+<tr>
+<td>t</td>
+<td>グラフの範囲。y(年間)、m(月間)、w(週間)、3d(3日間)、s3d(3日間・1分更新)、d(一日)、sd(一日・1分更新)、8h(8時間)、s8h(8時間・1分更新)、4h(4時間)、s4h(4時間・1分更新)、h(1時間)、sh(1時間・1分更新)、n(半日)、sn(半日・1分更新)、c(任意)、sc(任意・1分更新)</td>
+</tr>
+<tr>
+<td>from</td>
+<td>「t」が「c」または「sc」の場合、描画する開始日付。「2011/12/08 12:10:00」の形式で指定</td>
+</tr>
+<tr>
+<td>to</td>
+<td>「t」が「c」または「sc」の場合、描画する終了日付。「2011/12/08 12:10:00」の形式で指定</td>
+</tr>
+<tr>
+<td>gmode</td>
+<td>積算か差分グラフの選択、「gauge」または「subtract」。デフォルトは「gauge」</td>
+</tr>
+<tr>
+<td>width</td>
+<td>rowの最大個数</td>
+</tr>
+</table>
+
+</div>
+</div>
+
+      </section>
+
+
+
+      <hr>
+
+      <footer>
+        <p>&copy; 2012- Masahiro Nagano</p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/prettify.js"></script>
+    <script>
+    (function(){
+      $('#navbar').scrollspy();
+      prettyPrint();
+    })();
+    </script>
+  </body>
+</html>
+
+
