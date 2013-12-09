@@ -38,7 +38,9 @@
               <li class="active"><a href="#top">Home</a></li>
               <li><a href="#install">Install</a></li>
               <li><a href="#basic">Basic</a></li>
+              <li><a href="#gf_internal">Internal</a></li>
               <li><a href="#api">API</a></li>
+              <li><a href="#software">Software</a></li>
               <li><a href="https://github.com/kazeburo/GrowthForecast/">Source Code</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
@@ -207,6 +209,9 @@ $ MYSQL_USER=www MYSQL_PASSWORD=foobar growthforecast.pl \\
         </div>
       </section>
 
+
+
+
       <section id="basic">
         <div class="page-header">
           <h1>Basic <small>基本的な使い方</small></h1>
@@ -307,6 +312,21 @@ $ua->post('http://example.com/api/socialgame/member/register',{
 $ curl -F number=10 http://example.com/api/socialgame/member/register
 </pre>
 
+      </section>
+
+      <section id="gf_internal">
+        <div class="page-header">
+          <h1>Internal <small>内部動作</small></h1>
+        </div>
+<h3>GrowthForeacstの仕組み</h3>
+<div class="row">
+  <div class="col-md-4">
+  <p>GrowthForecastはRound Robbin Databaseおよびグラフ描画のツールとしてRRDtoolを利用しています。</p>
+  <p>APIのエンドポイントに送信されたデータはRDMBSに一旦保存されます。Workerが定期的に動作し、RDBMSからデータを読み出し、RRDファイルを更新しています。その歳、GrowthForecastのworkerは、現在の値に加えて、一つ前との差分をsubtractデータとして格納しています。</p>
+  <p>subtractデータをグラフのソースとして利用することで、データの変化量を可視化することができます</p>
+  </div>
+  <div class="col-md-8" style="text-align:center"><img src="img/gf_internal.png" class="img-responsive" /></div>
+<div>
       </section>
 
       <section id="api">
@@ -505,7 +525,30 @@ http://example.com/graph/service/section/graph?t=d&gmode=gauge&border=0&legend=0
 
       </section>
 
+      <section id="software">
+        <div class="page-header">
+          <h1>Related Softwares <small>関連ソフトウェア</small></h1>
+        </div>
+<div class="row">
+<div class="col-md-12">
+<h4>fluent-plugin-growthforecast</h4>
+<p><a href="https://github.com/tagomoris/fluent-plugin-growthforecast">https://github.com/tagomoris/fluent-plugin-growthforecast</a><br />
+Fluentd plugin to output numbers(metrics) to 'GrowthForecast', metrics drawing tool over HTTP.</p>
 
+<h4>rb-growthforecast (ruby)</h4>
+<p><a href="https://github.com/tagomoris/rb-growthforecast">https://github.com/tagomoris/rb-growthforecast</a><br />
+Client library and command to operate GrowthForecast</p>
+
+<h4>growthforecast-client (ruby)</h4>
+<p><a href="https://github.com/sonots/growthforecast-client">https://github.com/sonots/growthforecast-client</a><br />
+growthforecast-client is a ruby client library for GrowthForecast API where GrowthForecast is a visualization graph tool.</p>
+
+<h4>Net::GrowthForecast (perl)</h4>
+<p><a href="https://metacpan.org/pod/Net::GrowthForecast">https://metacpan.org/pod/Net::GrowthForecast</a><br />
+A client library for awesome visualization tool GrowthForecast</p>
+<div>
+<div>
+      </section>
 
       <hr>
 
