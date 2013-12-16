@@ -30,7 +30,7 @@
     <a href="<: $c.req.uri_for('/list/'~uri_escape($service.name))  :>"><: $service.name :></a>
     </h2>
   </div>
-  <ul class="service_sections list-group panel-collapse in" id="service_<: $service.name :>">
+  <ul class="<: if ! $c.args.service_name { :>service_sections <: } :>list-group panel-collapse in" id="service_<: $service.name :>">
   : for $service.sections -> $section {
     <li class="list-group-item "><a href="<: $c.req.uri_for('/list/'~uri_escape($service.name)~'/'~uri_escape($section)) :>"><: $section :></a></li>
   : }
