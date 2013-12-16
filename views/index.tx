@@ -25,7 +25,7 @@
   <div class="panel-heading">
     <h2 class="panel-title">
     : if ! $c.args.service_name {
-    <a href="#service_<: $service.name :>" data-toggle="collapse"><span class="glyphicon glyphicon-plus" style="font-size:0.5em; vertical-align: text-middle"></span></a>
+    <a href="#service_<: $service.name :>" id="for_service_<: $service.name :>" data-toggle="collapse"><span class="glyphicon glyphicon-chevron-down" style="font-size:0.5em; vertical-align: text-middle"></span></a>
     : }
     <a href="<: $c.req.uri_for('/list/'~uri_escape($service.name))  :>"><: $service.name :></a>
     </h2>

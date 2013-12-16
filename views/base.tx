@@ -125,15 +125,23 @@ $(function(){
 
   $('.service_sections').on('hidden.bs.collapse', function (e) {
       $.localStorage.set($(e.target).attr('id'),'hide');
+      $('#for_'+$(e.target).attr('id')).find('span').removeClass('glyphicon-chevron-down');
+      $('#for_'+$(e.target).attr('id')).find('span').addClass('glyphicon-chevron-right');
   });
   $('.section_graphs').on('hidden.bs.collapse', function (e) {
       $.localStorage.set($(e.target).attr('id'),'hide');
+      $('#for_'+$(e.target).attr('id')).find('span').removeClass('glyphicon-chevron-down');
+      $('#for_'+$(e.target).attr('id')).find('span').addClass('glyphicon-chevron-right');
   });
   $('.service_sections').on('shown.bs.collapse', function (e) {
       $.localStorage.remove($(e.target).attr('id'));
+      $('#for_'+$(e.target).attr('id')).find('span').removeClass('glyphicon-chevron-right');
+      $('#for_'+$(e.target).attr('id')).find('span').addClass('glyphicon-chevron-down');
   })
   $('.section_graphs').on('shown.bs.collapse', function (e) {
       $.localStorage.remove($(e.target).attr('id'));
+      $('#for_'+$(e.target).attr('id')).find('span').removeClass('glyphicon-chevron-right');
+      $('#for_'+$(e.target).attr('id')).find('span').addClass('glyphicon-chevron-down');
   })
 
   $('.service_sections').each(function () {

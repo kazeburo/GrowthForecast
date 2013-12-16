@@ -39,8 +39,8 @@
 : } # for graphs
 </div>
 
-<p style="text-align: right">
-  <button type="button" class="btn btn-default btn-danger hxr_confirm_button" data-confirm="remove all graphs in '<: $c.args.section_name :>' section?" data-uri="<: $c.req.uri_for('/delete/'~uri_escape($c.args.service_name)~'/'~uri_escape($c.args.section_name)) :>"><span class="glyphicon glyphicon-warning-sign"></span> remove all graphs in this section</button>
+<p style="text-align: right;margin:20px 0px">
+  <button type="button" class="btn btn-default btn-danger btn-sm hxr_confirm_button" data-confirm="remove all graphs in '<: $c.args.section_name :>' section?" data-uri="<: $c.req.uri_for('/delete/'~uri_escape($c.args.service_name)~'/'~uri_escape($c.args.section_name)) :>"><span class="glyphicon glyphicon-warning-sign"></span> remove all graphs in this section</button>
 </p>
 
 
