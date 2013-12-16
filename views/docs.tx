@@ -1,6 +1,10 @@
 : cascade base
 : around page_header -> {
-<h1>Document and Usage</h1>
+<div class="row">
+  <div class="col-md-12">
+    <h1>Document and Usage</h1>
+  </div>
+</div>
 : }
 
 : around content -> {

@@ -1,143 +1,169 @@
 : cascade base
 : around page_header -> {
-<h1>Edit Graph</h1>
+<div class="row">
+  <div class="col-md-8">
+    <h1>Edit Graph</h1>
+  </div>
+</div>
 : }
 
 : around content -> {
 
 : block form |  fillinform( $graph ) -> {
 
-<form class="hxrpost form-horizontal" method="post" action="<: $c.req.uri_for('/edit/'~uri_escape($graph.service_name)~'/'~uri_escape($graph.section_name)~'/'~uri_escape($graph.graph_name)) :>">
+<form class="hxrpost form-horizontal" method="post" action="<: $c.req.uri_for('/edit/'~uri_escape($graph.service_name)~'/'~uri_escape($graph.section_name)~'/'~uri_escape($graph.graph_name)) :>" role="form">
 
 <fieldset>
 
-<div class="control-group">
-<label for="" class="control-label">Path</label>
-<div class="controls form-inline">
-/ <input type="text" class="input-small" name="service_name" /> / <input type="text" class="input-small" name="section_name" /> / <input type="text" class="input-small" name="graph_name" />
-</div>
-<span class="help-block">Graph's URI(service name/section name/graph name)</span>
-</div>
-
-<div class="control-group">
-<label for="" class="control-label">Description</label>
-<div class="controls">
-<input type="text" class="input-xlarge" name="description" />
-</div>
-</div>
-
-<div class="control-groups">
-<label for="" class="control-label">Display order</label>
-<div class="controls">
-<select name="sort" class="input-small">
-<option value="19">19</option>
-<option value="18">18</option>
-<option value="17">17</option>
-<option value="16">16</option>
-<option value="15">15</option>
-<option value="14">14</option>
-<option value="13">13</option>
-<option value="12">12</option>
-<option value="11">11</option>
-<option value="10">10</option>
-<option value="9">9</option>
-<option value="8">8</option>
-<option value="7">7</option>
-<option value="6">6</option>
-<option value="5">5</option>
-<option value="4">4</option>
-<option value="3">3</option>
-<option value="2">2</option>
-<option value="1">1</option>
-<option value="0">0</option>
-</select>
-<span class="help-block">19 is top</span>
-</div>
+<div class="form-group">
+  <label for="" class="col-sm-3 control-label">Path</label>
+  <div class="col-sm-8">
+    <div class="input-group">
+      <span class="input-group-addon">/</span>
+      <input type="text" class="form-control" name="service_name" />
+      <span class="input-group-addon">/</span>
+      <input type="text" class="form-control" name="section_name" />
+      <span class="input-group-addon">/</span>
+      <input type="text" class="form-control" name="graph_name" />
+    </div>
+    <p class="help-block">Graph's URI(service name/section name/graph name)</p>
+  </div>
 </div>
 
-<div class="control-group">
-<label for="" class="control-label">Mode</label>
-<div class="controls">
-<select name="gmode" class="input-medium">
-<option value="gauge">Gauge</option>
-<option value="subtract">Subtract</option>
-<option value="both">Both</option>
-</select>
-</div>
+<div class="form-group">
+  <label for="" class="col-sm-3 control-label">Description</label>
+  <div class="col-sm-9">
+    <input type="text" class="form-control" name="description" />
+  </div>
 </div>
 
-<div class="control-group">
-<label for="" class="control-label">Adjustment</label>
-<div class="controls form-inline">
-値
-<select name="adjust" class="input-small">
-<option value="*">×</option>
-<option value="/">÷</option>
-</select>
-<input type="text" class="input-small" name="adjustval" />
-unit
-<input type="text" class="input-small" name="unit" />
-</div>
-</div>
-
-<div class="control-group">
-<label for="" class="control-label">Color</label>
-<div class="controls">
-<input type="text" name="color" id="form-<: $index :>-color" class="input-small color_pallet" />
-<span class="help-block">#000000-#FFFFFF</span>
-</div>
-</div>
-
-<div class="control-group">
-<label for="" class="control-label">Type</label>
-<div class="controls">
-<select name="type" class="input-medium">
-<option value="AREA">AREA</option>
-<option value="LINE1">LINE</option>
-<option value="LINE2">LINE(Bold)</option>
-</select>
-</div>
+<div class="form-group">
+  <label for="" class="col-sm-3 control-label">Display order</label>
+  <div class="col-sm-4">
+    <select name="sort" class="form-control">
+      <option value="19">19</option>
+      <option value="18">18</option>
+      <option value="17">17</option>
+      <option value="16">16</option>
+      <option value="15">15</option>
+      <option value="14">14</option>
+      <option value="13">13</option>
+      <option value="12">12</option>
+      <option value="11">11</option>
+      <option value="10">10</option>
+      <option value="9">9</option>
+      <option value="8">8</option>
+      <option value="7">7</option>
+      <option value="6">6</option>
+      <option value="5">5</option>
+      <option value="4">4</option>
+      <option value="3">3</option>
+      <option value="2">2</option>
+      <option value="1">1</option>
+      <option value="0">0</option>
+    </select>
+    <p class="help-block">19 is top</p>
+  </div>
 </div>
 
-<div class="control-group">
-<label for="" class="control-label">Effective range</label>
-<div class="controls form-inline">
-<input type="text" class="input-medium" name="llimit" />
-〜
-<input type="text" class="input-medium" name="ulimit" />
-</div>
-</div>
-
-<div class="control-group">
-<label for="" class="control-label">Mode of subtract Graph</label>
-<div class="controls">
-<select name="stype" class="input-medium">
-<option value="AREA">AREA</option>
-<option value="LINE1">LINE</option>
-<option value="LINE2">LINE(Bold)</option>
-</select>
-</div>
+<div class="form-group">
+  <label for="" class="col-sm-3 control-label">Mode</label>
+  <div class="col-sm-4">
+    <select name="gmode" class="form-control">
+    <option value="gauge">Gauge</option>
+    <option value="subtract">Subtract</option>
+    <option value="both">Both</option>
+    </select>
+   </div>
 </div>
 
-
-<div class="control-group">
-<label for="" class="control-label">Effective range of subtract Graph</label>
-<div class="controls form-inline">
-<input type="text" class="input-medium" name="sllimit" />
-〜
-<input type="text" class="input-medium" name="sulimit" />
+<div class="form-group">
+  <label for="" class="col-sm-3 control-label">Data adjustment</label>
+  <div class="col-sm-7">
+    <div class="input-group">
+      <span class="input-group-static">Value</span>
+      <select name="adjust" class="form-control">
+        <option value="*">×</option>
+        <option value="/">÷</option>
+      </select>
+      <span class="input-group-static" style="padding: 0"></span>
+      <input type="text" class="form-control" name="adjustval" />
+      <span class="input-group-static">unit</span>
+      <input type="text" class="form-control" name="unit" />
+    </div>
+  </div>
 </div>
+
+<div class="form-group">
+  <label for="" class="col-sm-3 control-label">Color</label>
+  <div class="col-sm-3">
+    <div class="input-group">
+      <input type="text" name="color" id="form-<: $index :>-color" class="form-control color_pallet" />
+    </div>
+    <p class="help-block">#000000-#FFFFFF</p>
+  </div>
+</div>
+
+<div class="form-group">
+  <label for="" class="col-sm-3 control-label">Type</label>
+  <div class="col-sm-4">
+    <select name="type" class="form-control">
+      <option value="AREA">AREA</option>
+      <option value="LINE1">LINE</option>
+      <option value="LINE2">LINE(Bold)</option>
+    </select>
+  </div>
+</div>
+
+<div class="form-group">
+  <label for="" class="control-label col-sm-3">Effective range</label>
+  <div class="col-sm-6">
+    <div class="input-group">
+     <input type="text" class="form-control" name="llimit" />
+     <span class="input-group-static">〜</span>
+     <input type="text" class="form-control" name="ulimit" />
+    </div>
+  </div>
+</div>
+
+<div class="form-group">
+  <label for="" class="control-label col-sm-3">Mode of subtract Graph</label>
+  <div class="col-sm-4">
+    <select name="stype" class="form-control">
+    <option value="AREA">AREA</option>
+    <option value="LINE1">LINE</option>
+    <option value="LINE2">LINE(Bold)</option>
+    </select>
+  </div>
+</div>
+
+<div class="form-group">
+  <label for="" class="control-label col-sm-3">Effective range of subtract Graph</label>
+  <div class="col-sm-6">
+    <div class="input-group">
+      <input type="text" class="form-control" name="sllimit" />
+      <span class="input-group-static">〜</span>
+      <input type="text" class="form-control" name="sulimit" />
+    </div>
+  </div>
 </div>
 
 </fieldset>
 
-<div class="form-actions">
-<input type="submit" class="btn btn-primary" value="Submit" />
-<a href="<: $c.req.uri_for('/list/'~uri_escape($graph.service_name)~'/'~uri_escape($graph.section_name)) :>" class="btn">Cancel</a>
-<button type="button" class="btn btn-danger hxr_confirm_button" data-confirm="remove '<: $graph.graph_name :>'?" data-uri="<: $c.req.uri_for('/delete/'~uri_escape($graph.service_name)~'/'~uri_escape($graph.section_name)~'/'~uri_escape($graph.graph_name)) :>">remove</button>
+<hr />
+
+<div class="form-group">
+  <div class="col-sm-offset-3 col-sm-6">
+    <input type="submit" class="btn btn-default btn-primary" value="Submit" />
+    <a href="<: $c.req.uri_for('/list/'~uri_escape($graph.service_name)~'/'~uri_escape($graph.section_name)) :>" class="btn btn-default">Cancel</a>
+    <button type="button" class="btn btn-default btn-danger hxr_confirm_button" data-confirm="remove '<: $graph.graph_name :>'?" data-uri="<: $c.req.uri_for('/delete/'~uri_escape($graph.service_name)~'/'~uri_escape($graph.section_name)~'/'~uri_escape($graph.graph_name)) :>">remove</button>
+  </div>
 </div>
 
 </form>
+<br />
+<br />
+
 : } # fillin
 
 

@@ -134,7 +134,7 @@ $proclet->service(
                                              });
                 }
             };
-            my $static_regexp = qr!^/(?:(?:css|js|images)/|favicon\.ico$)!;
+            my $static_regexp = qr!^/(?:(?:css|fonts|js|images)/|favicon\.ico$)!;
             enable 'Static',
                 path => $mount ? sub { s!^/$mount!!; $_ =~ $static_regexp } : $static_regexp,
                 root => $root_dir . '/public';

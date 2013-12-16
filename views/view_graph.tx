@@ -4,32 +4,40 @@
 : }
 : around page_header -> {
 : my $term_arg = $c.req.param('t') ? [ 't', $c.req.param('t') ] : [];
-<h1>
-<span><a href="<: $c.req.uri_for('/') :>">Home</a> » <a href="<: $c.req.uri_for('/list/'~uri_escape($c.args.service_name)~'/'~uri_escape($c.args.section_name),$term_arg) :>"><: $c.args.service_name :></a> » <a href="<: $c.req.uri_for('/list/'~uri_escape($c.args.service_name)~'/'~uri_escape($c.args.section_name),$term_arg) :>"><: $c.args.section_name :></a> » <: $c.args.graph_name :></span>
-<span class="pull-right"><small style="font-size: 0.4em;vertical-align: text-middle;"><a href="<: $c.req.uri_for('/add_complex',[service_name=>$c.args.service_name,section_name=>$c.args.section_name]) :>">add complex graph</a></small></span>
-</h1>
+<div class="row">
+  <div class="col-md-10">
+    <h1>
+      <a href="<: $c.req.uri_for('/') :>">Home</a> » <a href="<: $c.req.uri_for('/list/'~uri_escape($c.args.service_name)~'/'~uri_escape($c.args.section_name),$term_arg) :>"><: $c.args.service_name :></a> » <a href="<: $c.req.uri_for('/list/'~uri_escape($c.args.service_name)~'/'~uri_escape($c.args.section_name),$term_arg) :>"><: $c.args.section_name :></a> » <: $c.args.graph_name :>
+    </h1>
+  </div>
+  <div class="col-md-2" style="padding-top:25px;text-align:right">
+    <a class="btn btn-default btn-sm" href="<: $c.req.uri_for('/add_complex',[service_name=>$c.args.service_name,section_name=>$c.args.section_name]) :>">add complex graph</a>
+  </div>
+</div>
 : }
 
 : around content -> {
 
 : my $base = $view_complex ? 'view_complex' : 'view_graph';
-<div class="pagination pagination-right" style="margin: 1px 0;">
-<ul>
-: if ( $c.stash.enable_short ) {
-<li class="prev <: ( $c.req.param('t') == 'sh' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/'~$base~'/'~uri_escape($c.args.service_name)~'/'~uri_escape($c.args.section_name)~'/'~uri_escape($c.args.graph_name), [t=>'sh']) :>">hour・8hours(1min)</a></li>
-<li class="prev <: ( $c.req.param('t') == 'sd' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/'~$base~'/'~uri_escape($c.args.service_name)~'/'~uri_escape($c.args.section_name)~'/'~uri_escape($c.args.graph_name), [t=>'sd']) :>">day・3days(1min)</a></li>
-: }
-<li class="prev <: ( $c.req.param('t') == 'h' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/'~$base~'/'~uri_escape($c.args.service_name)~'/'~uri_escape($c.args.section_name)~'/'~uri_escape($c.args.graph_name), [t=>'h']) :>">hour・halfday</a></li>
-<li class="<: ( $c.req.param('t') != 'h' && $c.req.param('t') != 'm' && $c.req.param('t') != 'sh' && $c.req.param('t') != 'sd') ? "active" : "" :>"><a href="<: $c.req.uri_for('/'~$base~'/'~uri_escape($c.args.service_name)~'/'~uri_escape($c.args.section_name)~'/'~uri_escape($c.args.graph_name)) :>">day・week</a></li>
-<li class="next <: ( $c.req.param('t') == 'm' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/'~$base~'/'~uri_escape($c.args.service_name)~'/'~uri_escape($c.args.section_name)~'/'~uri_escape($c.args.graph_name), [t=>'m']) :>">month・year</a></li>
+<ul class="pagination pagination-sm pull-right" style="margin: 10px 0px 0px">
+  : if ( $c.stash.enable_short ) {
+  <li class="prev <: ( $c.req.param('t') == 'sh' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/'~$base~'/'~uri_escape($c.args.service_name)~'/'~uri_escape($c.args.section_name)~'/'~uri_escape($c.args.graph_name), [t=>'sh']) :>">hour・8hours(1min)</a></li>
+  <li class="prev <: ( $c.req.param('t') == 'sd' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/'~$base~'/'~uri_escape($c.args.service_name)~'/'~uri_escape($c.args.section_name)~'/'~uri_escape($c.args.graph_name), [t=>'sd']) :>">day・3days(1min)</a></li>
+  : }
+  <li class="prev <: ( $c.req.param('t') == 'h' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/'~$base~'/'~uri_escape($c.args.service_name)~'/'~uri_escape($c.args.section_name)~'/'~uri_escape($c.args.graph_name), [t=>'h']) :>">hour・halfday</a></li>
+  <li class="<: ( $c.req.param('t') != 'h' && $c.req.param('t') != 'm' && $c.req.param('t') != 'sh' && $c.req.param('t') != 'sd') ? "active" : "" :>"><a href="<: $c.req.uri_for('/'~$base~'/'~uri_escape($c.args.service_name)~'/'~uri_escape($c.args.section_name)~'/'~uri_escape($c.args.graph_name)) :>">day・week</a></li>
+  <li class="next <: ( $c.req.param('t') == 'm' ) ? "active" : "" :>"><a href="<: $c.req.uri_for('/'~$base~'/'~uri_escape($c.args.service_name)~'/'~uri_escape($c.args.section_name)~'/'~uri_escape($c.args.graph_name), [t=>'m']) :>">month・year</a></li>
 </ul>
+<div class="clearfix"></div>
+<br />
+
+<div class="panel-group">
+: for $graphs ->  $graph {
+  : my $index = $~graph.index;
+  : include "view.tx" { graph => $graph, index => $index };
+: } # for graphs
 </div>
 
-
-: for $graphs ->  $graph {
-: my $index = $~graph.index;
-: include "view.tx" { graph => $graph, index => $index };
-: } # for graphs
 : } # arround
 
 

@@ -110,6 +110,7 @@ get '/' => sub {
 
 get '/docs' => sub {
     my ( $self, $c )  = @_;
+    $c->stash->{docs} = 1;
     $c->render('docs.tx',{});
 };
 

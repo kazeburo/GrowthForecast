@@ -4,33 +4,39 @@
 : }
 
 : around page_header -> {
-<h1>
-<a href="<: $c.req.uri_for('/') :>">Home</a><: if $c.args.service_name { :> » <: $c.args.service_name :><: } :>
+<div class="row">
+  <div class="col-md-8">
+    <h1><a href="<: $c.req.uri_for('/') :>">Home</a><: if $c.args.service_name { :> » <: $c.args.service_name :><: } :></h1>
+  </div>
 <: if ! $c.args.service_name { :>
-<span class="pull-right"><small style="vertical-align: text-middle;font-size: 0.5em"><a id="link-fold-all" href="#">[fold all]</a> / <a id="link-expand-all" href="#">[expand all]</a></small></span>
+  <div class="col-md-4" style="padding-top:25px;text-align:right">
+    <a class="btn btn-default btn-sm" id="link-fold-all" href="#">fold all</a>
+    <a class="btn btn-default btn-sm" id="link-expand-all" href="#">expand all</a>
+  </div>
 <: } :>
-</h1>
-: }
-
-: around content -> {
-: for $services ->  $service {
-<h2>
-<: if ! $c.args.service_name { :>
-<span><small style="vertical-align: text-middle;font-size: 0.5em"><a href="#service_<: $service.name :>" data-toggle="collapse">[+]</a></small></span>
-<: } :>
-<span><a href="<: $c.req.uri_for('/list/'~uri_escape($service.name))  :>"><: $service.name :></a></span>
-<span class="pull-right"><small style="vertical-align: text-middle;font-size: 0.5em"><a href="<: $c.req.uri_for('/add_complex',[service_name=>$service.name]) :>">add complex graph</a></small></span>
-</h2>
-<div id="service_<: $service.name :>" class="service_sections collapse in">
-<table class="table table-striped">
-: for $service.sections -> $section {
-<tr>
-<td style="vertical-align: middle"><a href="<: $c.req.uri_for('/list/'~uri_escape($service.name)~'/'~uri_escape($section)) :>"><: $section :></a></td>
-</tr>
-: }
-</table>
 </div>
 : }
 
+: around content -> {
+<div class="panel-group">
+: for $services ->  $service {
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+    : if ! $c.args.service_name {
+    <a href="#service_<: $service.name :>" data-toggle="collapse"><span class="glyphicon glyphicon-plus" style="font-size:0.5em; vertical-align: text-middle"></span></a>
+    : }
+    <a href="<: $c.req.uri_for('/list/'~uri_escape($service.name))  :>"><: $service.name :></a>
+    <span class="pull-right"><small style="font-size: 0.8em"><a href="<: $c.req.uri_for('/add_complex',[service_name=>$service.name]) :>">add complex graph</a></small></span>
+    </h2>
+  </div>
+  <ul class="service_sections list-group panel-collapse collapse in" id="service_<: $service.name :>">
+  : for $service.sections -> $section {
+    <li class="list-group-item "><a href="<: $c.req.uri_for('/list/'~uri_escape($service.name)~'/'~uri_escape($section)) :>"><: $section :></a></li>
+  : }
+  </ul>
+</div>
 : }
+</div>
+: } 
 

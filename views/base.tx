@@ -4,61 +4,6 @@
 <meta http-equiv="Content-Type" content="text/html" charset="utf-8">
 <link rel="stylesheet" href="<: $c.req.uri_for('/css/bootstrap.min.css') :>">
 <style type='text/css'>
-body {
-  background-color: #fff;
-  position: relative;
-}
-
-/* compatibility for Twitter Bootstrap 1 */
-h1, h2, h3, h4, h5, h6 {
-  margin: 0;
-}
-h1 {
-  font-size: 30px;
-}
-h2 {
-  font-size: 24px;
-}
-.page-header {
-  margin: 0 0 17px;
-}
-.navbar .brand {
-  color: #fff;
-}
-.navbar .brand:hover {
-  color: #fff;
-  font-weight: 200;
-}
-.navbar .brand:hover {
-  background-color: #333;
-  background-color: rgba(255, 255, 255, 0.05);
-  color: #fff;
-}
-
-
-section {
-  padding-top: 60px;
-}
-section > .row {
-  margin-bottom: 10px;
-}
-.ngraph {
-    white-space:nowrap;
-    margin-bottom: 3px;
-}
-.footer {
-  background-color: #eee;
-  min-width: 940px;
-  padding: 30px 0;
-  text-shadow: 0 1px 0 #fff;
-  border-top: 1px solid #e5e5e5;
-  -webkit-box-shadow: inset 0 5px 15px rgba(0,0,0,.025);
-     -moz-box-shadow: inset 0 5px 15px rgba(0,0,0,.025);
-/*          box-shadow: inset 0 5px 15px rgba(0,0,0,.025);
-*/}
-.footer p {
-  color: #555;
-}
 .modal form {
   margin: 0 0;
 }
@@ -68,7 +13,51 @@ section > .row {
 .table-order-pointer:hover, .table-order-remove:hover {
   color: #999;
 }
+.panel {
+  border: 0;
+  box-shadow: none;
+}
+.panel-heading {
+  border-radius: 4px;
+}
+.panel>.list-group .list-group-item {
+  border: none;
+}
 
+.input-group-static {
+  display: table-cell;
+  padding: 6px 12px;
+  font-size:14px;
+  width: 1%;
+  white-space: nowrap;
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+
+html,
+body {
+  height: 100%;
+  /* The html and body elements cannot have any padding or margin. */
+}
+
+/* Wrapper for page content to push down footer */
+#wrap {
+  min-height: 100%;
+  height: auto;
+  /* Negative indent footer by its height */
+  margin: 0 auto -40px;
+  /* Pad bottom by footer height */
+  padding: 0 0 40px;
+}
+
+/* Set the fixed height of the footer here */
+#footer {
+  height: 40px;
+  background-color: #f5f5f5;
+}
 </style>
 <title>
 : block page_title -> {
@@ -77,46 +66,51 @@ GrowthForecast
 </title>
 </head>
 <body>
+<div id="wrap">
 
-<div class="navbar navbar-inverse navbar-fixed-top">
-<div class="navbar-inner">
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="<: $c.req.uri_for('/') :>">GrowthForecast</a>
+    </div>
+    <div class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li class="<: if $c.stash.docs != 1 { :>active<: } :>"><a href="<: $c.req.uri_for('/') :>">Home</a></li>
+        <li class="<: if $c.stash.docs == 1 { :>active<: } :>"><a href="<: $c.req.uri_for('/docs') :>">Docs</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
 <div class="container">
-<a class="brand" href="<: $c.req.uri_for('/') :>">GrowthForecast</a>
-<ul class="nav">
-<li><a href="<: $c.req.uri_for('/') :>">Home</a></li>
-<li><a href="<: $c.req.uri_for('/docs') :>">Docs</a></li>
-</ul>
-</div>
-</div>
-</div>
 
-<div class="container">
+  <div class="page-header">
+  : block page_header -> { }
+  </div>
 
-<section>
-<div class="page-header">
-: block page_header -> { }
+  <div class="row">
+    <div class="col-md-12">
+    : block content -> { }
+    </div>
+  </div>
 </div>
-
-<div class="row">
-<div class="span12">
-: block content -> { }
-</div>
-</div>
-</section>
 
 </div>
 
-<footer class="footer">
-<div class="container">
-<p class="pull-right"><a href="#">Back to top</a></p>
+<div id="footer">
+  <div class="container">
+    <p style="text-align:center;margin: 10px 0px 10px"><a href="#">back to top</a></p>
+  </div>
 </div>
-</footer>
 
 <script type="text/javascript" src="<: $c.req.uri_for('/js/jquery-1.10.2.min.js') :>"></script>
-<script type="text/javascript" src="<: $c.req.uri_for('/js/bootstrap-modal.js') :>"></script>
-<script type="text/javascript" src="<: $c.req.uri_for('/js/bootstrap-alert.js') :>"></script>
-<script type="text/javascript" src="<: $c.req.uri_for('/js/bootstrap-transition.js') :>"></script>
-<script type="text/javascript" src="<: $c.req.uri_for('/js/bootstrap-collapse.js') :>"></script>
+<script type="text/javascript" src="<: $c.req.uri_for('/js/bootstrap.min.js') :>"></script>
 <script type="text/javascript">
 $(function(){
   $('form.hxrpost').each(setHxrpost);
@@ -168,12 +162,12 @@ function setHxrpost() {
 
 function setHxrConfirmBtn() {
   var mybtn = this;
-  var modal = $('<div class="modal fade">'+
+  var modal = $('<div class="modal fade"><div class="modal-dialog"><div class="modal-content">'+
 '<form method="post" action="#">'+
 '<div class="modal-header"><h3>confirm</h3></div>'+
 '<div class="modal-body"><div class="alert alert-error hide">System Error!</div><p>confirm</p></div>'+
 '<div class="modal-footer"><input type="submit" class="btn btn-danger" value="confirm" /></div>'+
-'</form></div>');
+'</form></div></div></div>');
   modal.find('h3').text($(mybtn).text());
   modal.find('input[type=submit]').attr('value',$(mybtn).text());
   modal.find('.modal-body > p').text( $(mybtn).data('confirm') );
@@ -203,8 +197,6 @@ function setHxrConfirmBtn() {
     return false;
   });
 };
-
-
 
 
 function add_new_row() {
@@ -298,14 +290,14 @@ function setTablePreview() {
 
 function setColorPallets() {
   var input = $(this);
-  var preview = $('<input type="text" style="width:20px" readonly="readonly" />');
+  var preview = $('<div class="input-group-static" style="border-top-left-radius: 4px;border-bottom-left-radius: 4px;border: 1px solid #ccc;border-right: 0">&nbsp;&nbsp;&nbsp;&nbsp;</div>');
   input.before(preview);
   preview.css('background-color',input.val());
   input.change(function(){
       preview.css('background-color',input.val());
   });
   var colors = ["#cccccc","#cccc77","#cccc11","#cc77cc","#cc7777","#cc7711","#cc11cc","#cc1177","#cc1111","#77cccc","#77cc77","#77cc11","#7777cc","#777777","#777711","#7711cc","#771177","#771111","#11cccc","#11cc77","#11cc11","#1177cc","#117777","#117711","#1111cc","#111177","#111111"];
-  var pallet = $('<div class="hide" style="border:solid 1px #000;width:154px;padding:1px;background-color:#222;position:absolute"></div>');
+  var pallet = $('<div style="display:none;border:solid 1px #000;width:158px;padding:1px;background-color:#222;position:absolute"></div>');
   pallet.append('<div style="margin:1px;display:inline-block;width:20px;height:20px;cursor:pointer;color:#eee;text-align:center;">✖</div>');
   pallet.children().first().click(function(){
     pallet.toggle();
@@ -326,6 +318,7 @@ function setColorPallets() {
     var pos = $(this).position();
     var width = $(this).outerWidth(true);
     pallet.css('top',pos.top);
+    pallet.css('z-index',999);
     pallet.css('left',pos.left+width);
     pallet.toggle();
   });
