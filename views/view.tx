@@ -3,7 +3,7 @@
   <div class="panel-heading">
     <h2 class="panel-title">
       : if ! $c.args.graph_name {
-      <a href="#graph_<: $graph.graph_name :>" data-toggle="collapse"><span class="glyphicon glyphicon-plus" style="font-size:0.5em; vertical-align: text-middle"></span></a>
+      <a href="#graph_<: if $graph.complex_graph{ :>complex_<: } :><: $graph.id :>" data-toggle="collapse"><span class="glyphicon glyphicon-plus" style="font-size:0.5em; vertical-align: text-middle"></span></a>
       : }
       : if $graph.complex_graph {
       <a href="<: $c.req.uri_for('/view_complex/'~uri_escape($graph.service_name)~'/'~uri_escape($graph.section_name)~'/'~uri_escape($graph.graph_name), $term_arg) :>" data-id="<: $graph.id :>"><: $graph.graph_name :></a>
@@ -28,7 +28,7 @@
   <span class="label label-default">updated_at</span> <: $graph.updated_at :>
 </p>
 
-<div id="graph_<: $graph.graph_name :>" class="section_graphs panel-collapse in" style="text-align: center"><p>
+<div id="graph_<: if $graph.complex_graph{ :>complex_<: } :><: $graph.id :>" class="section_graphs panel-collapse in" style="text-align: center"><p>
 : if ! $graph.complex_graph {
   : my $gmodes = ( $graph.gmode == 'both' ) ? ['gauge','subtract'] : ( $graph.gmode == 'gauge') ? ['gauge'] : ['subtract']
   : for $gmodes -> $gmode {
