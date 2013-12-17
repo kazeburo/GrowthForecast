@@ -28,19 +28,25 @@
   <span class="label label-default">updated_at</span> <: $graph.updated_at :>
 </p>
 
-<div id="graph_<: if $graph.complex_graph{ :>complex_<: } :><: $graph.id :>" class="section_graphs panel-collapse in" style="text-align: center"><p>
+<div id="graph_<: if $graph.complex_graph{ :>complex_<: } :><: $graph.id :>" class="section_graphs panel-collapse in">
+<table style="margin: 0 auto 10px">
 : if ! $graph.complex_graph {
   : my $gmodes = ( $graph.gmode == 'both' ) ? ['gauge','subtract'] : ( $graph.gmode == 'gauge') ? ['gauge'] : ['subtract']
   : for $gmodes -> $gmode {
     : my $terms = ( $c.req.param('t') == 'h' ) ? ['h','n'] :  ( $c.req.param('t') == 'm') ? ['m','y'] :  ( $c.req.param('t') == 'sh' ) ? ['sh','s8h'] :  ( $c.req.param('t') == 'sd') ? ['sd','s3d'] : ['d','w'];
+    <tr>
     : for $terms -> $term {
-<img src="<: $c.req.uri_for('/graph/'~uri_escape($graph.service_name)~'/'~uri_escape($graph.section_name)~'/'~uri_escape($graph.graph_name), [t=>$term,gmode=>$gmode]) :>" />
+      <td><img src="<: $c.req.uri_for('/graph/'~uri_escape($graph.service_name)~'/'~uri_escape($graph.section_name)~'/'~uri_escape($graph.graph_name), [t=>$term,gmode=>$gmode]) :>" class="graph" /></td>
     : }
+    </tr>
   : }
 : } else {
     : my $terms = ( $c.req.param('t') == 'h' ) ? ['h','n'] :  ( $c.req.param('t') == 'm') ? ['m','y'] :  ( $c.req.param('t') == 'sh' ) ? ['sh','s8h'] :  ( $c.req.param('t') == 'sd') ? ['sd','s3d'] : ['d','w'];
-  : for $terms -> $term {
-<img src="<: $c.req.uri_for('/graph/'~$graph.complex_graph, [t=>$term,sumup=>$graph.sumup]) :>" />
-  : }
+    <tr>
+    : for $terms -> $term {
+      <td><img src="<: $c.req.uri_for('/graph/'~$graph.complex_graph, [t=>$term,sumup=>$graph.sumup]) :>" class="graph" /></td>
+    : }
+    </tr>
 : }
-</p></div>
+</table>
+</div>
