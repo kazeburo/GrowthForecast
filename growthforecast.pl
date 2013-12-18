@@ -39,6 +39,9 @@ GetOptions(
     'web-max-workers=i' => \my $web_max_workers,
     'rrdcached=s' => \my $rrdcached,
     'mount=s' => \my $mount,
+    'keepalive' => \my $keepalive,
+    'keepalive-timeout=i' => \my $keepalive_timeout,
+    'max-keepalive-reqs=i' => \my $max_keepalive_reqs,
     "h|help" => \my $help,
 );
 
@@ -69,6 +72,10 @@ else {
     open( my $fh, '>', "$data_dir/$$.tmp") or die "cannot create file in data_dir: $!";
     close($fh);
     unlink("$data_dir/$$.tmp");
+}
+
+if ( !$keepalive && ( $keepalive_timeout || $max_keepalive_reqs ) ) {
+    die "You tried to set --keepalive-timeout or --max-keepalive-reqs without --keepalive";
 }
 
 my $proclet = Proclet->new;
@@ -159,11 +166,19 @@ $proclet->service(
                 $web->psgi;
             }
         };
+        my %keepalive_opt;
+        if ($keepalive) {
+            %keepalive_opt = (
+                keepalive_timeout  => $keepalive_timeout || 2,
+                max_keepalive_reqs => $max_keepalive_reqs || 5,
+            );
+        }
         my $loader = Plack::Loader->load(
             'Starlet',
             port => $port,
             host => $host || 0,
             max_workers => $web_max_workers || 4,
+            %keepalive_opt,
         );
         infof( "GrowthForecast::Web starts listen on %s:%s", $host || 0, $port );
         $loader->run($app);
@@ -280,6 +295,20 @@ See the manual of rrdcached for more details. Default does not use rrdcached.
 
 Provide GrowthForecast with specify url path.
 Default is empty ( provide GrowthForecast on root path )
+
+=item --keepalive
+
+Enable keepalive. See also the --keepalive-timeout and --max-keepalive-reqs options.
+
+=item --keepalive-timeout
+
+Timeout for persistent connections. This option makes sense only if set --keepalive.
+Default is "2"
+
+=item --max-keepalive-reqs
+
+Max number of requests allowed per single persistent connection. This option makes sense only if set --keepalive.
+Default is "5"
 
 =item -h --help
 
