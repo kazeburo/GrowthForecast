@@ -200,30 +200,11 @@ function setColorPallets() {
 }
 
 function fold_all(e) {
-  $('.service_sections').each(function(){
-      if ( $(this).hasClass('in') )
-        $(this).collapse('hide');
-  });
-  $('.section_graphs').each(function(){
-      if ( $(this).hasClass('in') )
-        $(this).collapse('hide');
-  });
-
-  e.stopPropagation();
-  e.preventDefault();
+  $('.service_sections, .section_graphs').filter('.in').collapse('hide');
   return false;
 }
 
 function expand_all(e) {
-  $('.service_sections').each(function(){
-      if ( $(this).hasClass('in') == false )
-        $(this).collapse('show');
-  });
-  $('.section_graphs').each(function(){
-      if ( $(this).hasClass('in') == false )
-        $(this).collapse('show');
-  });
-  e.stopPropagation();
-  e.preventDefault();
+  $('.service_sections, .section_graphs').not('.in').collapse('show');
   return false;
 }

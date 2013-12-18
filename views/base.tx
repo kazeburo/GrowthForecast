@@ -123,34 +123,27 @@ $(function(){
   $('#link-fold-all').click(fold_all);
   $('#link-expand-all').click(expand_all);
 
-  $('.service_sections').on('hidden.bs.collapse', function (e) {
-      $.localStorage.set($(e.target).attr('id'),'hide');
-      $('#for_'+$(e.target).attr('id')).find('span').removeClass('glyphicon-chevron-down');
-      $('#for_'+$(e.target).attr('id')).find('span').addClass('glyphicon-chevron-right');
-  });
-  $('.section_graphs').on('hidden.bs.collapse', function (e) {
-      $.localStorage.set($(e.target).attr('id'),'hide');
-      $('#for_'+$(e.target).attr('id')).find('span').removeClass('glyphicon-chevron-down');
-      $('#for_'+$(e.target).attr('id')).find('span').addClass('glyphicon-chevron-right');
-  });
-  $('.service_sections').on('shown.bs.collapse', function (e) {
-      $.localStorage.remove($(e.target).attr('id'));
-      $('#for_'+$(e.target).attr('id')).find('span').removeClass('glyphicon-chevron-right');
-      $('#for_'+$(e.target).attr('id')).find('span').addClass('glyphicon-chevron-down');
-  })
-  $('.section_graphs').on('shown.bs.collapse', function (e) {
-      $.localStorage.remove($(e.target).attr('id'));
-      $('#for_'+$(e.target).attr('id')).find('span').removeClass('glyphicon-chevron-right');
-      $('#for_'+$(e.target).attr('id')).find('span').addClass('glyphicon-chevron-down');
-  })
+  var $foldable_items = $('.service_sections, .section_graphs');
 
-  $('.service_sections').each(function () {
-      if ( $.localStorage.isSet($(this).attr('id')) )
-        $(this).collapse('hide');
-  });
-  $('.section_graphs').each(function () {
-      if ( $.localStorage.isSet($(this).attr('id')) )
-        $(this).collapse('hide');
+  $foldable_items
+    .on('hidden.bs.collapse', function (e) {
+      var id = $(e.target).attr('id');
+      $.localStorage.set(id,'hide');
+      $('#for_'+id).find('span').removeClass('glyphicon-chevron-down')
+                                .addClass('glyphicon-chevron-right');
+    })
+    .on('shown.bs.collapse', function (e) {
+      var id = $(e.target).attr('id');
+      $.localStorage.remove(id);
+      $('#for_'+id).find('span').removeClass('glyphicon-chevron-right')
+                                .addClass('glyphicon-chevron-down');
+    })
+  ;
+
+  $foldable_items.each(function () {
+    var $target = $(this);
+    if ( $.localStorage.isSet($target.attr('id')) )
+      $target.collapse('hide');
   });
 
 });
