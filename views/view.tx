@@ -28,7 +28,7 @@
   <span class="label label-default">updated_at</span> <: $graph.updated_at :>
 </p>
 
-<div id="graph_<: if $graph.complex_graph{ :>complex_<: } :><: $graph.id :>" class="section_graphs panel-collapse in">
+<div id="graph_<: if $graph.complex_graph{ :>complex_<: } :><: $graph.id :>" class="<: if ! $c.args.graph_name { :>section_graphs <: } :>panel-collapse in">
 <table style="margin: 0 auto 10px">
 : if ! $graph.complex_graph {
   : my $gmodes = ( $graph.gmode == 'both' ) ? ['gauge','subtract'] : ( $graph.gmode == 'gauge') ? ['gauge'] : ['subtract']
