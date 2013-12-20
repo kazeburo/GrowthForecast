@@ -14,7 +14,9 @@ use Plack::Util;
 use GrowthForecast;
 use GrowthForecast::Web;
 use GrowthForecast::Worker;
+use IO::Socket::UNIX;
 use Proclet;
+use Starlet '0.21';
 use File::ShareDir qw/dist_dir/;
 use Cwd;
 use File::Path qw/mkpath/;
@@ -29,6 +31,7 @@ Getopt::Long::Configure ("no_ignore_case");
 GetOptions(
     'port=s' => \$port,
     'host=s' => \$host,
+    'socket=s' => \my $socket,
     'front-proxy=s' => \@front_proxy,
     'allow-from=s' => \@allow_from,
     'disable-1min-metrics' => \my $disable_short,
@@ -69,6 +72,21 @@ else {
     open( my $fh, '>', "$data_dir/$$.tmp") or die "cannot create file in data_dir: $!";
     close($fh);
     unlink("$data_dir/$$.tmp");
+}
+
+my $sock;
+if ( $socket ) {
+    if (-S $socket) {
+        warn "removing existing socket file:$socket";
+        unlink $socket
+            or die "failed to remove existing socket file:$socket:$!";
+    }
+    unlink $socket;
+    $sock = IO::Socket::UNIX->new(
+        Listen => Socket::SOMAXCONN(),
+        Local  => $socket,
+    ) or die "failed to listen to file $socket:$!";
+    $ENV{SERVER_STARTER_PORT} = $socket."=".$sock->fileno;
 }
 
 my $proclet = Proclet->new;
@@ -114,7 +132,10 @@ $proclet->service(
         my $app = builder {
             enable 'Lint';
             enable 'StackTrace';
-            if ( @front_proxy ) {
+            if ( $sock ) {
+                enable 'ReverseProxy';
+            }
+            elsif ( @front_proxy ) {
                 enable match_if addr(\@front_proxy), 'ReverseProxy';
             }
             if ( @allow_from ) {
@@ -235,6 +256,10 @@ TCP port listen on. Default is 5125
 =item --host
 
 IP address to listen on
+
+=item --socket
+
+File path to UNIX domain socket to bind. If enabled unix domain socket, GrowthForecast does not bind any TCP port
 
 =item --front-proxy
 

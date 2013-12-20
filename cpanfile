@@ -7,7 +7,7 @@ requires 'HTTP::Date';
 requires 'File::Zglob',    '0.09';
 requires 'Log::Minimal',   '0.16';
 requires 'List::MoreUtils';
-requires 'Starlet',        '0.20';
+requires 'Starlet',        '0.21';
 requires 'HTTP::Parser::XS', '0.16';
 requires "URL::Encode::XS";
 requires 'Proclet',        '0.31';
