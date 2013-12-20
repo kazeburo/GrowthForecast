@@ -9,7 +9,7 @@
 
 : around content -> {
 
-<p style="text-align:right;font-size:1.2em;">Japanese document is <a href="http://kazeburo.github.com/GrowthForecast/index.ja.html">here</a>.</p>
+<p style="text-align:right;font-size:1.2em;">more details and japanese document are <a href="http://kazeburo.github.com/GrowthForecast/">here</a>.</p>
 
 <h4>How to adding new Graph</h4>
 
