@@ -9,67 +9,78 @@
 
 : around content -> {
 
-<p style="text-align:right;font-size:1.2em;">more details and japanese document are <a href="http://kazeburo.github.com/GrowthForecast/">here</a>.</p>
+<p class="alert alert-info">more details and japanese document are <a href="http://kazeburo.github.com/GrowthForecast/">here</a>.</p>
 
-<h4>How to adding new Graph</h4>
+<hr />
 
-<p>Request to following URI with POST method</p>
+<h3>How to Register Graphs</h3>
+
+<p>To create graphs or update data, make a request to the following URL via a POST method.</p>
 
 <pre>
 <: $c.req.uri_for('/') :>api/:service_name/:section_name/:graph_name
 </pre>
 
-<p>
-GrowthForecast is designed as a common Web-Graph-API that available from many services. Refer to the table below in relation to each item in the URI.</p>
+<div class="row">
+<div class="col-md-3">
+<p>The names of the items within the URL to POST to are shown in the table to the right.</p>
+
+<p>You can use multi-byte strings for each item name as long as it is UTF-8.</p>
+</div>
+<div class="col-md-7">
 
 <table class="table">
 <tr>
-<th>Item</th>
-<th>Role</th>
-<th>Example</th>
+<th>The Name Used in the Example</th>
+<th>Purpose</th>
+<th>Actual Parameters</th>
 </tr>
 <tr>
 <td>:service_name</td>
-<td>Service Name</td>
-<td>blogging_service, photosharing, socialgame, ninjya_taisen</td>
+<td>The name of the service that you'd like to graph</td>
+<td>blog, photo, place, socialgame</td>
 </tr>
 <tr>
 <td>:section_name</td>
-<td>the Service's function or system name</td>
+<td>The name of the feature or system to graph, within said service.</td>
 <td>entry, user, spot, items</td>
 </tr>
 <tr>
 <td>:graph_name</td>
-<td>Specific contents</td>
-<td>total_entry, kakin_user, muryo_user, sold_syuriken</td>
+<td>The actual name of the value being graphed</td>
+<td>total_entry, kakin_user, muryo_user</td>
 </tr>
 </table>
 
-<p>For example, to graph the number of shuriken that was sold in the ninja game</p>
+</div>
+</div>
+
+<p>For example, if we are graphing the number of registered users in a social game, we would POST to the following URL:</p>
 
 <pre>
-<: $c.req.uri_for('/') :>api/ninjya_taisen/items/sold_syuriken
+<: $c.req.uri_for('/') :>api/socialgame/member/register
 </pre>
 
-<p>Request to above URI</p>
-
-<p>POST Parameters</p>
+<p>Also, we would use the following parametens when POSTing.</p>
 
 <table class="table">
 <tr>
 <th>Parameter</th>
-<th>Desc</th>
-<th>&nbsp;</th>
+<th>Description</th>
+<th>Required/Optional</th>
 </tr>
 <tr>
 <td>number</td>
-<td>Data that give to graph</td>
+<td>The number to give the graph</td>
 <td>Required</td>
 </tr>
 <tr>
 <td>mode</td>
 <td>
-How to update a number. count or modified or gauge or derive.
+
+
+
+Update method for the number: count, modified, gauge。
 
 <dl>
 <dt>count</dt>
@@ -88,13 +99,14 @@ How to update a number. count or modified or gauge or derive.
 Default is "gauge"<br />
 <strong>⚠</strong>
 The data type is determined at first time. Can't change mode from DERIVE to other and other to DERIVE.
+
 </td>
-<td>Option</td>
+<td>Optional</td>
 </tr>
 <tr>
 <td>color</td>
-<td>Graph color, #FFFFFF format</td>
-<td>Option</td>
+<td>The color of the grah. Specify with #FFFFFF format.</td>
+<td>Optional (auto-generated if unspecified in a new graph)</td>
 </tr>
 
 <tr>
@@ -105,191 +117,23 @@ The data type is determined at first time. Can't change mode from DERIVE to othe
 
 </table>
 
-<p>Sample code (perl) </p>
+<h3>Example: Creating a New Graph</h3>
+
+<p>The example below shows how to create a new graph or update an existing one, using Perl's LWP module.</p>
 
 <pre>
 my $ua = LWP::UserAgent->new;
-$ua->post('<: $c.req.uri_for('/') :>api/ninjya_taisen/items/sold_syuriken', {
+$ua->post('<: $c.req.uri_for('/') :>api/socialgame/member/register', {
     number      => 10,
     color       => '#333399'
 });
 </pre>
 
-<p>Sample code (curl) </p>
+<p>If using curl:</p>
 
 <pre>
-$ curl -F number=10 <: $c.req.uri_for('/') :>api/ninja_taisen/items/sold_syuriken
+$ curl -F number=10 <: $c.req.uri_for('/') :>api/socialgame/member/register
 </pre>
-
-<p>Incorporation of the graphed data is done once every 5 minutes or 1 minute. Please note that do not take effect immediately after POST</p>
-
-<h4>Arguments for displaying graphs</h4>
-
-<p>can customize graphs by giving some arguments for uri of a graph</p>
-
-<pre>
-URI of a graph <: $c.req.uri_for('/') :>graph/:service_name/:section_name/:graph_name
-URI of a complex graph  <: $c.req.uri_for('/') :>graph/:pattern
-</pre>
-
-<table class="table">
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-</tr>
-<tr>
-<td>t</td>
-<td>term. y(year), m(month), w(week), 3d(3days), s3d(3days・1min)、d(day)、sd(day・1min)、8h(8hours)、s8h(8hours・1min)、4h(4hours)、s4h(4hours・1min)、h(1hour)、sh(1hour・1min)、n(a half day)、sn(a half day・1min)、c(custom)、sc(custom・1min)</td>
-</tr>
-<tr>
-<td>from</td>
-<td>only when "term" is c or sc. datetime of start to display (for example: 2011/12/08 12:10:00)</td>
-</tr>
-<tr>
-<td>to</td>
-<td>only when "term" is c or sc. datetime of end to display (for example: 2011/12/08 12:10:00)</td>
-</tr>
-<tr>
-<td>gmode</td>
-<td>graph mode. "gauge" or "subtract". default is "gauge"</td>
-</tr>
-<tr>
-<td>width</td>
-<td>width of canvas.</td>
-</tr>
-<tr>
-<td>height</td>
-<td>height of canvas.</td>
-</tr>
-
-<tr>
-<td>graphonly</td>
-<td>only drawing graph. default is "0" (disable) </td>
-</tr>
-
-<tr>
-<td>logarithmic</td>
-<td>Drawing as logarithmic graph. default is "0" (disbale)</td>
-</tr>
-
-<tr>
-<td>xgrid</td>
-<td>x-axis label. see the document of rrdtool</td>
-</tr>
-
-<tr>
-<td>ygrid</td>
-<td>y-axis grid. see the document of rrdtool</td>
-</tr>
-
-<tr>
-<td>background_color</td>
-<td>background color. for example FFFFFF or FFFFFF00. last two character is alpha channel</td>
-</tr>
-
-<tr>
-<td>canvas_color</td>
-<td>background color of canvas.</td>
-</tr>
-
-<tr>
-<td>font_color</td>
-<td>font color.</td>
-</tr>
-
-<tr>
-<td>frame_color</td>
-<td>frame (around color spot) color</td>
-</tr>
-
-<tr>
-<td>axis_color</td>
-<td>axis color</td>
-</tr>
-
-<tr>
-<td>shadea_color</td>
-<td>color of left and top border</td>
-</tr>
-
-<tr>
-<td>shadeb_color</td>
-<td>color of right and bottom</td>
-</tr>
-
-<tr>
-<td>border</td>
-<td>Width in pixels for the 3d border</td>
-</tr>
-
-<tr>
-<td>legend</td>
-<td>displaying legend. default is "1" (enable)</td>
-</tr>
-
-<tr>
-<td>sumup</td>
-<td>displaying sumup figures in legend. default is "0" (disable)</td>
-</tr>
-
-
-</table>
-
-<h4>Exporting graph summary</h4>
-
-<p>can export data of legend as JSON format</p>
-
-<pre>
-Export URI <: $c.req.uri_for('/') :>summary/:service_name/:section_name/:graph_name
-Export URI of Complex graph <: $c.req.uri_for('/') :>summary/:pattern
-</pre>
-
-<p>supports same arguments as drawing graph</p>
-
-<h4>Exporting data of a graph</h4>
-
-<p>can export data of graph</p>
-
-<pre>
-Export URI <: $c.req.uri_for('/') :>xport/:service_name/:section_name/:graph_name
-Export URI of Complex graph <: $c.req.uri_for('/') :>xport/:pattern
-</pre>
-
-<table class="table">
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-</tr>
-<tr>
-<td>t</td>
-<td>term. y(year), m(month), w(week), 3d(3days), s3d(3days・1min)、d(day)、sd(day・1min)、8h(8hours)、s8h(8hours・1min)、4h(4hours)、s4h(4hours・1min)、h(1hour)、sh(1hour・1min)、n(a half day)、sn(a half day・1min)、c(custom)、sc(custom・1min)</td>
-</tr>
-<tr>
-<td>from</td>
-<td>only when "term" is c or sc. datetime of start to exporting (for example: 2011/12/08 12:10:00)</td>
-</tr>
-<tr>
-<td>to</td>
-<td>only when "term" is c or sc. datetime of end to exporting (for example: 2011/12/08 12:10:00)</td>
-</tr>
-<tr>
-<td>gmode</td>
-<td>graph mode. "gauge" or "subtract". default is "gauge"</td>
-</tr>
-<tr>
-<td>width</td>
-<td>max number of rows</td>
-</tr>
-<tr>
-<td>step</td>
-<td>step size</td>
-</tr>
-<tr>
-<td>cf</td>
-<td>consolidation function. "AVERAGE" or "MAX". default is "AVERAGE"</td>
-</tr>
-</table>
-
 
 
 : }
