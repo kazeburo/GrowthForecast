@@ -1,3 +1,10 @@
+0.80   Tue Dec 24 13:09:44 2013
+        - [bugfix] remove *_s.rrd (kazeburo)
+        - [bugfix] mysql: text column defalut value error (oranie)
+        - [feature] add step option to xport (anoworl)
+        - [upgrade] upgrade to bootstrap 3 (kazeburo)
+        - [feature] store status of collapse (kazeburo, dayflower)
+
 0.72   Thu Nov 14 13:51:28 2013
         - fix js install issue (Thank you sharl)
 
