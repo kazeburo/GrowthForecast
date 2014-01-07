@@ -1,7 +1,9 @@
 function setHxrpost() {
   var myform = this, $myform = $(myform);
-  $myform.first().prepend('<div class="alert alert-error hide">System Error!</div>');
-  $myform.submit(function(){
+  var alert = $('<div class="alert alert-danger">System Error!</div>');
+  alert.hide();
+  $myform.first().prepend(alert);
+  $myform.submit(function(e){
     $myform.find('.alert').hide();
     $myform.find('.validator-message').detach();
     $myform.find('.clearfix').removeClass('error');
@@ -16,13 +18,13 @@ function setHxrpost() {
         }
         else {
             $.each(data.messages, function (param,message) {
-              var helpblock = $('<span class="validator-message help-block"></span>');
+              var helpblock = $('<p class="validator-message help-block"></p>');
               helpblock.text(message);
-              $myform.find('[name="'+param+'"]').parents('div.controls').first().append(helpblock);
-              $myform.find('[name="'+param+'"]').parents('div.control-group').first().addClass('error');
+              $myform.find('[name="'+param+'"]').parents('div[class^="col-sm-"]').first().append(helpblock);
+              $myform.find('[name="'+param+'"]').parents('div[class^="col-sm-"]').first().addClass('has-error');
               if ( param.match(/-2$/) ) {
-                $myform.find('[name="path-add"]').parents('div.controls').first().append(helpblock);
-                $myform.find('[name="path-add"]').parents('div.control-group').first().addClass('error');
+                $myform.find('[name="path-add"]').parents('div[class^="col-sm-"]').first().append(helpblock);
+                $myform.find('[name="path-add"]').parents('div[class^="col-sm-"]').first().addClass('has-error');
               }
             });
         }
@@ -31,7 +33,7 @@ function setHxrpost() {
         $myform.find('.alert').show();
       }
     });
-    return false;
+    e.preventDefault();
   });
 };
 
@@ -46,7 +48,7 @@ function setHxrConfirmBtn() {
   modal.find('h3').text($(mybtn).text());
   modal.find('input[type=submit]').attr('value',$(mybtn).text());
   modal.find('.modal-body > p').text( $(mybtn).data('confirm') );
-  modal.find('form').submit(function(){
+  modal.find('form').submit(function(e){
     $.ajax({
       type: 'POST',
       url: $(mybtn).data('uri'),
@@ -61,20 +63,22 @@ function setHxrConfirmBtn() {
         modal.find('.alert').show();
       }
     });
+    e.preventDefault();
     return false;
   });
-  $(mybtn).click(function(){
+  $(mybtn).click(function(e){
     modal.modal({
       show: true,
       backdrop: true,
       keyboard: true,
     });
+    e.preventDefault();
     return false;
   });
 };
 
 
-function add_new_row() {
+function add_new_row(e) {
   var path = $('#path-add').val();
   var type = $('#type-add').val();
   var gmode = $('#gmode-add').val();
@@ -96,11 +100,11 @@ function add_new_row() {
 
   var myform = $('#path-add').parents('form').first();
   setTimeout(function(){preview_complex_graph(myform)},10);
-
+  e.preventDefault();
   return false;
 }
 
-function table_order_up() {
+function table_order_up(e) {
   var btn = this;
   var mytr = $(this).parents('tr.can-table-order').first();
   if ( mytr ) {
@@ -109,10 +113,11 @@ function table_order_up() {
   }
   var myform = $(this).parents('form').first();
   setTimeout(function(){preview_complex_graph(myform)},10);
+  e.preventDefault();
   return false;
 };
 
-function table_order_down() {
+function table_order_down(e) {
   var btn = this;
   var mytr = $(this).parents('tr.can-table-order').first();
   if ( mytr ) {
@@ -121,6 +126,7 @@ function table_order_down() {
   }
   var myform = $(this).parents('form').first();
   setTimeout(function(){preview_complex_graph(myform)},0);
+  e.preventDefault();
   return false;
 };
 
@@ -201,10 +207,12 @@ function setColorPallets() {
 
 function fold_all(e) {
   $('.service_sections, .section_graphs').filter('.in').collapse('hide');
+  e.preventDefault();
   return false;
 }
 
 function expand_all(e) {
   $('.service_sections, .section_graphs').not('.in').collapse('show');
+  e.preventDefault();
   return false;
 }
