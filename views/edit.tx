@@ -71,8 +71,10 @@
   <div class="col-sm-4">
     <select name="gmode" class="form-control">
     <option value="gauge">Gauge</option>
+: if !$disable_subtract {
     <option value="subtract">Subtract</option>
     <option value="both">Both</option>
+: }
     </select>
    </div>
 </div>

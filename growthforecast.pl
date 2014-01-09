@@ -35,6 +35,7 @@ GetOptions(
     'front-proxy=s' => \@front_proxy,
     'allow-from=s' => \@allow_from,
     'disable-1min-metrics' => \my $disable_short,
+    'disable-subtract' => \my $disable_subtract,
     'enable-float-number' => \my $enable_float_number,
     'with-mysql=s' => \my $mysql,
     'data-dir=s' => \my $data_dir,
@@ -99,6 +100,7 @@ $proclet->service(
             mysql => $mysql,
             float_number => $enable_float_number,
             rrdcached => $rrdcached,
+            disable_subtract => $disable_subtract,
         );
         $worker->run('short');        
     }
@@ -113,6 +115,7 @@ $proclet->service(
             mysql => $mysql,
             float_number => $enable_float_number,
             rrdcached => $rrdcached,
+            disable_subtract => $disable_subtract,
         );
         $worker->run;
     }
@@ -128,6 +131,7 @@ $proclet->service(
             mysql => $mysql,
             float_number => $enable_float_number,
             rrdcached => $rrdcached,
+            disable_subtract => $disable_subtract,
         );
         my $app = builder {
             enable 'Lint';
@@ -274,6 +278,10 @@ Default is empty (allow access from any remote ip address)
 
 don't generate 1min rrddata and graph
 Default is "1" (enabled) 
+
+=item --disable-subtract
+
+Disable gmode `subtract`. Default is "1" (enabled)
 
 =item --enable-float-number
 

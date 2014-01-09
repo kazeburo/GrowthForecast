@@ -17,7 +17,8 @@ sub new {
     my $class = shift;
     my $data_dir = shift;
     my $float_number = shift;
-    bless { data_dir => $data_dir, float_number => $float_number }, $class;
+    my $disable_subtract = shift;
+    bless { data_dir => $data_dir, float_number => $float_number, disable_subtract => $disable_subtract }, $class;
 }
 
 sub number_type {
@@ -70,7 +71,8 @@ EOF
         }
         $dbh->commit;
 
-        $dbh->do(<<EOF);
+        unless ( $self->{disable_subtract} ) {
+            $dbh->do(<<EOF);
 CREATE TABLE IF NOT EXISTS prev_graphs (
     graph_id     INT NOT NULL,
     number       $number_type NOT NULL DEFAULT 0,
@@ -80,7 +82,7 @@ CREATE TABLE IF NOT EXISTS prev_graphs (
 )
 EOF
 
-        $dbh->do(<<EOF);
+            $dbh->do(<<EOF);
 CREATE TABLE IF NOT EXISTS prev_short_graphs (
     graph_id     INT NOT NULL,
     number       $number_type NOT NULL DEFAULT 0,
@@ -89,6 +91,7 @@ CREATE TABLE IF NOT EXISTS prev_short_graphs (
     PRIMARY KEY  (graph_id)
 )
 EOF
+        }
 
         $dbh->do(<<EOF);
 CREATE TABLE IF NOT EXISTS complex_graphs (
@@ -166,38 +169,40 @@ sub get_by_id_for_rrdupdate_short {
     );
     return if !$data;
 
-    $dbh->begin_work;
-    my $subtract;
-    my $for_update = ( $dbh->connect_info->[0] =~ /^(?i:dbi):mysql:/ ) ? ' FOR UPDATE' : '';
-    my $prev = $dbh->select_row(
-        'SELECT * FROM prev_short_graphs WHERE graph_id = ?'.$for_update,
-        $data->{id}
-    );
-    if ( !$prev ) {
-        $subtract = 'U';
-        $dbh->query(
-            'INSERT INTO prev_short_graphs (graph_id, number, subtract, updated_at) 
-                         VALUES (?,?,?,?)',
-            $data->{id}, $data->{number}, undef, $data->{updated_at});
-    }
-    elsif ( $data->{updated_at} != $prev->{updated_at} ) {
-        $subtract = $data->{number} - $prev->{number};
-        $dbh->query(
-            'UPDATE prev_short_graphs SET number=?, subtract=?, updated_at=? WHERE graph_id = ?',
-            $data->{number}, $subtract, $data->{updated_at}, $data->{id}
+    unless ( $self->{disable_subtract} ) {
+        $dbh->begin_work;
+        my $subtract;
+        my $for_update = ( $dbh->connect_info->[0] =~ /^(?i:dbi):mysql:/ ) ? ' FOR UPDATE' : '';
+        my $prev = $dbh->select_row(
+            'SELECT * FROM prev_short_graphs WHERE graph_id = ?'.$for_update,
+            $data->{id}
         );
-    }
-    else {
-        if ( $data->{mode} eq 'gauge' || $data->{mode} eq 'modified' ) {
-            $subtract = $prev->{subtract};
-            $subtract = 'U' if ! defined $subtract;
+        if ( !$prev ) {
+            $subtract = 'U';
+            $dbh->query(
+                'INSERT INTO prev_short_graphs (graph_id, number, subtract, updated_at)
+                VALUES (?,?,?,?)',
+                $data->{id}, $data->{number}, undef, $data->{updated_at});
+        }
+        elsif ( $data->{updated_at} != $prev->{updated_at} ) {
+            $subtract = $data->{number} - $prev->{number};
+            $dbh->query(
+                'UPDATE prev_short_graphs SET number=?, subtract=?, updated_at=? WHERE graph_id = ?',
+                $data->{number}, $subtract, $data->{updated_at}, $data->{id}
+            );
         }
         else {
-            $subtract = 0;
+            if ( $data->{mode} eq 'gauge' || $data->{mode} eq 'modified' ) {
+                $subtract = $prev->{subtract};
+                $subtract = 'U' if ! defined $subtract;
+            }
+            else {
+                $subtract = 0;
+            }
         }
+        $dbh->commit;
+        $data->{subtract_short} = $subtract;
     }
-    $dbh->commit;
-    $data->{subtract_short} = $subtract;
     $self->inflate_row($data);
 }
 
@@ -211,41 +216,43 @@ sub get_by_id_for_rrdupdate {
     );
     return if !$data;
 
-    $dbh->begin_work;
-    my $subtract;
+    unless ( $self->{disable_subtract} ) {
+        $dbh->begin_work;
+        my $subtract;
 
-    my $for_update = ( $dbh->connect_info->[0] =~ /^(?i:dbi):mysql:/ ) ? ' FOR UPDATE' : '';
-    my $prev = $dbh->select_row(
-        'SELECT * FROM prev_graphs WHERE graph_id = ?' . $for_update,
-        $data->{id}
-    );
-    
-    if ( !$prev ) {
-        $subtract = 'U';
-        $dbh->query(
-            'INSERT INTO prev_graphs (graph_id, number, subtract, updated_at) 
-                         VALUES (?,?,?,?)',
-            $data->{id}, $data->{number}, undef, $data->{updated_at});
-    }
-    elsif ( $data->{updated_at} != $prev->{updated_at} ) {
-        $subtract = $data->{number} - $prev->{number};
-        $dbh->query(
-            'UPDATE prev_graphs SET number=?, subtract=?, updated_at=? WHERE graph_id = ?',
-            $data->{number}, $subtract, $data->{updated_at}, $data->{id}
-        );        
-    }
-    else {
-        if ( $data->{mode} eq 'gauge' || $data->{mode} eq 'modified' ) {
-            $subtract = $prev->{subtract};
-            $subtract = 'U' if ! defined $subtract;
+        my $for_update = ( $dbh->connect_info->[0] =~ /^(?i:dbi):mysql:/ ) ? ' FOR UPDATE' : '';
+        my $prev = $dbh->select_row(
+            'SELECT * FROM prev_graphs WHERE graph_id = ?' . $for_update,
+            $data->{id}
+        );
+
+        if ( !$prev ) {
+            $subtract = 'U';
+            $dbh->query(
+                'INSERT INTO prev_graphs (graph_id, number, subtract, updated_at)
+                VALUES (?,?,?,?)',
+                $data->{id}, $data->{number}, undef, $data->{updated_at});
+        }
+        elsif ( $data->{updated_at} != $prev->{updated_at} ) {
+            $subtract = $data->{number} - $prev->{number};
+            $dbh->query(
+                'UPDATE prev_graphs SET number=?, subtract=?, updated_at=? WHERE graph_id = ?',
+                $data->{number}, $subtract, $data->{updated_at}, $data->{id}
+            );
         }
         else {
-            $subtract = 0;
+            if ( $data->{mode} eq 'gauge' || $data->{mode} eq 'modified' ) {
+                $subtract = $prev->{subtract};
+                $subtract = 'U' if ! defined $subtract;
+            }
+            else {
+                $subtract = 0;
+            }
         }
-    }
 
-    $dbh->commit;
-    $data->{subtract} = $subtract;
+        $dbh->commit;
+        $data->{subtract} = $subtract;
+    }
     $self->inflate_row($data);
 }
 
@@ -396,10 +403,12 @@ sub remove {
         'DELETE FROM graphs WHERE id = ?',
         $id
     );
-    $dbh->query(
-        'DELETE FROM prev_graphs WHERE graph_id = ?',
-        $id
-    );
+    unless ( $self->{disable_subtract} ) {
+        $dbh->query(
+            'DELETE FROM prev_graphs WHERE graph_id = ?',
+            $id
+        );
+    }
     $dbh->commit;
 
 }

@@ -9,15 +9,15 @@ use Time::Piece;
 use GrowthForecast::Data;
 use GrowthForecast::RRD;
 use Log::Minimal;
-use Class::Accessor::Lite ( rw => [qw/short mysql data_dir float_number rrdcached/] );
+use Class::Accessor::Lite ( rw => [qw/short mysql data_dir float_number rrdcached disable_subtract/] );
 use CGI;
 
 sub data {
     my $self = shift;
     $self->{__data} ||= 
         $self->mysql 
-            ? GrowthForecast::Data::MySQL->new($self->mysql, $self->float_number)
-            : GrowthForecast::Data->new($self->data_dir, $self->float_number);
+            ? GrowthForecast::Data::MySQL->new($self->mysql, $self->float_number, $self->disable_subtract)
+            : GrowthForecast::Data->new($self->data_dir, $self->float_number, $self->disable_subtract);
     $self->{__data};
 }
 
@@ -32,8 +32,19 @@ sub rrd {
         data_dir => $self->data_dir,
         root_dir => $self->root_dir,
         rrdcached => $self->rrdcached,
+        disable_subtract => $self->disable_subtract,
     );
     $self->{__rrd};
+}
+
+sub gmode_choice {
+    my ($self) = @_;
+    return $self->disable_subtract ? qw/gauge/ : qw/gauge subtract/;
+}
+
+sub gmode_choice_edit_graph {
+    my ($self) = @_;
+    return $self->disable_subtract ? qw/gauge/ : qw/gauge subtract both/;
 }
 
 filter 'set_enable_short' => sub {
@@ -117,13 +128,13 @@ get '/docs' => sub {
 get '/add_complex' => sub {
     my ( $self, $c )  = @_;
     my $graphs = $self->data->get_all_graph_name();
-    $c->render('add_complex.tx',{ graphs => $graphs });
+    $c->render('add_complex.tx',{ graphs => $graphs, disable_subtract => $self->disable_subtract });
 };
 
 get '/edit_complex/:complex_id' => [qw/get_complex/] => sub {
     my ( $self, $c )  = @_;
     my $graphs = $self->data->get_all_graph_name();
-    $c->render('edit_complex.tx',{ graphs => $graphs });
+    $c->render('edit_complex.tx',{ graphs => $graphs, disable_subtract => $self->disable_subtract });
 };
 
 post '/delete_complex/:complex_id' => [qw/get_complex/] => sub {
@@ -155,6 +166,7 @@ post '/add_complex' => sub {
     my @type2 = $c->req->param('type-2');
     my $type2_num = scalar @type2;
     $type2_num = 1 if !$type2_num;
+    my @gmode_choice = $self->gmode_choice;
     my $result = $c->req->validator([
         'service_name' => {
             rule => [
@@ -203,7 +215,7 @@ post '/add_complex' => sub {
         'gmode-1' => {
             rule => [
                 ['NOT_NULL', 'missing'],
-                [['CHOICE',qw/gauge subtract/], 'invalid value'],
+                [['CHOICE',@gmode_choice], 'invalid value'],
             ],
         },
         '@type-2' => {
@@ -224,7 +236,7 @@ post '/add_complex' => sub {
             rule => [
                 [['@SELECTED_NUM',$type2_num,$type2_num], 'invalid mode'],
                 ['NOT_NULL', 'invalid mode'],
-                [['CHOICE',qw/gauge subtract/], 'invalid mode'],
+                [['CHOICE',@gmode_choice], 'invalid mode'],
             ],
         },
         '@stack-2' => {
@@ -260,6 +272,7 @@ post '/edit_complex/:complex_id' => [qw/get_complex/] => sub {
     my @type2 = $c->req->param('type-2');
     my $type2_num = scalar @type2;
     $type2_num = 1 if !$type2_num;
+    my @gmode_choice = $self->gmode_choice;
     my $result = $c->req->validator([
         'service_name' => {
             rule => [
@@ -308,7 +321,7 @@ post '/edit_complex/:complex_id' => [qw/get_complex/] => sub {
         'gmode-1' => {
             rule => [
                 ['NOT_NULL', 'mode is missing'],
-                [['CHOICE',qw/gauge subtract/], 'invalid mode'],
+                [['CHOICE',@gmode_choice], 'invalid mode'],
             ],
         },
         '@type-2' => {
@@ -329,7 +342,7 @@ post '/edit_complex/:complex_id' => [qw/get_complex/] => sub {
             rule => [
                 [['@SELECTED_NUM',$type2_num,$type2_num], 'invalid mode'],
                 ['NOT_NULL', 'invalid mode'],
-                [['CHOICE',qw/gauge subtract/], 'invalid mode'],
+                [['CHOICE',@gmode_choice], 'invalid mode'],
             ],
         },
         '@stack-2' => {
@@ -416,161 +429,165 @@ get '/view_complex/:service_name/:section_name/:graph_name' => [qw/set_enable_sh
     $c->render('view_graph.tx',{ graphs => [$row], view_complex => 1 } );
 };
 
+sub graph_validator {
+    my ( $self ) = @_;
+    my @gmode_choice = $self->gmode_choice;
 
-my $GRAPH_VALIDATOR = [
-    't' => {
-        default => 'd',
-        rule => [
-            [['CHOICE',qw/y m w 3d s3d d sd 8h s8h 4h s4h h sh n sn c sc/],'invalid drawing term'],
-        ],
-    },
-    'gmode' => {
-        default => 'gauge',
-        rule => [
-            [['CHOICE',qw/gauge subtract/],'invalid drawing data'],
-        ],
-    },
-    'from' => {
-        default => localtime(time-86400*8)->strftime('%Y/%m/%d %T'),
-        rule => [
-            [sub{ HTTP::Date::str2time($_[1]) }, 'invalid From datetime'],
-        ],
-    },
-    'to' => {
-        default => localtime()->strftime('%Y/%m/%d %T'),
-        rule => [
-            [sub{ HTTP::Date::str2time($_[1]) }, 'invalid To datetime'],
-        ],
-    },
-    'width' => {
-        default => 390,
-        rule => [
-            ['NATURAL','invalid width'],
-        ],
-    },
-    'height' => {
-        default => 110,
-        rule => [
-            ['NATURAL','invalid height'],
-        ],
-    },
-    'graphonly' => {
-        default => 0,
-        rule => [
-            [['CHOICE',qw/0 1/],'invalid only flag'],
-        ],
-    },
-    'logarithmic' => {
-        default => 0,
-        rule => [
-            [['CHOICE',qw/0 1/],'invalid logarithmic flag'],
-        ],
-    },
-    'background_color' => {
-        default => 'f3f3f3',
-        rule => [
-            [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid background color'],
-        ],
-    },
-    'canvas_color' => {
-        default => 'ffffff',
-        rule => [
-            [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid canvas color'],
-        ],
-    },
-    'font_color' => {
-        default => '000000',
-        rule => [
-            [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid font color'],
-        ],
-    },
-    'frame_color' => {
-        default => '000000',
-        rule => [
-            [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid frame color'],
-        ],
-    },
-    'axis_color' => {
-        default => '000000',
-        rule => [
-            [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid axis color'],
-        ],
-    },
-    'shadea_color' => {
-        default => 'cfcfcf',
-        rule => [
-            [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid shadea color'],
-        ],
-    },
-    'shadeb_color' => {
-        default => '9e9e9e',
-        rule => [
-            [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid shadeb color'],
-        ],
-    },
-    'border' => {
-        default => 3,
-        rule => [
-            ['UINT','invalid border width'],
-        ],
-    },
-    'legend' => {
-        default => 1,
-        rule => [
-            [['CHOICE',qw/0 1/],'invalid legend flag'],
-        ],
-    },
-    'notitle' => {
-        default => 0,
-        rule => [
-            [['CHOICE',qw/0 1/],'invalid title flag'],
-        ],        
-    },
-    'xgrid' => {
-        default => '',
-        rule => [],
-    },
-    'ygrid' => {
-        default => '',
-        rule => [],
-    },
-    'upper_limit' => {
-        default => '',
-        rule => [],
-    },
-    'lower_limit' => {
-        default => '',
-        rule => [],
-    },
-    'rigid' => {
-        default => '0',
-        rule => [
-            [['CHOICE',qw/0 1/],'invalid rigid flag'],
-        ],
-    },
-    'sumup' => {
-        default => 0,
-        rule => [
-            [['CHOICE',qw/0 1/],'invalid sumup flag'],
-        ],
-    },
-    'step' => {
-        default => '',
-        rule => [
-            ['NATURAL', 'invalid step size'],
-        ],
-    },
-    'cf' => {
-        default => 'AVERAGE',
-        rule => [
-            [['CHOICE', qw/AVERAGE MAX/], 'invalid consolidation function'],
-        ],
-    },
-];
+    return [
+        't' => {
+            default => 'd',
+            rule => [
+                [['CHOICE',qw/y m w 3d s3d d sd 8h s8h 4h s4h h sh n sn c sc/],'invalid drawing term'],
+            ],
+        },
+        'gmode' => {
+            default => 'gauge',
+            rule => [
+                [['CHOICE',@gmode_choice],'invalid drawing data'],
+            ],
+        },
+        'from' => {
+            default => localtime(time-86400*8)->strftime('%Y/%m/%d %T'),
+            rule => [
+                [sub{ HTTP::Date::str2time($_[1]) }, 'invalid From datetime'],
+            ],
+        },
+        'to' => {
+            default => localtime()->strftime('%Y/%m/%d %T'),
+            rule => [
+                [sub{ HTTP::Date::str2time($_[1]) }, 'invalid To datetime'],
+            ],
+        },
+        'width' => {
+            default => 390,
+            rule => [
+                ['NATURAL','invalid width'],
+            ],
+        },
+        'height' => {
+            default => 110,
+            rule => [
+                ['NATURAL','invalid height'],
+            ],
+        },
+        'graphonly' => {
+            default => 0,
+            rule => [
+                [['CHOICE',qw/0 1/],'invalid only flag'],
+            ],
+        },
+        'logarithmic' => {
+            default => 0,
+            rule => [
+                [['CHOICE',qw/0 1/],'invalid logarithmic flag'],
+            ],
+        },
+        'background_color' => {
+            default => 'f3f3f3',
+            rule => [
+                [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid background color'],
+            ],
+        },
+        'canvas_color' => {
+            default => 'ffffff',
+            rule => [
+                [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid canvas color'],
+            ],
+        },
+        'font_color' => {
+            default => '000000',
+            rule => [
+                [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid font color'],
+            ],
+        },
+        'frame_color' => {
+            default => '000000',
+            rule => [
+                [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid frame color'],
+            ],
+        },
+        'axis_color' => {
+            default => '000000',
+            rule => [
+                [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid axis color'],
+            ],
+        },
+        'shadea_color' => {
+            default => 'cfcfcf',
+            rule => [
+                [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid shadea color'],
+            ],
+        },
+        'shadeb_color' => {
+            default => '9e9e9e',
+            rule => [
+                [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid shadeb color'],
+            ],
+        },
+        'border' => {
+            default => 3,
+            rule => [
+                ['UINT','invalid border width'],
+            ],
+        },
+        'legend' => {
+            default => 1,
+            rule => [
+                [['CHOICE',qw/0 1/],'invalid legend flag'],
+            ],
+        },
+        'notitle' => {
+            default => 0,
+            rule => [
+                [['CHOICE',qw/0 1/],'invalid title flag'],
+            ],
+        },
+        'xgrid' => {
+            default => '',
+            rule => [],
+        },
+        'ygrid' => {
+            default => '',
+            rule => [],
+        },
+        'upper_limit' => {
+            default => '',
+            rule => [],
+        },
+        'lower_limit' => {
+            default => '',
+            rule => [],
+        },
+        'rigid' => {
+            default => '0',
+            rule => [
+                [['CHOICE',qw/0 1/],'invalid rigid flag'],
+            ],
+        },
+        'sumup' => {
+            default => 0,
+            rule => [
+                [['CHOICE',qw/0 1/],'invalid sumup flag'],
+            ],
+        },
+        'step' => {
+            default => '',
+            rule => [
+                ['NATURAL', 'invalid step size'],
+            ],
+        },
+        'cf' => {
+            default => 'AVERAGE',
+            rule => [
+                [['CHOICE', qw/AVERAGE MAX/], 'invalid consolidation function'],
+            ],
+        },
+    ];
+}
 
 get '/complex/{method:(?:xport|graph|summary)}/:service_name/:section_name/:graph_name' => sub {
     my ( $self, $c )  = @_;
-    my $result = $c->req->validator($GRAPH_VALIDATOR);
+    my $result = $c->req->validator($self->graph_validator);
     my $complex = $self->data->get_complex(
         $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
     );
@@ -614,7 +631,7 @@ get '/complex/{method:(?:xport|graph|summary)}/:service_name/:section_name/:grap
 
 get '/{method:(?:xport|graph|summary)}/:complex' => sub {
     my ( $self, $c )  = @_;
-    my $result = $c->req->validator($GRAPH_VALIDATOR);
+    my $result = $c->req->validator($self->graph_validator);
     my @complex = split /:/, $c->args->{complex};
     my @data;
     for ( my $i=0; $i < @complex; $i = $i+4 ) {
@@ -654,7 +671,7 @@ get '/{method:(?:xport|graph|summary)}/:complex' => sub {
 
 get '/{method:(?:xport|graph|summary)}/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
     my ( $self, $c )  = @_;
-    my $result = $c->req->validator($GRAPH_VALIDATOR);
+    my $result = $c->req->validator($self->graph_validator);
 
     if ( $c->args->{method} eq 'graph' ) {
         my ($img,$data) = $self->rrd->graph(
@@ -680,7 +697,7 @@ get '/{method:(?:xport|graph|summary)}/:service_name/:section_name/:graph_name' 
 
 get '/edit/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
     my ( $self, $c )  = @_;
-    $c->render('edit.tx',{graph=>$c->stash->{graph}});
+    $c->render('edit.tx',{graph=>$c->stash->{graph},disable_subtract=>$self->disable_subtract});
 };
 
 post '/edit/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
@@ -729,7 +746,7 @@ post '/edit/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
         'gmode' => {
             rule => [
                 ['NOT_NULL', 'missing'],
-                [['CHOICE',qw/gauge subtract both/], 'invalid value'],
+                [['CHOICE',$self->gmode_choice_edit_graph], 'invalid value'],
             ],
         },
         'adjust' => {
