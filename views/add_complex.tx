@@ -106,7 +106,9 @@
 </select></td>
 <td style="text-align: center"><select name="gmode-1" class="form-control">
 <option value="gauge">Gauge</option>
+: if !$disable_subtract {
 <option value="subtract">Subtract</option>
+: }
 </select></td>
 </tr>
 </table>
@@ -141,7 +143,9 @@
 </select></td>
 <td style="text-align: center"><select name="gmode-add" id="gmode-add" class="form-control">
 <option value="gauge">Gauge</option>
+: if !$disable_subtract {
 <option value="subtract">Subtract</option>
+: }
 </select></td>
 <td style="text-align:center;"><select name="stack-add" id="stack-add" class="form-control">
 <option value="1">enable</option>

@@ -53,6 +53,9 @@ OPTIONS
     --disable-1min-metrics
         don't generate 1min rrddata and graph Default is "1" (enabled)
 
+    --disable-subtract
+        Disable gmode `subtract`. Default is "1" (enabled)
+
     --enable-float-number
         Store numbers of graph data as float rather than integer. Default is
         "0" (disabled)
@@ -110,7 +113,7 @@ MYSQL Setting
     Give USERNAME and PASSWORD to GrowthForecast by environment value
 
       $ MYSQL_USER=www MYSQL_PASSWORD=foobar growthforecast.pl \\
-          --data-dir /home/user/growthforeacst \\
+          --data-dir /home/user/growthforecast \\
           -with-mysql dbi:mysql:growthforecast;hostname=localhost
 
     AUTHOR Masahiro Nagano <kazeburo {at} gmail.com>

@@ -35,6 +35,7 @@ GetOptions(
     's|short'      => \my $short,
     'm|md5'        => \my $md5,
     'd|daemon=s'   => \my $rrdcached,
+    'disable-subtract' => \my $disable_subtract,
     "h|help"       => \my $help,
 );
 
@@ -57,6 +58,7 @@ my $rrd = GrowthForecast::RRD->new(
     data_dir => $data_dir,
     root_dir => $root_dir,
     rrdcached => $rrdcached,
+    disable_subtract => $disable_subtract,
 );
 
 my $md5_func;
@@ -79,8 +81,9 @@ sub bench(&) {
             $data->{number} = int(rand($number));
             $code->($data);
         }
-        printf("%0.3f to %s %d %sgraphs%s.\n", Time::HiRes::time - $start_time,
+        printf("%0.3f to %s %d %sgraphs%s%s.\n", Time::HiRes::time - $start_time,
             $create ? 'create' : 'update' , $number, $short ? 'short ' : '',
+            $disable_subtract ? ' without subtract DS' : '',
             $rrdcached ? ' with rrdcached' : '');
     }
 }
@@ -147,6 +150,10 @@ $ benchmark_rrd.pl
 =item -s --short
 
  Benchmark the 1min rrd data. Default: false, which means benchmark the normal rrd
+
+=item --disable-subtract
+
+ Benchmark without creating subtract datasource on RRD file (GrowthForecast creates sub DS in addition to num DS as default)
 
 =item -m --md5
 

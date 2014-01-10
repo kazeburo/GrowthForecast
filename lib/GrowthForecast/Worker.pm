@@ -8,7 +8,7 @@ use GrowthForecast::Data;
 use GrowthForecast::RRD;
 use Log::Minimal;
 use POSIX ":sys_wait_h";
-use Class::Accessor::Lite ( rw => [qw/root_dir data_dir mysql float_number rrdcached/] );
+use Class::Accessor::Lite ( rw => [qw/root_dir data_dir mysql float_number rrdcached disable_subtract/] );
 use Scope::Container;
 
 sub new {
@@ -21,8 +21,8 @@ sub data {
     my $self = shift;
     $self->{__data} ||= 
         $self->mysql 
-            ? GrowthForecast::Data::MySQL->new($self->mysql, $self->float_number)
-            : GrowthForecast::Data->new($self->data_dir, $self->float_number);
+            ? GrowthForecast::Data::MySQL->new($self->mysql, $self->float_number, $self->disable_subtract)
+            : GrowthForecast::Data->new($self->data_dir, $self->float_number, $self->disable_subtract);
     $self->{__data};
 }
 
@@ -32,6 +32,7 @@ sub rrd {
         data_dir => $self->data_dir,
         root_dir => $self->root_dir,
         rrdcached => $self->rrdcached,
+        disable_subtract => $self->disable_subtract,
     );
     $self->{__rrd};
 }
@@ -91,16 +92,31 @@ sub run {
 
             #child process
             my $container = start_scope_container();
-            my $all_rows = $self->data->get_all_graph_id;
-            for my $row ( @$all_rows ) {
-                debugf( "[%s] update %s", $method, $row);
-                if ( $method eq 'update' ) {
-                    my $data = $self->data->get_by_id_for_rrdupdate($row->{id});
-                    $self->rrd->update($data);
+            if ( $self->disable_subtract ) {
+                # --disable-subtract makes possible to avoid N+1 queries, yay!
+                my $all_rows = $self->data->get_all_graph_all;
+                for my $data ( @$all_rows ) {
+                    debugf( "[%s] update %s", $method, $data->{id});
+                    if ( $method eq 'update' ) {
+                        $self->rrd->update($data);
+                    }
+                    else {
+                        $self->rrd->update_short($data);
+                    }
                 }
-                else {
-                    my $data = $self->data->get_by_id_for_rrdupdate_short($row->{id});
-                    $self->rrd->update_short($data);
+            }
+            else {
+                my $all_rows = $self->data->get_all_graph_id;
+                for my $row ( @$all_rows ) {
+                    debugf( "[%s] update %s", $method, $row);
+                    if ( $method eq 'update' ) {
+                        my $data = $self->data->get_by_id_for_rrdupdate($row->{id});
+                        $self->rrd->update($data);
+                    }
+                    else {
+                        my $data = $self->data->get_by_id_for_rrdupdate_short($row->{id});
+                        $self->rrd->update_short($data);
+                    }
                 }
             }
             undef $container;

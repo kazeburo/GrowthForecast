@@ -17,29 +17,40 @@ sub new {
     bless \%args, $class;
 }
 
-sub path {
+sub path_param {
     my $self = shift;
     my $data = shift;
 
     my $dst = $data->{mode} eq 'derive' ? 'DERIVE' : 'GAUGE';
 
+    my @param = (
+        '--step', '300',
+        "DS:num:${dst}:600:U:U",
+        'RRA:AVERAGE:0.5:1:1440',  #5分, 5日
+        'RRA:AVERAGE:0.5:6:1008', #30分, 21日
+        'RRA:AVERAGE:0.5:24:1344', #2時間, 112日 
+        'RRA:AVERAGE:0.5:288:2500', #24時間, 500日
+        'RRA:MAX:0.5:1:1440',  #5分, 5日
+        'RRA:MAX:0.5:6:1008', #30分, 21日
+        'RRA:MAX:0.5:24:1344', #2時間, 112日 
+        'RRA:MAX:0.5:288:2500', #24時間, 500日
+    );
+    unless ( $self->{disable_subtract} ) {
+        # --disable-subtract does not create DS:sub which results in half disksize and half rrdupdate time
+        push(@param, "DS:sub:${dst}:600:U:U");
+    }
+    return @param;
+}
+
+sub path {
+    my $self = shift;
+    my $data = shift;
+
     my $file = $self->{data_dir} . '/' . $data->{md5} . '.rrd';
     if ( ! -f $file ) {
         eval {
-            RRDs::create(
-                $file,
-                '--step', '300',
-                "DS:num:${dst}:600:U:U",
-                "DS:sub:${dst}:600:U:U", 
-                'RRA:AVERAGE:0.5:1:1440',  #5分, 5日
-                'RRA:AVERAGE:0.5:6:1008', #30分, 21日
-                'RRA:AVERAGE:0.5:24:1344', #2時間, 112日 
-                'RRA:AVERAGE:0.5:288:2500', #24時間, 500日
-                'RRA:MAX:0.5:1:1440',  #5分, 5日
-                'RRA:MAX:0.5:6:1008', #30分, 21日
-                'RRA:MAX:0.5:24:1344', #2時間, 112日 
-                'RRA:MAX:0.5:288:2500', #24時間, 500日
-            );
+            my @param = $self->path_param($data);
+            RRDs::create($file, @param);
             my $ERR=RRDs::error;
             die $ERR if $ERR;
         };
@@ -48,29 +59,65 @@ sub path {
     $file;
 }
 
-sub path_short {
+sub path_short_param {
     my $self = shift;
     my $data = shift;
 
     my $dst = $data->{mode} eq 'derive' ? 'DERIVE' : 'GAUGE';
 
+    my @param = (
+        '--step', '60',
+        "DS:num:${dst}:120:U:U",
+        'RRA:AVERAGE:0.5:1:4800',  #1分, 3日(80時間)
+        'RRA:MAX:0.5:1:4800',  #1分, 3日(80時間)
+    );
+    unless ( $self->{disable_subtract} ) {
+        # --disable-subtract does not create DS:sub which results in half disksize and half rrdupdate time
+        push(@param, "DS:sub:${dst}:120:U:U");
+    }
+    return @param;
+}
+
+sub path_short {
+    my $self = shift;
+    my $data = shift;
+
     my $file = $self->{data_dir} . '/' . $data->{md5} . '_s.rrd';
     if ( ! -f $file ) {
         eval {
-            RRDs::create(
-                $file,
-                '--step', '60',
-                "DS:num:${dst}:120:U:U",
-                "DS:sub:${dst}:120:U:U", 
-                'RRA:AVERAGE:0.5:1:4800',  #1分, 3日(80時間)
-                'RRA:MAX:0.5:1:4800',  #1分, 3日(80時間)
-            );
+            my @param = $self->path_short_param($data);
+            RRDs::create($file, @param);
             my $ERR=RRDs::error;
             die $ERR if $ERR;
         };
         die "init failed: $@" if $@;
     }
     $file;
+}
+
+sub update_param {
+    my $self = shift;
+    my $data = shift;
+
+    my @param;
+    if ( $self->{disable_subtract} ) {
+        @param = (
+            '-t', 'num',
+            '--', join(':','N',$data->{number}),
+        );
+    }
+    else {
+        @param = (
+            '-t', 'num:sub',
+            '--', join(':','N',$data->{number},$data->{subtract}),
+        );
+    }
+    if ( $self->{rrdcached} ) {
+        # The caching daemon cannot be used together with templates (-t) yet.
+        splice(@param, 0, 2); # delete -t option
+        unshift(@param, '-d', $self->{rrdcached});
+    }
+    return @param;
 }
 
 sub update {
@@ -79,21 +126,37 @@ sub update {
 
     my $file = $self->path($data);
     eval {
-        my @argv = (
-            $file,
-            '-t', 'num:sub',
-            '--', join(':','N',$data->{number},$data->{subtract}),
-        );
-        if ( $self->{rrdcached} ) {
-            # The caching daemon cannot be used together with templates (-t) yet.
-            splice(@argv, 1, 2); # delete -t option
-            unshift(@argv, '-d', $self->{rrdcached});
-        }
-        RRDs::update(@argv);
+        my @param = $self->update_param($data);
+        RRDs::update($file, @param);
         my $ERR=RRDs::error;
         die $ERR if $ERR;
     };
     die "udpate rrdfile failed: $@" if $@;
+}
+
+sub update_short_param {
+    my $self = shift;
+    my $data = shift;
+
+    my @param;
+    if ( $self->{disable_subtract} ) {
+        @param = (
+            '-t', 'num',
+            '--', join(':','N',$data->{number}),
+        );
+    }
+    else {
+        @param = (
+            '-t', 'num:sub',
+            '--', join(':','N',$data->{number},$data->{subtract_short}),
+        );
+    }
+    if ( $self->{rrdcached} ) {
+        # The caching daemon cannot be used together with templates (-t) yet.
+        splice(@param, 0, 2); # delete -t option
+        unshift(@param, '-d', $self->{rrdcached});
+    }
+    return @param;
 }
 
 sub update_short {
@@ -102,17 +165,8 @@ sub update_short {
 
     my $file = $self->path_short($data);
     eval {
-        my @argv = (
-            $file,
-            '-t', 'num:sub',
-            '--', join(':','N',$data->{number},$data->{subtract_short}),
-        );
-        if ( $self->{rrdcached} ) {
-            # The caching daemon cannot be used together with templates (-t) yet.
-            splice(@argv, 1, 2); # delete -t option
-            unshift(@argv, '-d', $self->{rrdcached});
-        }
-        RRDs::update(@argv);
+        my @param = $self->update_short_param($data);
+        RRDs::update($file, @param);
         my $ERR=RRDs::error;
         die $ERR if $ERR;
     };

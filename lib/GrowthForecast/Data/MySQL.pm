@@ -10,7 +10,8 @@ sub new {
     my $class = shift;
     my $mysql = shift;
     my $float_number = shift;
-    bless { mysql => $mysql, float_number => $float_number }, $class;
+    my $disable_subtract = shift;
+    bless { mysql => $mysql, float_number => $float_number, disable_subtract => $disable_subtract }, $class;
 }
 
 sub number_type {
@@ -56,7 +57,8 @@ CREATE TABLE IF NOT EXISTS graphs (
 )  ENGINE=InnoDB DEFAULT CHARSET=utf8
 EOF
 
-        $dbh->do(<<EOF);
+        unless ( $self->{disable_subtract} ) {
+            $dbh->do(<<EOF);
 CREATE TABLE IF NOT EXISTS prev_graphs (
     graph_id     INT UNSIGNED NOT NULL,
     number       $number_type NOT NULL DEFAULT 0,
@@ -66,7 +68,7 @@ CREATE TABLE IF NOT EXISTS prev_graphs (
 )  ENGINE=InnoDB DEFAULT CHARSET=utf8
 EOF
 
-        $dbh->do(<<EOF);
+            $dbh->do(<<EOF);
 CREATE TABLE IF NOT EXISTS prev_short_graphs (
     graph_id     INT UNSIGNED NOT NULL,
     number       $number_type NOT NULL DEFAULT 0,
@@ -75,7 +77,7 @@ CREATE TABLE IF NOT EXISTS prev_short_graphs (
     PRIMARY KEY  (graph_id)
 )  ENGINE=InnoDB DEFAULT CHARSET=utf8
 EOF
-
+        }
 
         $dbh->do(<<EOF);
 CREATE TABLE IF NOT EXISTS complex_graphs (
