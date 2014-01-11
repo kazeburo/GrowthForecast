@@ -386,7 +386,8 @@ sub graph {
             $graphv[0]->[$i+2],
             $graphv[0]->[$i+3]
         );
-        $graph_args{$data->{graph_name}} = [$current, $average, $max, $min];
+        my $graph_path = join('/', $data->{service_name}, $data->{section_name}, $data->{graph_name});
+        $graph_args{$graph_path} = [$current, $average, $max, $min];
         $i = $i + 4;
     }
     if ( $args->{sumup} ) {
