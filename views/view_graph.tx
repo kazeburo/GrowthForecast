@@ -7,7 +7,7 @@
 <div class="row">
   <div class="col-md-10">
     <h1>
-      <a href="<: $c.req.uri_for('/') :>">Home</a> » <a href="<: $c.req.uri_for('/list/'~uri_escape($c.args.service_name)~'/'~uri_escape($c.args.section_name),$term_arg) :>"><: $c.args.service_name :></a> » <a href="<: $c.req.uri_for('/list/'~uri_escape($c.args.service_name)~'/'~uri_escape($c.args.section_name),$term_arg) :>"><: $c.args.section_name :></a> » <: $c.args.graph_name :>
+      <a href="<: $c.req.uri_for('/') :>">Home</a> » <a href="<: $c.req.uri_for('/list/'~uri_escape($c.args.service_name)) :>"><: $c.args.service_name :></a> » <a href="<: $c.req.uri_for('/list/'~uri_escape($c.args.service_name)~'/'~uri_escape($c.args.section_name),$term_arg) :>"><: $c.args.section_name :></a> » <: $c.args.graph_name :>
     </h1>
   </div>
   <div class="col-md-2" style="padding-top:25px;text-align:right">
