@@ -32,6 +32,7 @@ public/fonts/glyphicons-halflings-regular.ttf
 public/fonts/glyphicons-halflings-regular.woff
 public/js/bootstrap.min.js
 public/js/jquery-1.10.2.min.js
+public/js/jquery-1.10.2.min.map
 public/js/jquery.storageapi.min.js
 public/js/site.js
 !;

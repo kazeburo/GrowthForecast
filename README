@@ -113,7 +113,7 @@ MYSQL Setting
     Give USERNAME and PASSWORD to GrowthForecast by environment value
 
       $ MYSQL_USER=www MYSQL_PASSWORD=foobar growthforecast.pl \\
-          --data-dir /home/user/growthforecast \\
+          --data-dir /home/user/growthforeacst \\
           -with-mysql dbi:mysql:growthforecast;hostname=localhost
 
     AUTHOR Masahiro Nagano <kazeburo {at} gmail.com>
