@@ -1,3 +1,6 @@
+0.81   Thu Feb 20 16:18:14 2014
+        - add --disable-subtract (sonots)
+
 0.80   Tue Dec 24 13:09:44 2013
         - [bugfix] remove *_s.rrd (kazeburo)
         - [bugfix] mysql: text column defalut value error (oranie)
