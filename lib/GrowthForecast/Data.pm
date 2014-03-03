@@ -108,6 +108,19 @@ CREATE TABLE IF NOT EXISTS complex_graphs (
     UNIQUE  (service_name, section_name, graph_name)
 )
 EOF
+
+        $dbh->do(<<EOF);
+CREATE TABLE IF NOT EXISTS vrules (
+    graph_path   VARCHAR(255) NOT NULL,
+    time         INT UNSIGNED NOT NULL,
+    color        VARCHAR(255) NOT NULL DEFAULT '#FF0000',
+    description  TEXT
+)
+EOF
+        $dbh->do(<<EOF);
+CREATE INDEX IF NOT EXISTS time_graph_path on vrules (time, graph_path)
+EOF
+
         return;
     };
 }
@@ -524,6 +537,33 @@ sub get_all_complex_graph_all {
     return [] unless $list;
     my @ret = map { $self->inflate_complex_row($_) } @$list;
     \@ret;
+}
+
+sub update_vrule {
+    my ($self, $graph_path, $time, $color, $desc) = @_;
+
+    $self->dbh->query(
+        'INSERT INTO vrules (graph_path,time,color,description) values (?,?,?,?)',
+        $graph_path, $time, $color, $desc
+    );
+}
+
+sub get_vrule {
+    my ($self, $from, $to, $graph_path) = @_;
+    my @vrules = ();
+
+    my @gp = split '/', substr($graph_path, 1);
+
+    my $rows = $self->dbh->select_all(
+        'SELECT * FROM vrules WHERE (time BETWEEN ? and ?) AND graph_path in ("/",?,?,?)',
+        $from, $to,
+        "/$gp[0]",
+        "/$gp[0]/$gp[1]",
+        "/$gp[0]/$gp[1]/$gp[2]",
+    );
+    push @vrules, @$rows;
+
+    return @vrules;
 }
 
 1;

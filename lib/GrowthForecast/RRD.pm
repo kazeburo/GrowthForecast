@@ -271,6 +271,7 @@ sub graph {
     my $datas = shift;
     my @datas = ref($datas) eq 'ARRAY' ? @$datas : ($datas);
     my $args = shift;
+    my $data = shift;
     my ($a_gmode, $span, $from, $to, $width, $height) = map { $args->{$_} } qw/gmode t from to width height/;
     $span ||= 'd';
     $width ||= 390;
@@ -364,6 +365,20 @@ sub graph {
             sprintf('PRINT:sumupmax:%%.8lf'),
             sprintf('VDEF:sumupmin=sumup,MINIMUM'),
             sprintf('PRINT:sumupmin:%%.8lf');
+    }
+
+    my $time_from = $period eq 'now' ? time() :
+                    $period < 0 ? time() + $period :
+                    $period;
+    my $time_to   = $end eq 'now' ? time() :
+                    $end < 0 ? time() + $end :
+                    $end;
+    for my $vrule ($data->get_vrule($time_from, $time_to, '/'.join('/',@{$datas}{qw(service_name section_name graph_name)}))) {
+        push @opt, join(":",
+                        'VRULE',
+                        join("", $vrule->{time}, $vrule->{color}),
+                        ($vrule->{description}||()),
+                    );
     }
 
     my @graphv;

@@ -675,7 +675,8 @@ get '/{method:(?:xport|graph|summary)}/:service_name/:section_name/:graph_name' 
 
     if ( $c->args->{method} eq 'graph' ) {
         my ($img,$data) = $self->rrd->graph(
-            $c->stash->{graph}, $result->valid->as_hashref
+            $c->stash->{graph}, $result->valid->as_hashref,
+            $self->data,
         );
         $c->res->content_type('image/png');
         $c->res->body($img);
@@ -1153,6 +1154,72 @@ post '/json/edit/{type:(?:graph|complex)}/:id' => sub {
         $self->data->update_complex( $id, $internal );
     }
     $c->render_json({ error => 0 });
+};
+
+post '/vrule/:service_name/:section_name/:graph_name' => sub {
+    my ( $self, $c )  = @_;
+    $self->add_vrule($c);
+};
+post '/vrule/:service_name/:section_name' => sub {
+    my ( $self, $c )  = @_;
+    $self->add_vrule($c);
+};
+post '/vrule/:service_name' => sub {
+    my ( $self, $c )  = @_;
+    $self->add_vrule($c);
+};
+post '/vrule' => sub {
+    my ( $self, $c )  = @_;
+    $self->add_vrule($c);
+};
+
+sub add_vrule {
+    my ( $self, $c )  = @_;
+    my $result = $c->req->validator([
+        'time' => {
+            default => time(),
+            rule => [
+                ['INT', 'a INT number is required for "time"']
+            ],
+        },
+        'color' => {
+            default => '#FF0000',
+            rule => [
+                [sub{ length($_[1]) == 0 || $_[1] =~ m!^#[0-9A-F]{6}$!i }, 'invalid color format'],
+            ],
+        },
+        'description' => {
+            default => '',
+            rule => [],
+        },
+    ]);
+
+    if ( $result->has_error ) {
+        my $res = $c->render_json({
+            error => 1,
+            messages => $result->messages
+        });
+        $res->status(400);
+        return $res;
+    }
+
+    my $row;
+    eval {
+        my $graph_path = '/'.join('/', $c->args->{service_name}||(), $c->args->{section_name}||(), $c->args->{graph_name}||());
+        $row = $self->data->update_vrule(
+            $graph_path,
+            $result->valid('time'),
+            $result->valid('color'),
+            $result->valid('description'),
+        );
+    };
+    if ( $@ ) {
+        die sprintf "Error:%s %s/%s/%s => %s,%s",
+            $@, $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
+                $result->valid('time'), $result->valid('color');
+    }
+
+    $c->render_json({error=>0, data => 'fixme'});
 };
 
 1;
