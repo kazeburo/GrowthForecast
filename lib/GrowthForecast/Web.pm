@@ -33,6 +33,7 @@ sub rrd {
         root_dir => $self->root_dir,
         rrdcached => $self->rrdcached,
         disable_subtract => $self->disable_subtract,
+        data => $self->data,
     );
     $self->{__rrd};
 }
