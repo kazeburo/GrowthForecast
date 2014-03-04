@@ -1157,21 +1157,17 @@ post '/json/edit/{type:(?:graph|complex)}/:id' => sub {
     $c->render_json({ error => 0 });
 };
 
-post '/vrule/:service_name/:section_name/:graph_name' => sub {
-    my ( $self, $c )  = @_;
-    $self->add_vrule($c);
+post '/vrule/api/:service_name/:section_name/:graph_name' => sub {
+    my ( $self, $c )  = @_; $self->add_vrule($c);
 };
-post '/vrule/:service_name/:section_name' => sub {
-    my ( $self, $c )  = @_;
-    $self->add_vrule($c);
+post '/vrule/api/:service_name/:section_name' => sub {
+    my ( $self, $c )  = @_; $self->add_vrule($c);
 };
-post '/vrule/:service_name' => sub {
-    my ( $self, $c )  = @_;
-    $self->add_vrule($c);
+post '/vrule/api/:service_name' => sub {
+    my ( $self, $c )  = @_; $self->add_vrule($c);
 };
-post '/vrule' => sub {
-    my ( $self, $c )  = @_;
-    $self->add_vrule($c);
+post '/vrule/api' => sub {
+    my ( $self, $c )  = @_; $self->add_vrule($c);
 };
 
 sub add_vrule {
