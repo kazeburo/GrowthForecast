@@ -1272,7 +1272,15 @@ sub summarize_vrule {
 
     my $graph_path = '/'.join('/', $c->args->{service_name}||(), $c->args->{section_name}||(), $c->args->{graph_name}||());
 
-    my @vrules = $self->data->get_vrule($result->valid('t'), $result->valid('from'), $result->valid('to'), $graph_path);
+    my @vrules;
+    eval {
+        @vrules = $self->data->get_vrule($result->valid('t'), $result->valid('from'), $result->valid('to'), $graph_path);
+    };
+    if ( $@ ) {
+        die sprintf "Error:%s %s/%s/%s => %s,%s,%s",
+            $@, $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
+                $result->valid('t'), $result->valid('from') , $result->valid('to');
+    }
 
     $c->render_json(\@vrules);
 };
