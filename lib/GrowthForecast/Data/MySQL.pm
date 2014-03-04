@@ -98,10 +98,12 @@ EOF
 
         $dbh->do(<<EOF);
 CREATE TABLE IF NOT EXISTS vrules (
+    id           INT UNSIGNED NOT NULL AUTO_INCREMENT,
     graph_path   VARCHAR(255) NOT NULL COLLATE utf8_bin,
     time         INT UNSIGNED NOT NULL,
     color        VARCHAR(255) NOT NULL DEFAULT '#FF0000',
     description  TEXT,
+    PRIMARY KEY (id),
     INDEX time_graph_path (time, graph_path)
 )  ENGINE=InnoDB DEFAULT CHARSET=utf8
 EOF

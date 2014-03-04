@@ -111,6 +111,7 @@ EOF
 
         $dbh->do(<<EOF);
 CREATE TABLE IF NOT EXISTS vrules (
+    id           INTEGER NOT NULL PRIMARY KEY,
     graph_path   VARCHAR(255) NOT NULL,
     time         INT UNSIGNED NOT NULL,
     color        VARCHAR(255) NOT NULL DEFAULT '#FF0000',
