@@ -547,17 +547,58 @@ sub update_vrule {
         'INSERT INTO vrules (graph_path,time,color,description) values (?,?,?,?)',
         $graph_path, $time, $color, $desc
     );
+
+   my $row = $self->dbh->select_row(
+        'SELECT * FROM vrules WHERE graph_path = ? AND time = ? AND color = ? AND description = ?',
+        $graph_path, $time, $color, $desc,
+    );
+
+    return $row;
 }
 
+# "$span" is a parameter named "t",
+# "$from" and "$to" are paramters same nameed.
 sub get_vrule {
-    my ($self, $from, $to, $graph_path) = @_;
+    my ($self, $span, $from, $to, $graph_path) = @_;
+
+    my($from_time, $to_time) = (0, time);
+    # same rule as GrowthForecast::RRD#calc_period
+    if ( $span eq 'all' ) {
+        $from_time = 0;
+        $to_time   = 4294967295; # unsigned int max
+    } elsif ( $span eq 'c' || $span eq 'sc' ) {
+        my $from_time = HTTP::Date::str2time($from);
+        die "invalid from date: $from" unless $from_time;
+        my $to_time = $to ? HTTP::Date::str2time($to) : time;
+        die "invalid to date: $to" unless $to_time;
+        die "from($from) is newer than to($to)" if $from_time > $to_time;
+    } elsif ( $span eq 'h' || $span eq 'sh' ) {
+        $from_time = time -1 * 60 * 60 * 2;
+    } elsif ( $span eq 'n' || $span eq 'sn' ) {
+        $from_time = time -1 * 60 * 60 * 14;
+    } elsif ( $span eq 'w' ) {
+        $from_time = time -1 * 60 * 60 * 24 * 8;
+    } elsif ( $span eq 'm' ) {
+        $from_time = time -1 * 60 * 60 * 24 * 35;
+    } elsif ( $span eq 'y' ) {
+        $from_time = time -1 * 60 * 60 * 24 * 400;
+    } elsif ( $span eq '3d' ) {
+        $from_time = time -1 * 60 * 60 * 24 * 3;
+    } elsif ( $span eq '8h' ) {
+        $from_time = time -1 * 8 * 60 * 60;
+    } elsif ( $span eq '4h' ) {
+        $from_time = time -1 * 4 * 60 * 60;
+    } else {
+        $from_time = time -1 * 60 * 60 * 33; # 33 hours
+    }
+
     my @vrules = ();
 
     my @gp = split '/', substr($graph_path, 1);
 
     my $rows = $self->dbh->select_all(
         'SELECT * FROM vrules WHERE (time BETWEEN ? and ?) AND graph_path in ("/",?,?,?)',
-        $from, $to,
+        $from_time, $to_time,
         "/$gp[0]",
         "/$gp[0]/$gp[1]",
         "/$gp[0]/$gp[1]/$gp[2]",

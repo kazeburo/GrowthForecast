@@ -1216,7 +1216,59 @@ sub add_vrule {
                 $result->valid('time'), $result->valid('color');
     }
 
-    $c->render_json({error=>0, data => 'fixme'});
+    $c->render_json({error=>0, data => $row});
+};
+
+get '/vrule/summary/:service_name/:section_name/:graph_name' => sub {
+    my ( $self, $c )  = @_; $self->summarize_vrule($c);
+};
+get '/vrule/summary/:service_name/:section_name' => sub {
+    my ( $self, $c )  = @_; $self->summarize_vrule($c);
+};
+get '/vrule/summary/:service_name' => sub {
+    my ( $self, $c )  = @_; $self->summarize_vrule($c);
+};
+get '/vrule/summary' => sub {
+    my ( $self, $c )  = @_; $self->summarize_vrule($c);
+};
+
+sub summarize_vrule {
+    my ( $self, $c )  = @_;
+    my $result = $c->req->validator([
+        't' => {
+            default => 'all',
+            rule => [
+                [['CHOICE',qw/all y m w 3d s3d d sd 8h s8h 4h s4h h sh n sn c sc/],'invalid drawing term'],
+            ],
+        },
+        'from' => {
+            default => localtime(time-86400*8)->strftime('%Y/%m/%d %T'),
+            rule => [
+                [sub{ HTTP::Date::str2time($_[1]) }, 'invalid From datetime'],
+            ],
+        },
+        'to' => {
+            default => localtime()->strftime('%Y/%m/%d %T'),
+            rule => [
+                [sub{ HTTP::Date::str2time($_[1]) }, 'invalid To datetime'],
+            ],
+        },
+    ]);
+
+    if ( $result->has_error ) {
+        my $res = $c->render_json({
+            error => 1,
+            messages => $result->messages
+        });
+        $res->status(400);
+        return $res;
+    }
+
+    my $graph_path = '/'.join('/', $c->args->{service_name}||(), $c->args->{section_name}||(), $c->args->{graph_name}||());
+
+    my @vrules = $self->data->get_vrule($result->valid('t'), $result->valid('from'), $result->valid('to'), $graph_path);
+
+    $c->render_json(\@vrules);
 };
 
 1;
