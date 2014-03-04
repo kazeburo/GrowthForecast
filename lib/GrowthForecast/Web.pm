@@ -583,6 +583,12 @@ sub graph_validator {
                 [['CHOICE', qw/AVERAGE MAX/], 'invalid consolidation function'],
             ],
         },
+        'vrule_legend' => {
+            default => 1,
+            rule => [
+                [['CHOICE',qw/0 1/],'invalid vrule_legend flag'],
+            ],
+        },
     ];
 }
 

@@ -370,7 +370,7 @@ sub graph {
         push @opt, join(":",
                         'VRULE',
                         join("", $vrule->{time}, $vrule->{color}),
-                        ($vrule->{description}||()),
+                        ($args->{vrule_legend} ? ($vrule->{description}||()) : ()),
                     );
     }
 
