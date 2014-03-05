@@ -594,14 +594,15 @@ sub get_vrule {
 
     my @vrules = ();
 
-    my @gp = split '/', substr($graph_path, 1);
-
+    my @gp = split '/', substr($graph_path, 1), 3;
+    my $ph = ',?'x@gp;
+    my @path;
+    for (my $i=0; $i<@gp; $i++ ) {
+        push @path, "/".join("/",@gp[0..$i]); 
+    }
     my $rows = $self->dbh->select_all(
-        'SELECT * FROM vrules WHERE (time BETWEEN ? and ?) AND graph_path in ("/",?,?,?)',
-        $from_time, $to_time,
-        "/$gp[0]",
-        "/$gp[0]/$gp[1]",
-        "/$gp[0]/$gp[1]/$gp[2]",
+        'SELECT * FROM vrules WHERE (time BETWEEN ? and ?) AND graph_path in ("/"'.$ph.')',
+        $from_time, $to_time, @path
     );
     push @vrules, @$rows;
 
