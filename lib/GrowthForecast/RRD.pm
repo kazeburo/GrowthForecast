@@ -366,6 +366,14 @@ sub graph {
             sprintf('PRINT:sumupmin:%%.8lf');
     }
 
+    for my $vrule ($self->{data}->get_vrule($span, $period, $end, '/'.join('/',@{$datas}{qw(service_name section_name graph_name)}))) {
+        push @opt, join(":",
+                        'VRULE',
+                        join("", $vrule->{time}, $vrule->{color}),
+                        ($args->{vrule_legend} ? ($vrule->{description}||()) : ()),
+                    );
+    }
+
     my @graphv;
     eval {
         @graphv = RRDs::graph(map { Encode::encode_utf8($_) } @opt);
