@@ -1182,7 +1182,14 @@ sub add_vrule {
         'time' => {
             default => time(),
             rule => [
-                ['INT', 'a INT number is required for "time"']
+                [sub {
+                     if ($_[1] !~ /\A[1-9][0-9]*\z/) {
+                         my $t = HTTP::Date::str2time($_[1])
+                             or return;
+                         $_[1] = $t;
+                     }
+                     return 1;
+                 }, 'epoch time or date string is required for "time"'],
             ],
         },
         'color' => {
