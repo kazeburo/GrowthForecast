@@ -334,6 +334,89 @@ $ curl -F number=10 http://example.com/api/socialgame/member/register
           <h1>API <small>その他のAPI</small></h1>
         </div>
 
+<h3>垂直線の追加 (GrowthForecast 0.82以上)</h3>
+
+<o>グラフに垂直線を描く事ができます</p>
+
+<h4>エンドポイント</h4>
+
+<pre class="prettyprint">
+垂直線の追加 http://example.com/vrule/api[/:service_name[/:section_name[/:graph_name]]]
+垂直線データの取得 http://example.com/vrule/summary[/:service_name[/:section_name[/:graph_name]]]
+</pre>
+
+<div class="row">
+<div class="col-md-4">
+<h4>垂直線追加時のパラメータ</h4>
+</div>
+<div class="col-md-8">
+
+<table class="table">
+<tr>
+<th>パラメータ</th>
+<th>説明</th>
+<th>必須/オプション</th>
+</tr>
+<tr>
+<td>time</td>
+<td>垂直線を描画する日付時間。「2011/12/08 12:10:00」の形式で指定。デフォルトは現在時間</td>
+<td>オプション</td>
+</tr>
+<tr>
+<td>color</td>
+<td>グラフの色。#FFFFFF 形式で指定。デフォルトは「#FF0000」</td>
+<td>オプション</td>
+</tr>
+<tr>
+<td>description</td>
+<td>垂直線の説明</td>
+<td>オプション</td>
+</tr>
+</table>
+
+
+<h4>垂直線登録サンプル</h4>
+
+<p>curlを使った場合</p>
+
+<pre class="prettyprint linenums">
+$ curl -F description=deploy -F color=#FF0000 http://example.com/api/socialgame/member
+</pre>
+</div>
+</div>
+
+
+<div class="row">
+<div class="col-md-4">
+<h4>垂直線データ取得時のパラメータ</h4>
+</div>
+<div class="col-md-8">
+
+<table class="table">
+<tr>
+<th>パラメータ</th>
+<th>説明</th>
+</tr>
+<tr>
+<td>t</td>
+<td>取得する範囲。all(全期間)、c(任意・toおよびfromを使用)、h(直近1時間)、n(半日)、w(一週間)、m(一ヶ月) y(1年) 3d(3日間) 8h(8時間) 4h(4時間)</td>
+</tr>
+<tr>
+<td>from</td>
+<td>「t」が「c」の場合、取得する開始日付。「2011/12/08 12:10:00」の形式で指定</td>
+</tr>
+<tr>
+<td>to</td>
+<td>「t」が「c」の場合、取得する終了日付。「2011/12/08 12:10:00」の形式で指定</td>
+</tr>
+</table>
+
+
+</div>
+</div>
+
+
+
 <h3>グラフの表示のカスタマイズ</h3>
 
 <p>グラフのURIに対していくつかパラメータを与えるとグラフの描画をカスタマイズすることができます</p>
@@ -458,6 +541,12 @@ http://example.com/graph/service/section/graph?t=d&gmode=gauge&border=0&legend=0
 <td>sumup</td>
 <td>凡例に合計値を含むかどうか。デフォルト「0」</td>
 </tr>
+
+<tr>
+<td>vrule_legend</td>
+<td>垂直線の説明を凡例に出すかどうか。デフォルト「1」</td>
+</tr>
+
 
 </table>
 </div>
