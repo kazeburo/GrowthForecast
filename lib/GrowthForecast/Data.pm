@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS vrules (
     time         INT UNSIGNED NOT NULL,
     color        VARCHAR(255) NOT NULL DEFAULT '#FF0000',
     description  TEXT,
-    dashes       VARCHAR(255) NOT NULL DEFAULT '',
+    dashes       VARCHAR(255) NOT NULL DEFAULT ''
 )
 EOF
         $dbh->do(<<EOF);
