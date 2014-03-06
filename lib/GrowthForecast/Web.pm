@@ -888,7 +888,7 @@ post '/api/:service_name/:section_name/:graph_name' => sub {
         'color' => {
             default => '',
             rule => [
-                [sub{ length($_[1]) == 0 || $_[1] =~ m!^#[0-9A-F]{6}$!i }, 'invalid color format'],
+                [sub{ length($_[1]) == 0 || $_[1] =~ m!^#[0-9A-F]{6,8}$!i }, 'invalid color format'],
             ],
         },
     ]);
@@ -1195,7 +1195,7 @@ sub add_vrule {
         'color' => {
             default => '#FF0000',
             rule => [
-                [sub{ length($_[1]) == 0 || $_[1] =~ m!^#[0-9A-F]{6}$!i }, 'invalid color format'],
+                [sub{ length($_[1]) == 0 || $_[1] =~ m!^#[0-9A-F]{6,8}$!i }, 'invalid color format'],
             ],
         },
         'description' => {
