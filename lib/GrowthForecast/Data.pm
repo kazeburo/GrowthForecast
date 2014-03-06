@@ -567,10 +567,18 @@ sub get_vrule {
         $from_time = 0;
         $to_time   = 4294967295; # unsigned int max
     } elsif ( $span eq 'c' || $span eq 'sc' ) {
-        my $from_time = HTTP::Date::str2time($from);
-        die "invalid from date: $from" unless $from_time;
-        my $to_time = $to ? HTTP::Date::str2time($to) : time;
-        die "invalid to date: $to" unless $to_time;
+        if ($from =~ /\A[1-9][0-9]*\z/) {
+            $from_time = $from;
+        } else {
+            $from_time = HTTP::Date::str2time($from);
+            die "invalid from date: $from" unless $from_time;
+        }
+        if ($to && $to =~ /\A[1-9][0-9]*\z/) {
+            $to_time = $to;
+        } else {
+            $to_time = $to ? HTTP::Date::str2time($to) : time;
+            die "invalid to date: $to" unless $to_time;
+        }
         die "from($from) is newer than to($to)" if $from_time > $to_time;
     } elsif ( $span eq 'h' || $span eq 'sh' ) {
         $from_time = time -1 * 60 * 60 * 2;
