@@ -371,7 +371,10 @@ sub graph {
         my $desc;
         if ($vrule->{description}) {
             my $k = $vrule->{color}.'/'.$vrule->{description};
-            $desc = $vrule->{description} unless $same_vrule{$k};
+            unless ($same_vrule{$k}) {
+                $desc = $vrule->{description};
+                $desc =~ s/:/\\:/;
+            }
             $same_vrule{$k}++;
         }
 
