@@ -103,6 +103,7 @@ CREATE TABLE IF NOT EXISTS vrules (
     time         INT UNSIGNED NOT NULL,
     color        VARCHAR(255) NOT NULL DEFAULT '#FF0000',
     description  TEXT,
+    dashes       VARCHAR(255) NOT NULL DEFAULT '',
     PRIMARY KEY (id),
     INDEX time_graph_path (time, graph_path)
 )  ENGINE=InnoDB DEFAULT CHARSET=utf8
