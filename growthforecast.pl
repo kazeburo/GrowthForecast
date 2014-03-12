@@ -92,6 +92,7 @@ if ( $socket ) {
 
 my $proclet = Proclet->new;
 $proclet->service(
+    tag  => 'worker_1min',
     code => sub {
         local $0 = "$0 (GrowthForecast::Worker 1min)";
         my $worker = GrowthForecast::Worker->new(
@@ -107,6 +108,7 @@ $proclet->service(
 ) if !$disable_short;
 
 $proclet->service(
+    tag  => 'worker',
     code => sub {
         local $0 = "$0 (GrowthForecast::Worker)";
         my $worker = GrowthForecast::Worker->new(
@@ -122,6 +124,7 @@ $proclet->service(
 );
 
 $proclet->service(
+    tag  => 'web',
     code => sub {
         local $0 = "$0 (GrowthForecast::Web)";
         my $web = GrowthForecast::Web->new(
