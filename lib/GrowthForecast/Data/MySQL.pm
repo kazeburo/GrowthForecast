@@ -109,6 +109,17 @@ CREATE TABLE IF NOT EXISTS vrules (
 )  ENGINE=InnoDB DEFAULT CHARSET=utf8
 EOF
 
+        {
+            my $sth = $dbh->column_info(undef,undef,"vrules",undef);
+            my $columns = $sth->fetchall_arrayref(+{ COLUMN_NAME => 1 });
+            my %graphs_columns;
+            $graphs_columns{$_->{COLUMN_NAME}} = 1 for @$columns;
+            if ( ! exists $graphs_columns{dashes} ) {
+                infof("add new column 'dashes'");
+                $dbh->do(q{ALTER TABLE vrules ADD dashes VARCHAR(255) NOT NULL DEFAULT ''});
+            }
+        }
+
         return;
     };
 }

@@ -123,6 +123,18 @@ EOF
 CREATE INDEX IF NOT EXISTS time_graph_path on vrules (time, graph_path)
 EOF
 
+        {
+            $dbh->begin_work;
+            my $columns = $dbh->select_all(q{PRAGMA table_info("vrules")});
+            my %graphs_columns;
+            $graphs_columns{$_->{name}} = 1 for @$columns;
+            if ( ! exists $graphs_columns{dashes} ) {
+                infof("add new column 'dashes'");
+                $dbh->do(q{ALTER TABLE vrules ADD dashes VARCHAR(255) NOT NULL DEFAULT ''});
+            }
+            $dbh->commit;
+        }
+
         return;
     };
 }
