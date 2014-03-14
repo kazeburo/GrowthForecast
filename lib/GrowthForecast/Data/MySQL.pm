@@ -103,10 +103,22 @@ CREATE TABLE IF NOT EXISTS vrules (
     time         INT UNSIGNED NOT NULL,
     color        VARCHAR(255) NOT NULL DEFAULT '#FF0000',
     description  TEXT,
+    dashes       VARCHAR(255) NOT NULL DEFAULT '',
     PRIMARY KEY (id),
     INDEX time_graph_path (time, graph_path)
 )  ENGINE=InnoDB DEFAULT CHARSET=utf8
 EOF
+
+        {
+            my $sth = $dbh->column_info(undef,undef,"vrules",undef);
+            my $columns = $sth->fetchall_arrayref(+{ COLUMN_NAME => 1 });
+            my %graphs_columns;
+            $graphs_columns{$_->{COLUMN_NAME}} = 1 for @$columns;
+            if ( ! exists $graphs_columns{dashes} ) {
+                infof("add new column 'dashes'");
+                $dbh->do(q{ALTER TABLE vrules ADD dashes VARCHAR(255) NOT NULL DEFAULT ''});
+            }
+        }
 
         return;
     };

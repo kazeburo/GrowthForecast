@@ -368,7 +368,7 @@ sub graph {
 
     my %same_vrule;
     for my $vrule ($self->{data}->get_vrule($span, $period, $end, '/'.join('/',@{$datas[0]}{qw(service_name section_name graph_name)}))) {
-        my $desc;
+        my $desc = "";
         if ($vrule->{description}) {
             my $k = $vrule->{color}.'/'.$vrule->{description};
             unless ($same_vrule{$k}) {
@@ -381,7 +381,8 @@ sub graph {
         push @opt, join(":",
                         'VRULE',
                         join("", $vrule->{time}, $vrule->{color}),
-                        ($args->{vrule_legend} ? ($desc||()) : ()),
+                        ($args->{vrule_legend} ? $desc : ""),
+                        ($vrule->{dashes} ? 'dashes='.$vrule->{dashes} : ()),
                     );
     }
     push @opt, 'COMMENT:\n';

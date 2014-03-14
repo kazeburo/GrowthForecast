@@ -1202,6 +1202,10 @@ sub add_vrule {
             default => '',
             rule => [],
         },
+        'dashes' => {
+            default => '',
+            rule => [],
+        },
     ]);
 
     if ( $result->has_error ) {
@@ -1221,6 +1225,7 @@ sub add_vrule {
             $result->valid('time'),
             $result->valid('color'),
             $result->valid('description'),
+            $result->valid('dashes'),
         );
     };
     if ( $@ ) {

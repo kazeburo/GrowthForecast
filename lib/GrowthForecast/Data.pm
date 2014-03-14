@@ -115,12 +115,25 @@ CREATE TABLE IF NOT EXISTS vrules (
     graph_path   VARCHAR(255) NOT NULL,
     time         INT UNSIGNED NOT NULL,
     color        VARCHAR(255) NOT NULL DEFAULT '#FF0000',
-    description  TEXT
+    description  TEXT,
+    dashes       VARCHAR(255) NOT NULL DEFAULT ''
 )
 EOF
         $dbh->do(<<EOF);
 CREATE INDEX IF NOT EXISTS time_graph_path on vrules (time, graph_path)
 EOF
+
+        {
+            $dbh->begin_work;
+            my $columns = $dbh->select_all(q{PRAGMA table_info("vrules")});
+            my %graphs_columns;
+            $graphs_columns{$_->{name}} = 1 for @$columns;
+            if ( ! exists $graphs_columns{dashes} ) {
+                infof("add new column 'dashes'");
+                $dbh->do(q{ALTER TABLE vrules ADD dashes VARCHAR(255) NOT NULL DEFAULT ''});
+            }
+            $dbh->commit;
+        }
 
         return;
     };
@@ -541,16 +554,16 @@ sub get_all_complex_graph_all {
 }
 
 sub update_vrule {
-    my ($self, $graph_path, $time, $color, $desc) = @_;
+    my ($self, $graph_path, $time, $color, $desc, $dashes) = @_;
 
     $self->dbh->query(
-        'INSERT INTO vrules (graph_path,time,color,description) values (?,?,?,?)',
-        $graph_path, $time, $color, $desc
+        'INSERT INTO vrules (graph_path,time,color,description,dashes) values (?,?,?,?,?)',
+        $graph_path, $time, $color, $desc, $dashes,
     );
 
    my $row = $self->dbh->select_row(
-        'SELECT * FROM vrules WHERE graph_path = ? AND time = ? AND color = ? AND description = ?',
-        $graph_path, $time, $color, $desc,
+        'SELECT * FROM vrules WHERE graph_path = ? AND time = ? AND color = ? AND description = ? AND dashes = ?',
+        $graph_path, $time, $color, $desc, $dashes,
     );
 
     return $row;
