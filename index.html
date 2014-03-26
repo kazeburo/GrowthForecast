@@ -315,6 +315,87 @@ $ curl -F number=10 http://example.com/api/socialgame/member/register
           <h1>Other API</h1>
         </div>
 
+<h3>Adding a vertical line (GrowthForecast 0.82 or later)</h3>
+
+<p>You can draw vertical line(s) on graph(s)</p>
+
+<h4>Endpoint</h4>
+
+<pre class="prettyprint">
+Adding vertical line(s) http://example.com/vrule/api[/:service_name[/:section_name[/:graph_name]]]
+Getting a vertical line data http://example.com/vrule/summary[/:service_name[/:section_name[/:graph_name]]]
+</pre>
+
+<div class="row">
+<div class="col-md-4">
+<h4>Parameters on Adding Vertical Line(s)</h4>
+</div>
+<div class="col-md-8">
+
+<table class="table">
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Required/Optional</th>
+</tr>
+<tr>
+<td>time</td>
+<td>Date time to draw a vertical line. Uses the format "2011/12/08 12:10:00". Default: the current time</td>
+<td>Optional</td>
+</tr>
+<tr>
+<td>color</td>
+<td>The color of the vertical line. Uses the format #FFFFFF. Default: #FF0000</td>
+<td>Optional</td>
+</tr>
+<tr>
+<td>description</td>
+<td>The description of the vertical line</td>
+<td>Optional</td>
+</tr>
+</table>
+
+
+<h4>Example of adding a vertical line</h4>
+
+<p>If using curl:</p>
+
+<pre class="prettyprint linenums">
+$ curl -F description=deploy -F color=#FF0000 http://example.com/vrule/api/socialgame/member
+</pre>
+</div>
+</div>
+
+
+<div class="row">
+<div class="col-md-4">
+<h4>Parameters on Getting a Vertical Line Data</h4>
+</div>
+<div class="col-md-8">
+
+<table class="table">
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>t</td>
+<td>The time range to get data. all(all period)、c(custom, use `to` and `from`)、h(1 hour)、n(half a day)、w(1 week)、m(1 month) y(1 year) 3d(3 days) 8h(8 hours) 4h(4 hours)</td>
+</tr>
+<tr>
+<td>from</td>
+<td>When `t` is set to `c`, the start time to get. Uses the format "2011/12/08 12:10:00"</td>
+</tr>
+<tr>
+<td>to</td>
+<td>When `t` is set to `c`, the end time to get. Uses the format "2011/12/08 12:10:00"</td>
+</tr>
+</table>
+
+
+</div>
+</div>
+
 <h3>Customizing the Graph's Appearance</h3>
 
 <p>You can customize the graph's appearance by adding a few parameters to the graph's URI.</p>
