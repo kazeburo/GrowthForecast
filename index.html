@@ -38,6 +38,7 @@
               <li class="active"><a href="#top">Home</a></li>
               <li><a href="#install">Install</a></li>
               <li><a href="#basic">Basic</a></li>
+              <li><a href="#gf_internal">Internal</a></li>
               <li><a href="#api">API</a></li>
               <li><a href="#software">Software</a></li>
               <li><a href="https://github.com/kazeburo/GrowthForecast/">Source Code</a></li>
@@ -55,7 +56,6 @@
         </div>
       </div>
     </div>
-
 
     <div class="container">
 
@@ -308,6 +308,21 @@ $ua->post('http://example.com/api/socialgame/member/register',{
 $ curl -F number=10 http://example.com/api/socialgame/member/register
 </pre>
 
+      </section>
+
+      <section id="gf_internal">
+        <div class="page-header">
+          <h1>Internal</h1>
+        </div>
+<h3>Mechanism of GrowthForeacst</h3>
+<div class="row">
+  <div class="col-md-4">
+  <p>GrowthForecast uses RRDtool as a tool for graph drawing and Round Robbin Database.</p>
+  <p>Data sent to the endpoint of the API is stored temporarily into RDBMS. Worker reads the data from the RDBMS, and update RRD files periodically. In doing so, GrowthForecast worker stores the difference from the previous value as a `subtract` data in addition to the current value.</p>
+  <p>By utilizing the `subtract` data as a source of the graph, GrowthForecast makes possible to visualize the change of the data. </p>
+  </div>
+  <div class="col-md-8" style="text-align:center"><img src="img/gf_internal.png" class="img-responsive" /></div>
+<div>
       </section>
 
       <section id="api">
