@@ -322,7 +322,7 @@ $ curl -F number=10 http://example.com/api/socialgame/member/register
 <div class="row">
   <div class="col-md-4">
   <p>GrowthForecastはRound Robbin Databaseおよびグラフ描画のツールとしてRRDtoolを利用しています。</p>
-  <p>APIのエンドポイントに送信されたデータはRDMBSに一旦保存されます。Workerが定期的に動作し、RDBMSからデータを読み出し、RRDファイルを更新しています。その歳、GrowthForecastのworkerは、現在の値に加えて、一つ前との差分をsubtractデータとして格納しています。</p>
+  <p>APIのエンドポイントに送信されたデータはRDMBSに一旦保存されます。Workerが定期的に動作し、RDBMSからデータを読み出し、RRDファイルを更新しています。その際、GrowthForecastのworkerは、現在の値に加えて、一つ前との差分をsubtractデータとして格納しています。</p>
   <p>subtractデータをグラフのソースとして利用することで、データの変化量を可視化することができます</p>
   </div>
   <div class="col-md-8" style="text-align:center"><img src="img/gf_internal.png" class="img-responsive" /></div>
