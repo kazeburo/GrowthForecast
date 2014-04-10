@@ -43,6 +43,7 @@ GetOptions(
     'web-max-workers=i' => \my $web_max_workers,
     'rrdcached=s' => \my $rrdcached,
     'mount=s' => \my $mount,
+    'kibanize' => \my $kibanize,
     "h|help" => \my $help,
 );
 
@@ -132,6 +133,7 @@ $proclet->service(
             float_number => $enable_float_number,
             rrdcached => $rrdcached,
             disable_subtract => $disable_subtract,
+            kibanize => $kibanize,
         );
         my $app = builder {
             enable 'Lint';

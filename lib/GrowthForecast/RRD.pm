@@ -292,6 +292,7 @@ sub graph {
         '-e', $end,
         '--slope-mode',
         '--disable-rrdtool-tag',
+        ( $self->{kibanize} ? '--slope-mode' : ()),
         '--color', 'BACK#'.uc($args->{background_color}),
         '--color', 'CANVAS#'.uc($args->{canvas_color}),
         '--color', 'FONT#'.uc($args->{font_color}),
@@ -313,6 +314,13 @@ sub graph {
     push @opt, '-l', $args->{lower_limit} if defined $args->{lower_limit};
     push @opt, '-r' if $args->{rigid};
 
+    my $dark = sub {
+        my $original = shift;
+        my ($r,$g,$b) = ($original =~ /^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})/);
+        use Data::Dumper;
+        sprintf('#%02x%02x%02x', int(hex($r)*0.3), int(hex($g)*0.3), int(hex($b)*0.3));
+    };
+
     my $i=0;
     my @defs;
     for my $data ( @datas ) {
@@ -328,7 +336,11 @@ sub graph {
         push @opt, 
             sprintf('DEF:%s%dt=%s:%s:AVERAGE', $gdata, $i, $file, $gdata),
             sprintf('CDEF:%s%d=%s%dt,%s,%s,LIMIT,%d,%s', $gdata, $i, $gdata, $i, $llimit, $ulimit, $data->{adjustval}, $data->{adjust}),
-            sprintf('%s:%s%d%s:%s %s', $type, $gdata, $i, $data->{color}, $self->_escape($data->{graph_name}), $stack),
+            ( ($self->{kibanize} and $type eq 'AREA')
+              ? ( sprintf('AREA:%s%d%s:%s %s', $gdata, $i, $dark->($data->{color}), $self->_escape($data->{graph_name}), $stack),
+                  sprintf('LINE1:%s%d%s', $gdata, $i, $data->{color}) )
+              : sprintf('%s:%s%d%s:%s %s', $type, $gdata, $i, $data->{color}, $self->_escape($data->{graph_name}), $stack)
+            ),
             sprintf('GPRINT:%s%d:LAST:Cur\: %%4.1lf%%s%s', $gdata, $i, $unit),
             sprintf('GPRINT:%s%d:AVERAGE:Avg\: %%4.1lf%%s%s', $gdata, $i, $unit),
             sprintf('GPRINT:%s%d:MAX:Max\: %%4.1lf%%s%s', $gdata, $i, $unit),
