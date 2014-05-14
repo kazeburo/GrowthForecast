@@ -56,6 +56,7 @@ CREATE TABLE IF NOT EXISTS graphs (
     meta         TEXT,
     created_at   UNSIGNED INT NOT NULL,
     updated_at   UNSIGNED INT NOT NULL,
+    timestamp    UNSIGNED INT DEFAULT NULL,
     UNIQUE  (service_name, section_name, graph_name)
 )
 EOF
@@ -131,6 +132,19 @@ EOF
             if ( ! exists $graphs_columns{dashes} ) {
                 infof("add new column 'dashes'");
                 $dbh->do(q{ALTER TABLE vrules ADD dashes VARCHAR(255) NOT NULL DEFAULT ''});
+            }
+            $dbh->commit;
+        }
+
+        # timestamp
+        {
+            $dbh->begin_work;
+            my $columns = $dbh->select_all(q{PRAGMA table_info("graphs")});
+            my %graphs_columns;
+            $graphs_columns{$_->{name}} = 1 for @$columns;
+            if ( ! exists $graphs_columns{timestamp} ) {
+                infof("add new column 'timestamp'");
+                $dbh->do(q{ALTER TABLE graphs ADD timestamp UNSIGNED INT DEFAULT NULL});
             }
             $dbh->commit;
         }
@@ -284,7 +298,7 @@ sub get_by_id_for_rrdupdate {
 }
 
 sub update {
-    my ($self, $service, $section, $graph, $number, $mode, $color ) = @_;
+    my ($self, $service, $section, $graph, $number, $mode, $color, $timestamp ) = @_;
     my $dbh = $self->dbh;
     $dbh->begin_work;
 
@@ -301,8 +315,8 @@ sub update {
         if ( $mode ne 'modified' || ($mode eq 'modified' && $data->{number} != $number) ) {
             $color ||= $data->{color};
             $dbh->query(
-                'UPDATE graphs SET number=?, mode=?, color=?, updated_at=? WHERE id = ?',
-                $number, $mode, $color, time, $data->{id}
+                'UPDATE graphs SET number=?, mode=?, color=?, updated_at=?, timestamp=? WHERE id = ?',
+                $number, $mode, $color, time, $timestamp, $data->{id}
             );
         }
     }
@@ -310,10 +324,10 @@ sub update {
         my @colors = List::Util::shuffle(qw/33 66 99 cc/);
         $color ||= '#' . join('', splice(@colors,0,3));
         $dbh->query(
-            'INSERT INTO graphs (service_name, section_name, graph_name, number, mode, color, llimit, sllimit, created_at, updated_at) 
-                         VALUES (?,?,?,?,?,?,?,?,?,?)',
-            $service, $section, $graph, $number, $mode, $color, -1000000000, -100000 ,time, time
-        ); 
+            'INSERT INTO graphs (service_name, section_name, graph_name, number, mode, color, llimit, sllimit, created_at, updated_at, timestamp)
+                         VALUES (?,?,?,?,?,?,?,?,?,?,?)',
+            $service, $section, $graph, $number, $mode, $color, -1000000000, -100000 , time, time, $timestamp
+        );
     }
 
     my $row = $self->dbh->select_row(
