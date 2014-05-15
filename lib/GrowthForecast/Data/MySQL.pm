@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS graphs (
     meta         TEXT,
     created_at   INT UNSIGNED NOT NULL,
     updated_at   INT UNSIGNED NOT NULL,
+    timestamp    INT UNSIGNED DEFAULT NULL,
     PRIMARY KEY (id),
     UNIQUE  (service_name, section_name, graph_name)
 )  ENGINE=InnoDB DEFAULT CHARSET=utf8
@@ -117,6 +118,18 @@ EOF
             if ( ! exists $graphs_columns{dashes} ) {
                 infof("add new column 'dashes'");
                 $dbh->do(q{ALTER TABLE vrules ADD dashes VARCHAR(255) NOT NULL DEFAULT ''});
+            }
+        }
+
+        # timestamp
+        {
+            my $sth = $dbh->column_info(undef,undef,"graphs",undef);
+            my $columns = $sth->fetchall_arrayref(+{ COLUMN_NAME => 1 });
+            my %graphs_columns;
+            $graphs_columns{$_->{COLUMN_NAME}} = 1 for @$columns;
+            if ( ! exists $graphs_columns{timestamp} ) {
+                infof("add new column 'timestamp'");
+                $dbh->do(q{ALTER TABLE graphs ADD timestamp INT UNSIGNED DEFAULT NULL});
             }
         }
 
