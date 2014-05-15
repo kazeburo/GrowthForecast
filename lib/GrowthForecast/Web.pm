@@ -902,6 +902,12 @@ post '/api/:service_name/:section_name/:graph_name' => sub {
                 [sub{ !defined($_[1]) || ($_[1] =~ m!^\-?[\d]+$! && $_[1] > 315360010) }, '"timestamp" must be a INT number and greater than 315360010"']
             ],
         },
+        'datetime' => {
+            default => undef,
+            rule => [
+                [ sub { my $t = HTTP::Date::str2time($_[1]); !defined($_[1]) || (defined($t) && $t > 315360010) }, "invalid datetime format or not later than '1979-12-30 00:00:10 UTC'" ]
+            ],
+        },
     ]);
 
     if ( $result->has_error ) {
@@ -915,17 +921,18 @@ post '/api/:service_name/:section_name/:graph_name' => sub {
 
     my $row;
     eval {
+        my $timestamp = $result->valid('timestamp') || HTTP::Date::str2time($result->valid('datetime'));
         $row = $self->data->update(
             $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
             $result->valid('number'), $result->valid('mode'), $result->valid('color'),
-            $result->valid('timestamp'),
+            $timestamp,
         );
     };
     if ( $@ ) {
-        die sprintf "Error:%s %s/%s/%s => %s,%s,%s,%s",
+        die sprintf "Error:%s %s/%s/%s => %s,%s,%s,%s,%s",
             $@, $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
                 $result->valid('number'), $result->valid('mode'), $result->valid('color'),
-                $result->valid('timestamp');
+                $result->valid('timestamp'), $result->valid('datetime');
     }
     
     my @descriptions = $c->req->param('description');
