@@ -9,7 +9,7 @@ use Time::Piece;
 use GrowthForecast::Data;
 use GrowthForecast::RRD;
 use Log::Minimal;
-use Class::Accessor::Lite ( rw => [qw/short mysql data_dir float_number rrdcached disable_subtract/] );
+use Class::Accessor::Lite ( rw => [qw/short mysql data_dir float_number rrdcached disable_subtract kibanize/] );
 use CGI;
 
 sub data {
@@ -33,6 +33,7 @@ sub rrd {
         root_dir => $self->root_dir,
         rrdcached => $self->rrdcached,
         disable_subtract => $self->disable_subtract,
+        kibanize => $self->kibanize,
         data => $self->data,
     );
     $self->{__rrd};
@@ -47,6 +48,15 @@ sub gmode_choice_edit_graph {
     my ($self) = @_;
     return $self->disable_subtract ? qw/gauge/ : qw/gauge subtract both/;
 }
+
+filter 'set_render_mode' => sub {
+    my $app = shift;
+    sub {
+        my ($self, $c) = @_;
+        $c->stash->{kibanize} = $self->kibanize;
+        $app->($self,$c);
+    }
+};
 
 filter 'set_enable_short' => sub {
     my $app = shift;
@@ -105,7 +115,7 @@ sub delete_complex {
     });
 };
 
-get '/' => sub {
+get '/' => [qw/set_render_mode/] => sub {
     my ( $self, $c )  = @_;
     my $services = $self->data->get_services();
     my @services;
@@ -120,19 +130,19 @@ get '/' => sub {
 };
 
 
-get '/docs' => sub {
+get '/docs' => [qw/set_render_mode/] => sub {
     my ( $self, $c )  = @_;
     $c->stash->{docs} = 1;
     $c->render('docs.tx',{});
 };
 
-get '/add_complex' => sub {
+get '/add_complex' => [qw/set_render_mode/] => sub {
     my ( $self, $c )  = @_;
     my $graphs = $self->data->get_all_graph_name();
     $c->render('add_complex.tx',{ graphs => $graphs, disable_subtract => $self->disable_subtract });
 };
 
-get '/edit_complex/:complex_id' => [qw/get_complex/] => sub {
+get '/edit_complex/:complex_id' => [qw/set_render_mode get_complex/] => sub {
     my ( $self, $c )  = @_;
     my $graphs = $self->data->get_all_graph_name();
     $c->render('edit_complex.tx',{ graphs => $graphs, disable_subtract => $self->disable_subtract });
@@ -372,7 +382,7 @@ post '/edit_complex/:complex_id' => [qw/get_complex/] => sub {
     });
 };
 
-get '/list/:service_name' => sub {
+get '/list/:service_name' => [qw/set_render_mode/] => sub {
     my ( $self, $c )  = @_;
     my $services = $self->data->get_services();
     my @services;
@@ -384,7 +394,7 @@ get '/list/:service_name' => sub {
     $c->render('index.tx', { services => \@services });
 };
 
-get '/list/:service_name/:section_name' => [qw/set_enable_short/] => sub {
+get '/list/:service_name/:section_name' => [qw/set_render_mode set_enable_short/] => sub {
     my ( $self, $c )  = @_;
     my $result = $c->req->validator([
         't' => {
@@ -400,7 +410,7 @@ get '/list/:service_name/:section_name' => [qw/set_enable_short/] => sub {
     $c->render('list.tx',{ graphs => $rows });
 };
 
-get '/view_graph/:service_name/:section_name/:graph_name' => [qw/get_graph set_enable_short/] => sub {
+get '/view_graph/:service_name/:section_name/:graph_name' => [qw/get_graph set_render_mode set_enable_short/] => sub {
     my ( $self, $c )  = @_;
     my $result = $c->req->validator([
         't' => {
@@ -413,7 +423,7 @@ get '/view_graph/:service_name/:section_name/:graph_name' => [qw/get_graph set_e
     $c->render('view_graph.tx',{ graphs => [$c->stash->{graph}] });
 };
 
-get '/view_complex/:service_name/:section_name/:graph_name' => [qw/set_enable_short/] => sub {
+get '/view_complex/:service_name/:section_name/:graph_name' => [qw/set_enable_short set_render_mode/] => sub {
     my ( $self, $c )  = @_;
     my $result = $c->req->validator([
         't' => {
@@ -484,19 +494,19 @@ sub graph_validator {
             ],
         },
         'background_color' => {
-            default => 'f3f3f3',
+            default => ($self->kibanize ? '222222' : 'f3f3f3'),
             rule => [
                 [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid background color'],
             ],
         },
         'canvas_color' => {
-            default => 'ffffff',
+            default => ($self->kibanize ? '000000' : 'ffffff'),
             rule => [
                 [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid canvas color'],
             ],
         },
         'font_color' => {
-            default => '000000',
+            default => ($self->kibanize ? 'FF8C00' : '000000'),
             rule => [
                 [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid font color'],
             ],
@@ -508,19 +518,19 @@ sub graph_validator {
             ],
         },
         'axis_color' => {
-            default => '000000',
+            default => ($self->kibanize ? 'FF8C00' : '000000'),
             rule => [
                 [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid axis color'],
             ],
         },
         'shadea_color' => {
-            default => 'cfcfcf',
+            default => ($self->kibanize ? '222222' : 'cfcfcf'),
             rule => [
                 [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid shadea color'],
             ],
         },
         'shadeb_color' => {
-            default => '9e9e9e',
+            default => ($self->kibanize ? '222222' : '9e9e9e'),
             rule => [
                 [sub{ $_[1] =~ m!^[0-9A-F]{6}$!i || $_[1] =~ m!^[0-9A-F]{8}$!i }, 'invalid shadeb color'],
             ],
@@ -703,7 +713,7 @@ get '/{method:(?:xport|graph|summary)}/:service_name/:section_name/:graph_name' 
     return $c->res;
 };
 
-get '/edit/:service_name/:section_name/:graph_name' => [qw/get_graph/] => sub {
+get '/edit/:service_name/:section_name/:graph_name' => [qw/get_graph set_render_mode/] => sub {
     my ( $self, $c )  = @_;
     $c->render('edit.tx',{graph=>$c->stash->{graph},disable_subtract=>$self->disable_subtract});
 };
