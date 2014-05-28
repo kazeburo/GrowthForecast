@@ -109,15 +109,28 @@
 </select>
 <span class="input-group-addon">/</span>
 <select name="path-1-section" class="form-control">
-: for $service_tree.first().sections -> $section {
+: for $service_tree -> $service {
+  : if $service.name == $c.stash.complex["path-1-service"] {
+    : for $service.sections -> $section {
 <option value="<: $section.name :>"><: $section.name :></option>
+    : }
+  : }
 : }
 </select>
 <span class="input-group-addon">/</span>
 <select name="path-1" class="form-control">
-: for $service_tree.first().sections.first().graphs -> $graph {
+: for $service_tree -> $service {
+  : if $service.name == $c.stash.complex["path-1-service"] {
+    : for $service.sections -> $section {
+      : if $section.name == $c.stash.complex["path-1-section"] {
+        : for $section.graphs -> $graph {
 <option value="<: $graph.id :>"><: $graph.graph_name :></option>
+        : }
+      : }
+    : }
+  : }
 : }
+
 </select>
 </div>
 </td>
