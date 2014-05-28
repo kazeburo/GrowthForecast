@@ -85,25 +85,42 @@
 <label for="" class="control-label col-sm-2">Series-1</label>
 <div class="col-sm-10">
 
+<span id="service_tree" data-services="<: $services_json :>"></span>
+
 <table class="table table-bordered table-striped">
 <tr>
-<th style="width: 6%;">&nbsp;</th>
 <th style="width: 18%;">Type</th>
-<th style="width: 62%;">Path</th>
+<th style="width: 68%;">Path</th>
 <th style="width: 13%; text-align: center">Mode</th>
 </tr>
 <tr>
-<td>&nbsp;</td>
 <td><select name="type-1" class="form-control">
 <option value="AREA">AREA</option>
 <option value="LINE1">LINE</option>
 <option value="LINE2">LINE(Bold)</option>
 </select></td>
-<td><select name="path-1" class="form-control">
-: for $graphs -> $graph {
-<option value="<: $graph.id :>">/<: $graph.service_name :>/<: $graph.section_name :>/<: $graph.graph_name :></option>
+<td>
+<div class="input-group">
+<span class="input-group-addon">/</span>
+<select name="path-1-service" class="form-control">
+: for $service_tree -> $service {
+<option value="<: $service.name :>"><: $service.name :></option>
 : }
-</select></td>
+</select>
+<span class="input-group-addon">/</span>
+<select name="path-1-section" class="form-control">
+: for $service_tree.first().sections -> $section {
+<option value="<: $section.name :>"><: $section.name :></option>
+: }
+</select>
+<span class="input-group-addon">/</span>
+<select name="path-1" class="form-control">
+: for $service_tree.first().sections.first().graphs -> $graph {
+<option value="<: $graph.id :>"><: $graph.graph_name :></option>
+: }
+</select>
+</div>
+</td>
 <td style="text-align: center"><select name="gmode-1" class="form-control">
 <option value="gauge">Gauge</option>
 : if !$disable_subtract {
@@ -121,26 +138,42 @@
 
 <table class="table table-bordered table-striped" id="add-data-tbl">
 <tr>
-<th style="width: 6%;">&nbsp;</th>
-<th style="width: 18%;">Type</th>
-<th style="width: 39%;">Path</th>
+<th style="width: 12%;">Type</th>
+<th style="width: 51%;">Path</th>
 <th style="width: 12%; text-align: center;">Mode</th>
 <th style="width: 12%; text-align: center;">Stack</th>
 <th style="width: 12%; text-align: center;">&nbsp;</th>
 </tr>
 
 <tr>
-<td>&nbsp;</td>
 <td><select name="type-add" id="type-add" class="form-control">
 <option value="AREA">AREA</option>
 <option value="LINE1">LINE</option>
 <option value="LINE2">LINE(Bold)</option>
 </select></t>
-<td><select name="path-add" id="path-add" class="form-control">
-: for $graphs -> $graph {
-<option value="<: $graph.id :>">/<: $graph.service_name :>/<: $graph.section_name :>/<: $graph.graph_name :></option>
+<td>
+
+<div class="input-group">
+<span class="input-group-addon">/</span>
+<select name="path-add-service" class="form-control">
+: for $service_tree -> $service {
+<option value="<: $service.name :>"><: $service.name :></option>
 : }
-</select></td>
+</select>
+<span class="input-group-addon">/</span>
+<select name="path-add-section" class="form-control">
+: for $service_tree.first().sections -> $section {
+<option value="<: $section.name :>"><: $section.name :></option>
+: }
+</select>
+<span class="input-group-addon">/</span>
+<select name="path-add" id="path-add" class="form-control">
+: for $service_tree.first().sections.first().graphs -> $graph {
+<option value="<: $graph.id :>"><: $graph.graph_name :></option>
+: }
+</select>
+</div>
+</td>
 <td style="text-align: center"><select name="gmode-add" id="gmode-add" class="form-control">
 <option value="gauge">Gauge</option>
 : if !$disable_subtract {

@@ -85,12 +85,12 @@ function add_new_row(e) {
   var stack = $('#stack-add').val();
 
   var tr = $('<tr></tr>');
-  tr.append('<td><span class="table-order-pointer table-order-up">⬆</span><span class="table-order-pointer table-order-down">⬇</span></td>');
-  tr.append('<td style="text-align:left">'+$('#type-add option:selected').html()+'<input type="hidden" name="type-2" value="'+type+'" /></td>');
-  tr.append('<td>'+$('#path-add option:selected').html()+'<input type="hidden" name="path-2" value="'+path+'" /></td>');
+  tr.append('<td>'+$('#type-add option:selected').html()+'<input type="hidden" name="type-2" value="'+type+'" /><input type="hidden" name="path-2" value="'+path+'" /></td>');
+  tr.append('<td>dummy</td>');
+  tr.children('td:last-child').text('/'+$('select[name="path-add-service"] option:selected').html()+'/'+$('select[name="path-add-section"] option:selected').html()+'/'+$('#path-add option:selected').html());
   tr.append('<td style="text-align:center">'+$('#gmode-add option:selected').html()+'<input type="hidden" name="gmode-2" value="'+gmode+'" /></td>');
   tr.append('<td style="text-align:center">'+$('#stack-add option:selected').html()+'<input type="hidden" name="stack-2" value="'+stack+'" /></td>');
-  tr.append('<td style="text-align:center"><span class="table-order-remove">✖</span></td>')
+  tr.append('<td style="text-align:center"><span class="table-order-pointer table-order-up">⬆</span><span class="table-order-pointer table-order-down">⬇</span> | <span class="table-order-remove">✖</span></td>')
   tr.appendTo($('table#add-data-tbl'));
 
   $('#add-data-tbl').find('tr:last').addClass('can-table-order');
@@ -165,6 +165,99 @@ function setTablePreview() {
   });
   $('#complex-form select[name$="-1"]').change(function(){
     setTimeout(function(){ preview_complex_graph($('#complex-form')) },10);
+  });
+
+  var service_tree = $('#service_tree').data('services');
+  $('#complex-form select[name="path-1-service"]').change(function(){
+    var service_select = $(this);
+    setTimeout(function(){
+      var path_1_section = $('#complex-form select[name="path-1-section"]');
+      path_1_section.children().detach();
+      var section = $.grep(service_tree,function(n,i){ return (n["name"]==service_select.val())});
+      $.map(section[0]["sections"], function(s,i){
+        var opttag = $('<option value="dummy">dummy</option>');
+        opttag.text(s["name"]);
+        opttag.attr('value',s["name"]);
+        path_1_section.append(opttag.clone());
+      })
+      var path_1_g = $('#complex-form select[name="path-1"]');
+      path_1_g.children().detach();
+      $.map(section[0]["sections"][0]["graphs"], function(g,i){
+        var opttag = $('<option value="dummy">dummy</option>');
+        opttag.text(g["graph_name"]);
+        opttag.attr('value',g["id"]);
+        path_1_g.append(opttag.clone());
+      })
+      preview_complex_graph($('#complex-form')) },10);
+  });
+
+  $('#complex-form select[name="path-1-section"]').change(function(){
+    var section_select = $(this);
+    setTimeout(function(){
+      var path_1_g = $('#complex-form select[name="path-1"]');
+      path_1_g.children().detach();
+      var section = $.grep(service_tree,function(n,i){
+        return ( n["name"] == $('#complex-form select[name="path-1-service"]').val())
+      });
+      var path_1_g = $('#complex-form select[name="path-1"]');
+      path_1_g.children().detach();
+      $.map(section[0]["sections"], function(s,i) {
+        if ( s["name"] == section_select.val() ) {
+          $.map(s["graphs"], function(g,i){
+            var opttag = $('<option value="dummy">dummy</option>');
+            opttag.text(g["graph_name"]);
+            opttag.attr('value',g["id"]);
+            path_1_g.append(opttag.clone());
+         });
+       }
+     });
+     preview_complex_graph($('#complex-form')) },10);
+  });
+
+  $('#complex-form select[name="path-add-service"]').change(function(){
+    var service_select = $(this);
+    setTimeout(function(){
+      var path_section = $('#complex-form select[name="path-add-section"]');
+      path_section.children().detach();
+      var section = $.grep(service_tree,function(n,i){ return (n["name"]==service_select.val())});
+      $.map(section[0]["sections"], function(s,i){
+        var opttag = $('<option value="dummy">dummy</option>');
+        opttag.text(s["name"]);
+        opttag.attr('value',s["name"]);
+        path_section.append(opttag.clone());
+      });
+      var path_g = $('#complex-form select[name="path-add"]');
+      path_g.children().detach();
+      $.map(section[0]["sections"][0]["graphs"], function(g,i){
+        var opttag = $('<option value="dummy">dummy</option>');
+        opttag.text(g["graph_name"]);
+        opttag.attr('value',g["id"]);
+        path_g.append(opttag.clone());
+      });
+    });
+  });
+
+  $('#complex-form select[name="path-add-section"]').change(function(){
+    var section_select = $(this);
+    setTimeout(function(){
+      var path_g = $('#complex-form select[name="path-add"]');
+      path_g.children().detach();
+      var section = $.grep(service_tree,function(n,i){
+        return ( n["name"] == $('#complex-form select[name="path-add-service"]').val())
+      });
+      var path_g = $('#complex-form select[name="path-add"]');
+      path_g.children().detach();
+      $.map(section[0]["sections"], function(s,i) {
+        if ( s["name"] == section_select.val() ) {
+          $.map(s["graphs"], function(g,i){
+            var opttag = $('<option value="dummy">dummy</option>');
+            opttag.text(g["graph_name"]);
+            opttag.attr('value',g["id"]);
+            path_g.append(opttag.clone());
+          });
+        }
+      });
+    });
   });
   preview_complex_graph($('#complex-form'));
 }

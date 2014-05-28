@@ -129,13 +129,51 @@ get '/docs' => sub {
 get '/add_complex' => sub {
     my ( $self, $c )  = @_;
     my $graphs = $self->data->get_all_graph_name();
-    $c->render('add_complex.tx',{ graphs => $graphs, disable_subtract => $self->disable_subtract });
+    my %services;
+    my @services;
+    for my $row ( @$graphs ) {
+        push @{$services{$row->{service_name}}->{$row->{section_name}}}, $row; 
+    }
+    for my $service_name ( sort { lc($a) cmp lc($b) } keys %services ) {
+        my @sections = map {{
+            name => $_,
+            graphs => $services{$service_name}->{$_}
+        }} sort { lc($a) cmp lc($b) } keys %{$services{$service_name}};
+        push @services, {
+            name => $service_name,
+            sections => \@sections
+        }
+    }
+
+    $c->render('add_complex.tx',{ services_json => JSON::encode_json(\@services), service_tree => \@services,
+                                  graphs => $graphs, disable_subtract => $self->disable_subtract });
 };
 
 get '/edit_complex/:complex_id' => [qw/get_complex/] => sub {
     my ( $self, $c )  = @_;
     my $graphs = $self->data->get_all_graph_name();
-    $c->render('edit_complex.tx',{ graphs => $graphs, disable_subtract => $self->disable_subtract });
+
+    my %services;
+    my @services;
+    for my $row ( @$graphs ) {
+        push @{$services{$row->{service_name}}->{$row->{section_name}}}, $row; 
+    }
+    for my $service_name ( sort { lc($a) cmp lc($b) } keys %services ) {
+        my @sections = map {{
+            name => $_,
+            graphs => $services{$service_name}->{$_}
+        }} sort { lc($a) cmp lc($b) } keys %{$services{$service_name}};
+        push @services, {
+            name => $service_name,
+            sections => \@sections
+        }
+    }
+    my $path1 = $self->data->get_by_id($c->stash->{complex}->{'path-1'});
+    $c->stash->{complex}->{'path-1-service'} = $path1->{service_name};
+    $c->stash->{complex}->{'path-1-section'} = $path1->{section_name};
+
+    $c->render('edit_complex.tx',{services_json => JSON::encode_json(\@services), service_tree => \@services,
+                                  graphs => $graphs, disable_subtract => $self->disable_subtract });
 };
 
 post '/delete_complex/:complex_id' => [qw/get_complex/] => sub {
