@@ -174,7 +174,7 @@ get '/edit_complex/:complex_id' => [qw/get_complex/] => sub {
     $c->stash->{complex}->{'path-1-service'} = $path1->{service_name};
     $c->stash->{complex}->{'path-1-section'} = $path1->{section_name};
 
-    $c->render('edit_complex.tx',{services_json => $_JSON->encode_json(\@services), service_tree => \@services,
+    $c->render('edit_complex.tx',{services_json => $_JSON->encode(\@services), service_tree => \@services,
                                   graphs => $graphs, disable_subtract => $self->disable_subtract });
 };
 
