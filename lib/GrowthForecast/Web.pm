@@ -12,6 +12,8 @@ use Log::Minimal;
 use Class::Accessor::Lite ( rw => [qw/short mysql data_dir float_number rrdcached disable_subtract/] );
 use URI::Escape qw/uri_escape_utf8/;
 
+my $_JSON = JSON->new()->allow_blessed(1)->convert_blessed(1)->ascii(1);
+
 sub data {
     my $self = shift;
     $self->{__data} ||= 
@@ -145,7 +147,7 @@ get '/add_complex' => sub {
         }
     }
 
-    $c->render('add_complex.tx',{ services_json => JSON::encode_json(\@services), service_tree => \@services,
+    $c->render('add_complex.tx',{ services_json => $_JSON->encode(\@services), service_tree => \@services,
                                   graphs => $graphs, disable_subtract => $self->disable_subtract });
 };
 
@@ -172,7 +174,7 @@ get '/edit_complex/:complex_id' => [qw/get_complex/] => sub {
     $c->stash->{complex}->{'path-1-service'} = $path1->{service_name};
     $c->stash->{complex}->{'path-1-section'} = $path1->{section_name};
 
-    $c->render('edit_complex.tx',{services_json => JSON::encode_json(\@services), service_tree => \@services,
+    $c->render('edit_complex.tx',{services_json => $_JSON->encode_json(\@services), service_tree => \@services,
                                   graphs => $graphs, disable_subtract => $self->disable_subtract });
 };
 
