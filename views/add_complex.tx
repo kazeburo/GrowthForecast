@@ -89,9 +89,9 @@
 
 <table class="table table-bordered table-striped">
 <tr>
-<th style="width: 18%;">Type</th>
-<th style="width: 68%;">Path</th>
-<th style="width: 13%; text-align: center">Mode</th>
+<th style="width: 12%;">Type</th>
+<th style="width: 76%;">Path</th>
+<th style="width: 12%; text-align: center">Mode</th>
 </tr>
 <tr>
 <td><select name="type-1" class="form-control">
