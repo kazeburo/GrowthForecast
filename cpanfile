@@ -18,6 +18,7 @@ requires 'Scope::Container::DBI',               '0.09';
 requires 'JSON', 2;
 requires "JSON::XS";
 requires 'Class::Accessor::Lite';
+requires 'URI::Escape';
 
 on 'test' => sub {
     requires 'Test::More',     '0.96';
