@@ -888,7 +888,24 @@ post '/api/:service_name/:section_name/:graph_name' => sub {
         'color' => {
             default => '',
             rule => [
-                [sub{ length($_[1]) == 0 || $_[1] =~ m!^#[0-9A-F]{6}$!i }, 'invalid color format'],
+                [sub{ length($_[1]) == 0 || $_[1] =~ m!^#[0-9A-F]{6,8}$!i }, 'invalid color format'],
+            ],
+        },
+        'timestamp' => {
+            default => undef,
+            rule => [
+                # The timestamp is UNIX epoch time
+                # The timestamp of rrdcreate must be larger than 315360000 because of its bug.
+                # cf. https://lists.oetiker.ch/pipermail/rrd-users/2008-January.txt
+                # 10 is because I subtract 10 from the timestamp for rrdcreate as rrdcreate's default does (now - 10s).
+                # cf. http://oss.oetiker.ch/rrdtool/doc/rrdcreate.en.html
+                [sub{ !defined($_[1]) || ($_[1] =~ m!^\-?[\d]+$! && $_[1] > 315360010) }, '"timestamp" must be a INT number and greater than 315360010"']
+            ],
+        },
+        'datetime' => {
+            default => undef,
+            rule => [
+                [ sub { my $t = HTTP::Date::str2time($_[1]); !defined($_[1]) || (defined($t) && $t > 315360010) }, "invalid datetime format or not later than '1979-12-30 00:00:10 UTC'" ]
             ],
         },
     ]);
@@ -904,16 +921,18 @@ post '/api/:service_name/:section_name/:graph_name' => sub {
 
     my $row;
     eval {
+        my $timestamp = $result->valid('timestamp') || HTTP::Date::str2time($result->valid('datetime'));
         $row = $self->data->update(
             $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
             $result->valid('number'), $result->valid('mode'), $result->valid('color'),
-            $result->valid('description')
+            $timestamp,
         );
     };
     if ( $@ ) {
-        die sprintf "Error:%s %s/%s/%s => %s,%s,%s", 
+        die sprintf "Error:%s %s/%s/%s => %s,%s,%s,%s,%s",
             $@, $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name},
-                $result->valid('number'), $result->valid('mode'), $result->valid('color');
+                $result->valid('number'), $result->valid('mode'), $result->valid('color'),
+                $result->valid('timestamp'), $result->valid('datetime');
     }
     
     my @descriptions = $c->req->param('description');
@@ -1182,16 +1201,27 @@ sub add_vrule {
         'time' => {
             default => time(),
             rule => [
-                ['INT', 'a INT number is required for "time"']
+                [sub {
+                     if ($_[1] !~ /\A[1-9][0-9]*\z/) {
+                         my $t = HTTP::Date::str2time($_[1])
+                             or return;
+                         $_[1] = $t;
+                     }
+                     return 1;
+                 }, 'epoch time or date string is required for "time"'],
             ],
         },
         'color' => {
             default => '#FF0000',
             rule => [
-                [sub{ length($_[1]) == 0 || $_[1] =~ m!^#[0-9A-F]{6}$!i }, 'invalid color format'],
+                [sub{ length($_[1]) == 0 || $_[1] =~ m!^#[0-9A-F]{6,8}$!i }, 'invalid color format'],
             ],
         },
         'description' => {
+            default => '',
+            rule => [],
+        },
+        'dashes' => {
             default => '',
             rule => [],
         },
@@ -1214,6 +1244,7 @@ sub add_vrule {
             $result->valid('time'),
             $result->valid('color'),
             $result->valid('description'),
+            $result->valid('dashes'),
         );
     };
     if ( $@ ) {
