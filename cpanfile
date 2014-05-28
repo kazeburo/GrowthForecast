@@ -1,5 +1,5 @@
 requires 'Alien::RRDtool', '0.05';
-requires 'Kossy',          '0.36';
+requires 'Kossy',          '0.37';
 requires 'DBIx::Sunny',    '0.14';
 requires 'DBD::SQLite',    '1.33';
 requires 'Time::Piece',    '1.15';
