@@ -167,7 +167,18 @@ function setTablePreview() {
     setTimeout(function(){ preview_complex_graph($('#complex-form')) },10);
   });
 
-  var service_tree = $('#service_tree').data('services');
+  var service_tree;
+  $.ajax({
+    url: $('#service_tree').data('endpoint'),
+    cache: false,
+    async: false,
+    dataType: 'json'
+  }).done(function(data){ service_tree = data })
+    .fail(function(){
+        var alert = $('<div class="alert alert-danger">System Error! Please reload this page</div>');
+        $('#service_tree').append(alert);
+    });
+
   $('#complex-form select[name="path-1-service"]').change(function(){
     var service_select = $(this);
     setTimeout(function(){

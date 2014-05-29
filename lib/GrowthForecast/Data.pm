@@ -436,6 +436,28 @@ sub get_all_graph_all {
     \@ret;
 }
 
+sub get_all_graph_as_tree {
+    my ( $self )  = @_;
+    my $graphs = $self->get_all_graph_name();
+    my %services;
+    my @services;
+    for my $row ( @$graphs ) {
+        push @{$services{$row->{service_name}}->{$row->{section_name}}}, $row; 
+    }
+    for my $service_name ( sort { lc($a) cmp lc($b) } keys %services ) {
+        my @sections = map {{
+            name => $_,
+            graphs => $services{$service_name}->{$_}
+        }} sort { lc($a) cmp lc($b) } keys %{$services{$service_name}};
+        push @services, {
+            name => $service_name,
+            sections => \@sections
+        }
+    }
+    return \@services;
+}
+
+
 sub remove {
     my ($self, $id ) = @_;
     my $dbh = $self->dbh;
