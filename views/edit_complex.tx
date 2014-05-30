@@ -72,7 +72,6 @@
     <option value="1">1</option>
     <option value="0">0</option>
     </select>
-    <p class="help-block">19 is top</p>
   </div>
 </div>
 
