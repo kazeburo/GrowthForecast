@@ -12,13 +12,14 @@ RUN xbuild/perl-install 5.18.1 /opt/perl-5.18
 
 RUN /opt/perl-5.18/bin/cpanm -n --installdeps GrowthForecast
 RUN echo 'export PATH=/opt/perl-5.18/bin:$PATH' > /etc/profile.d/xbuild-perl.sh
-RUN ENV PATH=/opt/perl-5.18/bin:${PATH}
+ENV PATH opt/perl-5.18/bin:${PATH}
 
 RUN mkdir -p /var/lib/growthforecast
-RUN /opt/perl-5.18/bin/cpanm -n GrowthForecast@
+RUN /opt/perl-5.18/bin/cpanm -n GrowthForecast
 
 EXPOSE 5125
-CMD bash -l -c "perl /opt/growthforecast/growthforecast.pl --data-dir /var/lib/growthforecast"
+CMD growthforecast.pl --data-dir /var/lib/growthforecast
+
 
 
 
