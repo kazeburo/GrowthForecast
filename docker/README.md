@@ -6,7 +6,7 @@ Official Site and documents are [here](http://kazeburo.github.io/GrowthForecast/
 
 ## Play with Docker
 
-We also have Docker image in docker hub registry. You can play growthforeacst with docker in a following step.
+We also have Docker application image in docker hub registry. You can play growthforeacst with docker in a following step.
 
 ```
 $ docker run -p 5125:5125 kazeburo/growthforecast

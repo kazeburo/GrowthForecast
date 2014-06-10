@@ -15,10 +15,12 @@ RUN echo 'export PATH=/opt/perl-5.18/bin:$PATH' > /etc/profile.d/xbuild-perl.sh
 ENV PATH opt/perl-5.18/bin:${PATH}
 
 RUN mkdir -p /var/lib/growthforecast
-RUN /opt/perl-5.18/bin/cpanm -n GrowthForecast
+ADD ./README.md ./
+RUN git clone https://github.com/kazeburo/GrowthForecast.git /opt/growthforecast
+RUN cd /opt/growthforecast; /opt/perl-5.18/bin/cpanm -n --installdeps .
 
 EXPOSE 5125
-CMD growthforecast.pl --data-dir /var/lib/growthforecast
+CMD perl /opt/growthforecast/growthforecast.pl --data-dir /var/lib/growthforecast
 
 
 
