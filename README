@@ -114,7 +114,7 @@ MYSQL Setting
 
       $ MYSQL_USER=www MYSQL_PASSWORD=foobar growthforecast.pl \\
           --data-dir /home/user/growthforeacst \\
-          --with-mysql "dbi:mysql:growthforecast;hostname=localhost"
+          -with-mysql dbi:mysql:growthforecast;hostname=localhost
 
     AUTHOR Masahiro Nagano <kazeburo {at} gmail.com>
 
