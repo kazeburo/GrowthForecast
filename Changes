@@ -1,3 +1,9 @@
+0.82   Fri Jun 20 1:02:08 2014
+        - support vertical line (hirose31)
+        - api timestamp support (sonots)
+        - renew ui of edit|add_complex
+        - add Dockerfile
+
 0.81   Thu Feb 20 16:18:14 2014
         - add --disable-subtract (sonots)
 
