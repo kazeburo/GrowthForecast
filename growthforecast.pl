@@ -340,6 +340,10 @@ Default is empty ( provide GrowthForecast on root path )
 
 Set the system time zone for GrowthForecast. Default is system timezone.
 
+=item -v --version
+
+Display version
+
 =item -h --help
 
 Display help
