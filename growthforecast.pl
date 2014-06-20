@@ -22,6 +22,7 @@ use Cwd;
 use File::Path qw/mkpath/;
 use Log::Minimal;
 use Pod::Usage;
+use POSIX qw//;
 
 my $port = 5125;
 my $host = 0;
@@ -43,9 +44,20 @@ GetOptions(
     'web-max-workers=i' => \my $web_max_workers,
     'rrdcached=s' => \my $rrdcached,
     'mount=s' => \my $mount,
+    'time-zone=s' => \my $timezone,
     "h|help" => \my $help,
     'v|version' => \my $version,
 );
+
+if ( $timezone ) {
+    eval {
+        $ENV{TZ} = $timezone;
+        POSIX::tzset;
+    };
+    if ( $@ ) {
+        die "Failed timezone set to '$timezone': $@";
+    }
+}
 
 if ( $version ) {
     print "GrowthForecast version $GrowthForecast::VERSION\n\n";
@@ -323,6 +335,10 @@ See the manual of rrdcached for more details. Default does not use rrdcached.
 
 Provide GrowthForecast with specify url path.
 Default is empty ( provide GrowthForecast on root path )
+
+=item --time-zone
+
+Set the system time zone for GrowthForecast. Default is system timezone.
 
 =item -h --help
 
