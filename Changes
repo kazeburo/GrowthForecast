@@ -1,3 +1,7 @@
+0.83   Fri Jun 20 16:44:29 2014
+        - add --time-zone opttion to change time_zone
+        - add --version option
+
 0.82   Fri Jun 20 1:02:08 2014
         - support vertical line (hirose31)
         - api timestamp support (sonots)
