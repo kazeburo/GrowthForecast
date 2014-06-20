@@ -44,7 +44,14 @@ GetOptions(
     'rrdcached=s' => \my $rrdcached,
     'mount=s' => \my $mount,
     "h|help" => \my $help,
+    'v|version' => \my $version,
 );
+
+if ( $version ) {
+    print "GrowthForecast version $GrowthForecast::VERSION\n\n";
+    print "Try `growthforecast.pl --help` for more options.\n";
+    exit 0;
+}
 
 if ( $help ) {
     pod2usage(-verbose=>2,-exitval=>0);
@@ -353,7 +360,7 @@ Sample GRANT statement
 Give USERNAME and PASSWORD to GrowthForecast by environment value
 
   $ MYSQL_USER=www MYSQL_PASSWORD=foobar growthforecast.pl \\
-      --data-dir /home/user/growthforeacst \\
+      --data-dir /home/user/growthforecast \\
       -with-mysql dbi:mysql:growthforecast;hostname=localhost 
 
 AUTHOR
