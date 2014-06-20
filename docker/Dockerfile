@@ -12,9 +12,10 @@ RUN cpanm -n --no-man-pages Module::Install Module::Install::ReadmeFromPod Modul
 RUN apt-get install -y jq
 
 # install
-ADD ./README.md /
+ADD ./README.md /README.md
+RUN (echo y;echo n;echo n;echo http://www.cpan.org/;echo o conf commit)|cpan
 RUN git clone -b $(curl -s https://api.github.com/repos/kazeburo/GrowthForecast/tags|jq -r '.[0].name') https://github.com/kazeburo/GrowthForecast.git /tmp/GrowthForecast
-RUN cpanm -n --no-man-pages /tmp/GrowthForecast
+RUN cpanm -n --no-man-pages -v --no-interactive /tmp/GrowthForecast
 RUN rm -rf /tmp/GrowthForecast
 
 EXPOSE 5125
