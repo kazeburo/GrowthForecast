@@ -84,6 +84,13 @@ OPTIONS
         Provide GrowthForecast with specify url path. Default is empty (
         provide GrowthForecast on root path )
 
+    --time-zone
+        Set the system time zone for GrowthForecast. Default is system
+        timezone.
+
+    -v --version
+        Display version
+
     -h --help
         Display help
 
@@ -113,7 +120,7 @@ MYSQL Setting
     Give USERNAME and PASSWORD to GrowthForecast by environment value
 
       $ MYSQL_USER=www MYSQL_PASSWORD=foobar growthforecast.pl \\
-          --data-dir /home/user/growthforeacst \\
+          --data-dir /home/user/growthforecast \\
           -with-mysql dbi:mysql:growthforecast;hostname=localhost
 
     AUTHOR Masahiro Nagano <kazeburo {at} gmail.com>
