@@ -107,6 +107,22 @@ sub delete_complex {
     });
 };
 
+sub delete_complex_with_graph {
+    my ( $self, $c ) = @_;
+
+    # delete graphs
+    foreach my $id ($c->stash->{complex}->{'path-1'}, @{$c->stash->{complex}->{'path-2'}}) {
+        my $graph = $self->data->get_by_id( $id );
+        next unless $graph;
+
+        $self->data->remove($graph->{id});
+        $self->rrd->remove($graph);
+    }
+
+    # delete complex
+    $self->delete_complex( $c );
+}
+
 get '/' => sub {
     my ( $self, $c )  = @_;
     my $services = $self->data->get_services();
@@ -1057,11 +1073,17 @@ post '/json/delete/graph/:service_name/:section_name/:graph_name' => [qw/get_gra
 
 post '/json/delete/complex/:service_name/:section_name/:graph_name' => sub {
     my ( $self, $c )  = @_;
+    $c->env->{'kossy.request.parse_json_body'} = 1;
+
     my $complex = $self->data->get_complex( $c->args->{service_name}, $c->args->{section_name}, $c->args->{graph_name} );
     $c->halt(404) unless $complex;
     $c->stash->{complex} = $complex;
 
-    $self->delete_complex( $c );
+    if( $c->req->param('delete_graph') ) {
+        $self->delete_complex_with_graph( $c );
+    } else {
+        $self->delete_complex( $c );
+    }
 };
 
 post '/json/delete/graph/:id' => sub {
@@ -1076,7 +1098,13 @@ post '/json/delete/graph/:id' => sub {
 # alias to /delete_complex/:complex_id
 post '/json/delete/complex/:complex_id' => [qw/get_complex/] => sub {
     my ( $self, $c ) = @_;
-    $self->delete_complex( $c );
+    $c->env->{'kossy.request.parse_json_body'} = 1;
+
+    if( $c->req->param('delete_graph') ) {
+        $self->delete_complex_with_graph( $c );
+    } else {
+        $self->delete_complex( $c );
+    }
 };
 
 get '/json/graph/:id' => sub {
