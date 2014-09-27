@@ -332,6 +332,7 @@ sub graph {
     push @opt, '-u', $args->{upper_limit} if defined $args->{upper_limit};
     push @opt, '-l', $args->{lower_limit} if defined $args->{lower_limit};
     push @opt, '-r' if $args->{rigid};
+    push @opt, '--units-exponent', $args->{units_exponent} if defined $args->{units_exponent};
 
     my $i=0;
     my @defs;
