@@ -566,6 +566,10 @@ sub graph_validator {
                 [['CHOICE',qw/0 1/],'invalid title flag'],
             ],
         },
+        'vertical_label' => {
+            default => '',
+            rule => [],
+        },
         'xgrid' => {
             default => '',
             rule => [],
