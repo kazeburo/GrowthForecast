@@ -590,7 +590,6 @@ sub graph_validator {
         },
         'units_exponent' => {
             rule => [
-                ['INT', 'invalid units exponent'],
                 [['CHOICE', map { $_ * 3 } -6 .. 6], 'invalid units exponent'],
             ],
         },
