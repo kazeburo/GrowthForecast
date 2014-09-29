@@ -588,6 +588,11 @@ sub graph_validator {
                 [['CHOICE',qw/0 1/],'invalid rigid flag'],
             ],
         },
+        'units_exponent' => {
+            rule => [
+                [['CHOICE', map { $_ * 3 } -6 .. 6], 'invalid units exponent'],
+            ],
+        },
         'sumup' => {
             default => 0,
             rule => [
