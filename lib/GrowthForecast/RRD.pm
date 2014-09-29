@@ -324,6 +324,7 @@ sub graph {
 
     push @opt, '-y', $args->{ygrid} if $args->{ygrid};
     push @opt, '-t', "$period_title" if !$args->{notitle};
+    push @opt, '-v', $args->{vertical_label} if $args->{vertical_label};
     push @opt, '--no-legend' if !$args->{legend};
     push @opt, '--only-graph' if $args->{graphonly};
     push @opt, '--logarithmic' if $args->{logarithmic};
