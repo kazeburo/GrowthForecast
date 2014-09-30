@@ -291,7 +291,7 @@ sub graph {
     my $datas = shift;
     my @datas = ref($datas) eq 'ARRAY' ? @$datas : ($datas);
     my $args = shift;
-    my ($a_gmode, $span, $from, $to, $width, $height) = map { $args->{$_} } qw/gmode t from to width height/;
+    my ($a_gmode, $span, $from, $to, $width, $height, $cf) = map { $args->{$_} } qw/gmode t from to width height cf/;
     $span ||= 'd';
     $width ||= 390;
     $height ||= 110;
@@ -348,7 +348,7 @@ sub graph {
         my $unit = $data->{unit};
         $unit =~ s!%!%%!;
         push @opt, 
-            sprintf('DEF:%s%dt=%s:%s:AVERAGE', $gdata, $i, $file, $gdata),
+            sprintf('DEF:%s%dt=%s:%s:%s', $gdata, $i, $file, $gdata, $cf),
             sprintf('CDEF:%s%d=%s%dt,%s,%s,LIMIT,%d,%s', $gdata, $i, $gdata, $i, $llimit, $ulimit, $data->{adjustval}, $data->{adjust}),
             sprintf('%s:%s%d%s:%s %s', $type, $gdata, $i, $data->{color}, $self->_escape($data->{graph_name}), $stack),
             sprintf('GPRINT:%s%d:LAST:Cur\: %%4.1lf%%s%s', $gdata, $i, $unit),
