@@ -16,7 +16,7 @@ use GrowthForecast::Web;
 use GrowthForecast::Worker;
 use IO::Socket::UNIX;
 use Proclet;
-use Starlet '0.21';
+use Starlet 0.21;
 use File::ShareDir qw/dist_dir/;
 use Cwd;
 use File::Path qw/mkpath/;
